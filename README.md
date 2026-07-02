@@ -139,13 +139,19 @@ haya dejado alguna review.
 
 ## Insights
 
-`/activity/insights` (pestaña dentro de Actividad) muestra tres rankings
+`/activity/insights` (pestaña dentro de Actividad) muestra rankings
 calculados sobre todas las reviews de la comunidad:
 - **Mejor valorado**: los cafés con mejor promedio de puntaje.
 - **Le gusta a varios**: los cafés que probaron más personas distintas
   (no el más repetido por una sola persona, sino el de mayor alcance).
 - **Ranking de catadores**: quién dejó más reviews, con el promedio que
   suele puntuar.
+- **Con leche**: qué porcentaje de todas las reviews llevó leche, el
+  promedio de puntaje con leche vs. sin leche, y los tipos de leche más
+  usados.
+
+El perfil (`/profile`) también suma una tarjeta personal: qué porcentaje
+de tus propias reviews llevaron leche y cuál es el tipo que más usás.
 
 ## Estructura
 

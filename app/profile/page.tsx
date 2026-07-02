@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { PlusCircle, ListFilter, Star, Coffee, History, Award } from "lucide-react";
+import { PlusCircle, ListFilter, Star, Coffee, History, Award, Milk } from "lucide-react";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
@@ -64,6 +64,17 @@ export default async function ProfilePage() {
 
   const lastReview = reviews[0];
 
+  // Leche: qué porcentaje de tus reviews la llevaron, y qué tipo usás más
+  const withMilk = reviews.filter((r) => r.has_milk);
+  const milkPercent =
+    reviews.length > 0 ? Math.round((withMilk.length / reviews.length) * 100) : 0;
+  const milkTypeCounts = new Map<string, number>();
+  for (const r of withMilk) {
+    if (!r.milk_type) continue;
+    milkTypeCounts.set(r.milk_type, (milkTypeCounts.get(r.milk_type) ?? 0) + 1);
+  }
+  const topMilkType = [...milkTypeCounts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
+
   return (
     <main className="min-h-screen px-4 py-12 sm:py-16">
       <div className="max-w-3xl mx-auto">
@@ -122,7 +133,7 @@ export default async function ProfilePage() {
         {!error && reviews.length > 0 && (
           <>
             {/* Insights */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-10">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-10">
               <div className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-4">
                 <Coffee size={14} className="text-parchment-dim mb-2" />
                 <p className="font-mono text-xl text-crema leading-none">{reviews.length}</p>
@@ -162,6 +173,14 @@ export default async function ProfilePage() {
                   </p>
                 </div>
               )}
+
+              <div className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-4">
+                <Milk size={14} className="text-parchment-dim mb-2" />
+                <p className="font-mono text-xl text-crema leading-none">{milkPercent}%</p>
+                <p className="font-mono text-[10px] text-parchment-dim uppercase mt-1.5">
+                  Con leche{topMilkType ? ` · ${topMilkType}` : ""}
+                </p>
+              </div>
             </div>
 
             {/* Calendario de actividad */}

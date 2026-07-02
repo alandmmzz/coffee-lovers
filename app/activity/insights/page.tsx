@@ -1,4 +1,4 @@
-import { Trophy, Users, Medal } from "lucide-react";
+import { Trophy, Users, Medal, Milk } from "lucide-react";
 import sql from "@/lib/db";
 import ActivityTabs from "../../components/ActivityTabs";
 import StarRating from "../../components/StarRating";
@@ -29,10 +29,24 @@ type TopTaster = {
   avg_given: number;
 };
 
+type MilkStats = {
+  total: number;
+  with_milk: number;
+  avg_with_milk: number | null;
+  avg_without_milk: number | null;
+};
+
+type MilkType = {
+  milk_type: string;
+  count: number;
+};
+
 export default async function InsightsPage() {
   let topRated: TopRated[] = [];
   let mostPopular: MostPopular[] = [];
   let topTasters: TopTaster[] = [];
+  let milkStats: MilkStats | null = null;
+  let milkTypes: MilkType[] = [];
   let error: string | null = null;
 
   try {
@@ -72,6 +86,25 @@ export default async function InsightsPage() {
       order by review_count desc
       limit 10
     `) as unknown as TopTaster[];
+
+    const milkStatsRows = (await sql`
+      select
+        count(*)::int as total,
+        count(*) filter (where has_milk)::int as with_milk,
+        round(avg(overall_rating) filter (where has_milk)::numeric, 1) as avg_with_milk,
+        round(avg(overall_rating) filter (where not has_milk)::numeric, 1) as avg_without_milk
+      from coffee_reviews
+    `) as unknown as MilkStats[];
+    milkStats = milkStatsRows[0] ?? null;
+
+    milkTypes = (await sql`
+      select milk_type, count(*)::int as count
+      from coffee_reviews
+      where has_milk and milk_type is not null and milk_type <> ''
+      group by milk_type
+      order by count desc
+      limit 5
+    `) as unknown as MilkType[];
   } catch (err: any) {
     console.error("Error al cargar insights:", err);
     error = "Hubo un problema al conectar con la base de datos. Probá de nuevo en un momento.";
@@ -197,6 +230,59 @@ export default async function InsightsPage() {
                 </ul>
               )}
             </section>
+
+            {/* Con leche */}
+            {milkStats && milkStats.total > 0 && (
+              <section>
+                <div className="flex items-center gap-2 mb-4">
+                  <Milk size={16} className="text-crema" />
+                  <h2 className="font-display text-lg text-cream">Con leche</h2>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  <div className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-4">
+                    <p className="font-mono text-xl text-crema leading-none">
+                      {Math.round((milkStats.with_milk / milkStats.total) * 100)}%
+                    </p>
+                    <p className="font-mono text-[10px] text-parchment-dim uppercase mt-1.5">
+                      De las reviews llevan leche
+                    </p>
+                  </div>
+                  {milkStats.avg_with_milk != null && (
+                    <div className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-4">
+                      <p className="font-mono text-xl text-crema leading-none">
+                        {milkStats.avg_with_milk}
+                      </p>
+                      <p className="font-mono text-[10px] text-parchment-dim uppercase mt-1.5">
+                        Promedio con leche
+                      </p>
+                    </div>
+                  )}
+                  {milkStats.avg_without_milk != null && (
+                    <div className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-4">
+                      <p className="font-mono text-xl text-crema leading-none">
+                        {milkStats.avg_without_milk}
+                      </p>
+                      <p className="font-mono text-[10px] text-parchment-dim uppercase mt-1.5">
+                        Promedio sin leche
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {milkTypes.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {milkTypes.map((m) => (
+                      <span
+                        key={m.milk_type}
+                        className="font-mono text-[11px] text-parchment-dim bg-parchment/[0.04] border border-parchment-dim/15 rounded-full px-3 py-1"
+                      >
+                        {m.milk_type} · {m.count}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </section>
+            )}
           </div>
         )}
       </div>
