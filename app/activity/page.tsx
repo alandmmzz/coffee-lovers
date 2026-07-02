@@ -13,7 +13,11 @@ export default async function ActivityPage() {
 
   try {
     reviews = (await sql`
-      select * from coffee_reviews order by created_at desc limit 100
+      select r.*, c.brand, c.line, c.origin, c.process
+      from coffee_reviews r
+      join coffees c on c.id = r.coffee_id
+      order by r.created_at desc
+      limit 100
     `) as unknown as CoffeeReview[];
   } catch (err: any) {
     error = err.message ?? "No se pudo cargar la actividad.";
@@ -67,7 +71,7 @@ export default async function ActivityPage() {
                   <p className="font-body text-sm text-cream truncate">
                     <span className="text-parchment-dim">{r.taster_name}</span> cató{" "}
                     <span className="font-medium">
-                      {r.brand} — {r.coffee_type}
+                      {r.brand} — {r.line}
                     </span>
                   </p>
                   <p className="font-mono text-[11px] text-parchment-dim mt-1">

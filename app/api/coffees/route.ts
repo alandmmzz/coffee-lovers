@@ -1,0 +1,47 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import sql from '@/lib/db';
+
+export async function GET() {
+  try {
+    const coffees = await sql`
+      select * from coffees order by brand asc, line asc
+    `;
+    return NextResponse.json({ ok: true, coffees });
+  } catch (err: any) {
+    return NextResponse.json({ ok: false, error: err.message }, { status: 500 });
+  }
+}
+
+export async function POST(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.email) {
+    return NextResponse.json(
+      { ok: false, error: 'Tenés que iniciar sesión para agregar un café.' },
+      { status: 401 }
+    );
+  }
+
+  const body = await req.json();
+  if (!body.brand?.trim() || !body.line?.trim()) {
+    return NextResponse.json(
+      { ok: false, error: 'Marca y línea/tipo son obligatorios.' },
+      { status: 400 }
+    );
+  }
+
+  try {
+    const rows = await sql`
+      insert into coffees (brand, line, origin, process)
+      values (${body.brand.trim()}, ${body.line.trim()}, ${body.origin ?? null}, ${body.process ?? null})
+      on conflict (brand, line) do update set
+        origin = coalesce(excluded.origin, coffees.origin),
+        process = coalesce(excluded.process, coffees.process)
+      returning *
+    `;
+    return NextResponse.json({ ok: true, coffee: rows[0] });
+  } catch (err: any) {
+    return NextResponse.json({ ok: false, error: err.message }, { status: 500 });
+  }
+}

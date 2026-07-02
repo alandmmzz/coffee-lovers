@@ -12,7 +12,10 @@ export default async function ReviewsPage() {
 
   try {
     reviews = (await sql`
-      select * from coffee_reviews order by created_at desc
+      select r.*, c.brand, c.line, c.origin, c.process
+      from coffee_reviews r
+      join coffees c on c.id = r.coffee_id
+      order by r.created_at desc
     `) as unknown as CoffeeReview[];
   } catch (err: any) {
     error = err.message ?? "No se pudieron cargar las reviews.";

@@ -1,13 +1,6 @@
 import type { CoffeeReview } from "@/lib/db";
+import { ROAST_LABELS, PROCESS_LABELS } from "@/lib/constants";
 import StarRating from "./StarRating";
-
-const ROAST_LABELS: Record<string, string> = {
-  light: "Claro",
-  "medium-light": "Medio claro",
-  medium: "Medio",
-  "medium-dark": "Medio oscuro",
-  dark: "Oscuro",
-};
 
 export default function ReviewCard({
   review: r,
@@ -21,11 +14,17 @@ export default function ReviewCard({
       <div className="flex items-start justify-between gap-4 mb-3">
         <div>
           <h2 className="font-display text-xl text-cream">
-            {r.brand} — {r.coffee_type}
+            {r.brand} — {r.line}
           </h2>
           <p className="font-mono text-xs text-parchment-dim mt-1">
-            {r.origin ? `${r.origin} · ` : ""}
-            {ROAST_LABELS[r.roast_level] ?? r.roast_level} · {r.brew_method}
+            {[
+              r.origin,
+              r.process ? PROCESS_LABELS[r.process] ?? r.process : null,
+              ROAST_LABELS[r.roast_level] ?? r.roast_level,
+              r.brew_method,
+            ]
+              .filter(Boolean)
+              .join(" · ")}
           </p>
         </div>
         <div className="text-right shrink-0">

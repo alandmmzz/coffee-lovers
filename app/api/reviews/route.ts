@@ -15,8 +15,7 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
 
   const required = [
-    'brand',
-    'coffee_type',
+    'coffee_id',
     'roast_level',
     'brew_method',
     'aroma',
@@ -39,14 +38,14 @@ export async function POST(req: NextRequest) {
   try {
     await sql`
       insert into coffee_reviews
-        (taster_name, brand, coffee_type, origin, roast_level, brew_method,
+        (taster_name, coffee_id, roast_level, brew_method,
          aroma, acidity, sweetness, body, bitterness, aftertaste, balance,
          overall_rating, price, notes, user_email, user_name, user_image)
       values
-        (${session.user.name ?? session.user.email}, ${body.brand}, ${body.coffee_type},
-         ${body.origin ?? null}, ${body.roast_level}, ${body.brew_method}, ${body.aroma},
-         ${body.acidity}, ${body.sweetness}, ${body.body}, ${body.bitterness}, ${body.aftertaste},
-         ${body.balance}, ${body.overall_rating}, ${body.price ?? null}, ${body.notes ?? null},
+        (${session.user.name ?? session.user.email}, ${body.coffee_id}, ${body.roast_level},
+         ${body.brew_method}, ${body.aroma}, ${body.acidity}, ${body.sweetness}, ${body.body},
+         ${body.bitterness}, ${body.aftertaste}, ${body.balance}, ${body.overall_rating},
+         ${body.price ?? null}, ${body.notes ?? null},
          ${session.user.email}, ${session.user.name ?? null}, ${session.user.image ?? null})
     `;
     return NextResponse.json({ ok: true });
@@ -57,7 +56,12 @@ export async function POST(req: NextRequest) {
 
 export async function GET() {
   try {
-    const rows = await sql`select * from coffee_reviews order by created_at desc`;
+    const rows = await sql`
+      select r.*, c.brand, c.line, c.origin, c.process
+      from coffee_reviews r
+      join coffees c on c.id = r.coffee_id
+      order by r.created_at desc
+    `;
     return NextResponse.json({ ok: true, reviews: rows });
   } catch (err: any) {
     return NextResponse.json({ ok: false, error: err.message }, { status: 500 });

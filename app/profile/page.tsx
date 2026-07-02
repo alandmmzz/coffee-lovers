@@ -21,9 +21,11 @@ export default async function ProfilePage() {
 
   try {
     reviews = (await sql`
-      select * from coffee_reviews
-      where user_email = ${session.user.email}
-      order by created_at desc
+      select r.*, c.brand, c.line, c.origin, c.process
+      from coffee_reviews r
+      join coffees c on c.id = r.coffee_id
+      where r.user_email = ${session.user.email}
+      order by r.created_at desc
     `) as unknown as CoffeeReview[];
   } catch (err: any) {
     error = err.message ?? "No se pudieron cargar tus reviews.";

@@ -1,19 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Coffee, MapPin, Flame, Droplets, Wallet } from "lucide-react";
+import { ArrowLeft, Coffee, MapPin, Flame, Droplets, Sprout, Wallet } from "lucide-react";
 import sql from "@/lib/db";
 import type { CoffeeReview } from "@/lib/db";
+import { ROAST_LABELS, PROCESS_LABELS } from "@/lib/constants";
 import StarRating from "../../components/StarRating";
 
 export const dynamic = "force-dynamic";
-
-const ROAST_LABELS: Record<string, string> = {
-  light: "Claro",
-  "medium-light": "Medio claro",
-  medium: "Medio",
-  "medium-dark": "Medio oscuro",
-  dark: "Oscuro",
-};
 
 const ATTRIBUTES: [string, keyof CoffeeReview][] = [
   ["Aroma", "aroma"],
@@ -34,7 +27,11 @@ export default async function ActivityDetailPage({
 
   try {
     const rows = (await sql`
-      select * from coffee_reviews where id = ${params.id} limit 1
+      select r.*, c.brand, c.line, c.origin, c.process
+      from coffee_reviews r
+      join coffees c on c.id = r.coffee_id
+      where r.id = ${params.id}
+      limit 1
     `) as unknown as CoffeeReview[];
     review = rows[0] ?? null;
   } catch {
@@ -76,7 +73,7 @@ export default async function ActivityDetailPage({
         </div>
 
         <h1 className="font-display text-3xl sm:text-4xl text-cream leading-tight mb-2">
-          {r.brand} — {r.coffee_type}
+          {r.brand} — {r.line}
         </h1>
 
         {r.origin && (
@@ -90,7 +87,7 @@ export default async function ActivityDetailPage({
           <StarRating rating={r.overall_rating} size={28} />
         </div>
 
-        <div className="grid grid-cols-2 gap-3 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-8">
           <div className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-4">
             <p className="flex items-center gap-1.5 font-mono text-[10px] text-parchment-dim uppercase mb-1.5">
               <Flame size={12} />
@@ -100,6 +97,17 @@ export default async function ActivityDetailPage({
               {ROAST_LABELS[r.roast_level] ?? r.roast_level}
             </p>
           </div>
+          {r.process && (
+            <div className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-4">
+              <p className="flex items-center gap-1.5 font-mono text-[10px] text-parchment-dim uppercase mb-1.5">
+                <Sprout size={12} />
+                Proceso
+              </p>
+              <p className="font-body text-sm text-cream">
+                {PROCESS_LABELS[r.process] ?? r.process}
+              </p>
+            </div>
+          )}
           <div className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-4">
             <p className="flex items-center gap-1.5 font-mono text-[10px] text-parchment-dim uppercase mb-1.5">
               <Droplets size={12} />

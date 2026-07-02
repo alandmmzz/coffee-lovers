@@ -7,6 +7,8 @@ import { CheckCircle2 } from "lucide-react";
 import RoastSelector from "./components/RoastSelector";
 import ScoreScale from "./components/ScoreScale";
 import StarRating from "./components/StarRating";
+import CoffeeSelector from "./components/CoffeeSelector";
+import type { Coffee } from "@/lib/db";
 
 const BREW_METHODS = [
   "Espresso",
@@ -30,9 +32,6 @@ const initialScores = {
 };
 
 const initialForm = {
-  brand: "",
-  coffee_type: "",
-  origin: "",
   roast_level: "",
   brew_method: "",
   price: "",
@@ -41,6 +40,7 @@ const initialForm = {
 
 export default function Home() {
   const { data: session, status: sessionStatus } = useSession();
+  const [coffee, setCoffee] = useState<Coffee | null>(null);
   const [form, setForm] = useState(initialForm);
   const [scores, setScores] = useState(initialScores);
   const [overall, setOverall] = useState(0);
@@ -48,8 +48,7 @@ export default function Home() {
   const [errorMsg, setErrorMsg] = useState("");
 
   const canSubmit =
-    form.brand.trim() &&
-    form.coffee_type.trim() &&
+    coffee !== null &&
     form.roast_level &&
     form.brew_method &&
     Object.values(scores).every((v) => v > 0) &&
@@ -58,7 +57,7 @@ export default function Home() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!canSubmit) {
-      setErrorMsg("Faltan campos por completar: revisá el tueste, el método y todas las escalas de sabor.");
+      setErrorMsg("Faltan campos por completar: elegí un café, el tueste, el método y todas las escalas de sabor.");
       setStatus("error");
       return;
     }
@@ -71,9 +70,7 @@ export default function Home() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            brand: form.brand.trim(),
-            coffee_type: form.coffee_type.trim(),
-            origin: form.origin.trim() || null,
+            coffee_id: coffee!.id,
             roast_level: form.roast_level,
             brew_method: form.brew_method,
             ...scores,
@@ -97,6 +94,7 @@ export default function Home() {
     }
 
     setStatus("sent");
+    setCoffee(null);
     setForm(initialForm);
     setScores(initialScores);
     setOverall(0);
@@ -205,35 +203,12 @@ export default function Home() {
               <span className="font-mono text-crema text-sm">01</span>
               <h2 className="font-display text-xl text-cream">Identificación</h2>
             </div>
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <Field label="Marca">
-                  <input
-                    required
-                    value={form.brand}
-                    onChange={(e) => setForm({ ...form, brand: e.target.value })}
-                    className="input-field"
-                    placeholder="Ej: Café Martínez"
-                  />
-                </Field>
-                <Field label="Tipo / línea dentro de la marca">
-                  <input
-                    required
-                    value={form.coffee_type}
-                    onChange={(e) => setForm({ ...form, coffee_type: e.target.value })}
-                    className="input-field"
-                    placeholder="Ej: Reserva especial"
-                  />
-                </Field>
-              </div>
-              <Field label="Origen (opcional)">
-                <input
-                  value={form.origin}
-                  onChange={(e) => setForm({ ...form, origin: e.target.value })}
-                  className="input-field"
-                  placeholder="Ej: Brasil, Colombia, blend..."
-                />
-              </Field>
+            <div>
+              <label className="field-label">Café</label>
+              <CoffeeSelector value={coffee} onChange={setCoffee} />
+              <p className="font-mono text-[11px] text-parchment-dim mt-2">
+                Buscá un café ya cargado o agregá uno nuevo con su marca, línea, origen y proceso.
+              </p>
             </div>
           </section>
 

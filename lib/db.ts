@@ -4,13 +4,20 @@ const sql = neon(process.env.DATABASE_URL as string);
 
 export default sql;
 
+export type Coffee = {
+  id: string;
+  created_at?: string;
+  brand: string;
+  line: string;
+  origin: string | null;
+  process: string | null;
+};
+
 export type CoffeeReview = {
   id?: string;
   created_at?: string;
   taster_name: string;
-  brand: string;
-  coffee_type: string;
-  origin: string | null;
+  coffee_id: string;
   roast_level: string;
   brew_method: string;
   aroma: number;
@@ -26,4 +33,9 @@ export type CoffeeReview = {
   user_email?: string | null;
   user_name?: string | null;
   user_image?: string | null;
+  // Campos que llegan cuando la consulta hace JOIN con `coffees`
+  brand?: string;
+  line?: string;
+  origin?: string | null;
+  process?: string | null;
 };
