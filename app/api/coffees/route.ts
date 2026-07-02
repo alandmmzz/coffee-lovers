@@ -10,7 +10,11 @@ export async function GET() {
     `;
     return NextResponse.json({ ok: true, coffees });
   } catch (err: any) {
-    return NextResponse.json({ ok: false, error: err.message }, { status: 500 });
+    console.error("Error al listar cafés:", err);
+    return NextResponse.json(
+      { ok: false, error: "No se pudo cargar el catálogo de cafés." },
+      { status: 500 }
+    );
   }
 }
 
@@ -47,6 +51,10 @@ export async function POST(req: NextRequest) {
     `;
     return NextResponse.json({ ok: true, coffee: rows[0] });
   } catch (err: any) {
-    return NextResponse.json({ ok: false, error: err.message }, { status: 500 });
+    console.error("Error al crear café:", err);
+    return NextResponse.json(
+      { ok: false, error: "No se pudo guardar el café. Probá de nuevo en un momento." },
+      { status: 500 }
+    );
   }
 }

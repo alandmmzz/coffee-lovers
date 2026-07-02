@@ -50,7 +50,11 @@ export async function POST(req: NextRequest) {
     `;
     return NextResponse.json({ ok: true });
   } catch (err: any) {
-    return NextResponse.json({ ok: false, error: err.message }, { status: 500 });
+    console.error("Error al guardar review:", err);
+    return NextResponse.json(
+      { ok: false, error: "No se pudo guardar la review. Probá de nuevo en un momento." },
+      { status: 500 }
+    );
   }
 }
 
@@ -64,6 +68,10 @@ export async function GET() {
     `;
     return NextResponse.json({ ok: true, reviews: rows });
   } catch (err: any) {
-    return NextResponse.json({ ok: false, error: err.message }, { status: 500 });
+    console.error("Error al listar reviews:", err);
+    return NextResponse.json(
+      { ok: false, error: "No se pudieron cargar las reviews." },
+      { status: 500 }
+    );
   }
 }

@@ -28,7 +28,8 @@ export default async function ProfilePage() {
       order by r.created_at desc
     `) as unknown as CoffeeReview[];
   } catch (err: any) {
-    error = err.message ?? "No se pudieron cargar tus reviews.";
+    console.error("Error al cargar reviews del perfil:", err);
+    error = "Hubo un problema al conectar con la base de datos. Probá de nuevo en un momento.";
   }
 
   const avgRating =
@@ -97,9 +98,7 @@ export default async function ProfilePage() {
         </header>
 
         {error && (
-          <p className="text-cascara-light text-sm">
-            No se pudieron cargar tus reviews. {error}
-          </p>
+          <p className="text-cascara-light text-sm">{error}</p>
         )}
 
         {!error && reviews.length === 0 && (

@@ -18,7 +18,8 @@ export default async function ReviewsPage() {
       order by r.created_at desc
     `) as unknown as CoffeeReview[];
   } catch (err: any) {
-    error = err.message ?? "No se pudieron cargar las reviews.";
+    console.error("Error al cargar el archivo de reviews:", err);
+    error = "Hubo un problema al conectar con la base de datos. Probá de nuevo en un momento.";
   }
 
   return (
@@ -43,9 +44,7 @@ export default async function ReviewsPage() {
         </header>
 
         {error && (
-          <p className="text-cascara-light text-sm">
-            No se pudieron cargar las reviews. {error}
-          </p>
+          <p className="text-cascara-light text-sm">{error}</p>
         )}
 
         {!error && reviews.length === 0 && (

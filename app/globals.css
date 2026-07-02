@@ -77,3 +77,10 @@ body {
   border-color: #D4A857;
   background-color: rgba(237, 227, 208, 0.09);
 }
+
+/* Los <option> heredan el fondo blanco del navegador si no se
+   especifica: sin esto, el texto claro queda ilegible en el popup. */
+select.input-field option {
+  background-color: #241812;
+  color: #F2E9DC;
+}

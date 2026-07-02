@@ -20,7 +20,8 @@ export default async function ActivityPage() {
       limit 100
     `) as unknown as CoffeeReview[];
   } catch (err: any) {
-    error = err.message ?? "No se pudo cargar la actividad.";
+    console.error("Error al cargar la actividad:", err);
+    error = "Hubo un problema al conectar con la base de datos. Probá de nuevo en un momento.";
   }
 
   return (
@@ -39,9 +40,7 @@ export default async function ActivityPage() {
           </p>
         </header>
 
-        {error && (
-          <p className="text-cascara-light text-sm">No se pudo cargar la actividad. {error}</p>
-        )}
+        {error && <p className="text-cascara-light text-sm">{error}</p>}
 
         {!error && reviews.length === 0 && (
           <p className="font-body text-parchment-dim">Todavía no hay actividad registrada.</p>
