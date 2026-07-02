@@ -3,8 +3,10 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useSession, signIn } from "next-auth/react";
+import { CheckCircle2 } from "lucide-react";
 import RoastSelector from "./components/RoastSelector";
 import ScoreScale from "./components/ScoreScale";
+import StarRating from "./components/StarRating";
 
 const BREW_METHODS = [
   "Espresso",
@@ -151,6 +153,7 @@ export default function Home() {
     return (
       <main className="min-h-screen flex items-center justify-center px-6">
         <div className="max-w-md text-center">
+          <CheckCircle2 size={32} className="text-crema mx-auto mb-4" />
           <p className="font-mono text-xs tracking-[0.2em] text-crema uppercase mb-4">
             Ficha guardada
           </p>
@@ -163,7 +166,10 @@ export default function Home() {
           >
             Cargar otro café
           </button>
-          <div className="mt-4">
+          <div className="mt-4 flex items-center justify-center gap-4">
+            <Link href="/activity" className="text-parchment-dim text-sm underline underline-offset-4">
+              Ver actividad
+            </Link>
             <Link href="/reviews" className="text-parchment-dim text-sm underline underline-offset-4">
               Ver todas las reviews
             </Link>
@@ -302,7 +308,12 @@ export default function Home() {
                 {overall || "–"}
               </span>
             </div>
-            <p className="font-mono text-[11px] text-parchment-dim mt-1">de 1 a 10</p>
+            {overall > 0 && (
+              <div className="mt-3">
+                <StarRating rating={overall} size={22} />
+              </div>
+            )}
+            <p className="font-mono text-[11px] text-parchment-dim mt-2">de 1 a 10</p>
           </section>
 
           {/* 05 — Notas */}

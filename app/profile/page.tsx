@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PlusCircle, ListFilter } from "lucide-react";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
@@ -78,14 +79,16 @@ export default async function ProfilePage() {
           <div className="flex gap-3">
             <Link
               href="/"
-              className="px-4 py-2.5 bg-cascara hover:bg-cascara-light text-cream font-body text-sm rounded-sm transition-colors"
+              className="flex items-center gap-1.5 px-4 py-2.5 bg-cascara hover:bg-cascara-light text-cream font-body text-sm rounded-sm transition-colors"
             >
-              + Nueva review
+              <PlusCircle size={16} />
+              Nueva review
             </Link>
             <Link
               href="/reviews"
-              className="px-4 py-2.5 border border-parchment-dim/25 hover:border-crema text-parchment font-body text-sm rounded-sm transition-colors"
+              className="flex items-center gap-1.5 px-4 py-2.5 border border-parchment-dim/25 hover:border-crema text-parchment font-body text-sm rounded-sm transition-colors"
             >
+              <ListFilter size={16} />
               Ver todas
             </Link>
           </div>

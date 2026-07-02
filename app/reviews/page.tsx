@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PlusCircle } from "lucide-react";
 import sql from "@/lib/db";
 import type { CoffeeReview } from "@/lib/db";
 import ReviewCard from "../components/ReviewCard";
@@ -31,9 +32,10 @@ export default async function ReviewsPage() {
           </div>
           <Link
             href="/"
-            className="shrink-0 px-4 py-2.5 bg-cascara hover:bg-cascara-light text-cream font-body text-sm rounded-sm transition-colors"
+            className="shrink-0 flex items-center gap-1.5 px-4 py-2.5 bg-cascara hover:bg-cascara-light text-cream font-body text-sm rounded-sm transition-colors"
           >
-            + Nueva review
+            <PlusCircle size={16} />
+            Nueva review
           </Link>
         </header>
 

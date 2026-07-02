@@ -1,4 +1,5 @@
 import type { CoffeeReview } from "@/lib/db";
+import StarRating from "./StarRating";
 
 const ROAST_LABELS: Record<string, string> = {
   light: "Claro",
@@ -28,10 +29,7 @@ export default function ReviewCard({
           </p>
         </div>
         <div className="text-right shrink-0">
-          <p className="font-mono text-2xl text-crema leading-none">
-            {r.overall_rating}
-            <span className="text-xs text-parchment-dim">/10</span>
-          </p>
+          <StarRating rating={r.overall_rating} size={16} />
           {showTaster && (
             <div className="flex items-center gap-1.5 justify-end mt-1.5">
               {r.user_image ? (
