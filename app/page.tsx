@@ -254,13 +254,48 @@ export default function Home() {
             </div>
             <p className="font-mono text-[11px] text-parchment-dim mb-2">1 = bajo/débil · 5 = alto/intenso</p>
             <div>
-              <ScoreScale label="Aroma" value={scores.aroma} onChange={(v) => setScores({ ...scores, aroma: v })} />
-              <ScoreScale label="Acidez" value={scores.acidity} onChange={(v) => setScores({ ...scores, acidity: v })} />
-              <ScoreScale label="Dulzor" value={scores.sweetness} onChange={(v) => setScores({ ...scores, sweetness: v })} />
-              <ScoreScale label="Cuerpo" value={scores.body} onChange={(v) => setScores({ ...scores, body: v })} />
-              <ScoreScale label="Amargor" value={scores.bitterness} onChange={(v) => setScores({ ...scores, bitterness: v })} />
-              <ScoreScale label="Retrogusto" value={scores.aftertaste} onChange={(v) => setScores({ ...scores, aftertaste: v })} />
-              <ScoreScale label="Balance general" value={scores.balance} onChange={(v) => setScores({ ...scores, balance: v })} />
+              <ScoreScale
+                label="Aroma"
+                description="El olor del café antes de probarlo, en seco y recién molido."
+                value={scores.aroma}
+                onChange={(v) => setScores({ ...scores, aroma: v })}
+              />
+              <ScoreScale
+                label="Acidez"
+                description="La viveza que sentís en la lengua, parecida a un cítrico o una manzana verde. No es 'agrio': es una sensación refrescante y chispeante."
+                value={scores.acidity}
+                onChange={(v) => setScores({ ...scores, acidity: v })}
+              />
+              <ScoreScale
+                label="Dulzor"
+                description="El dulzor natural del grano, sin agregar azúcar. Puede recordar a caramelo, miel o fruta madura."
+                value={scores.sweetness}
+                onChange={(v) => setScores({ ...scores, sweetness: v })}
+              />
+              <ScoreScale
+                label="Cuerpo"
+                description="Qué tan denso se siente en la boca: liviano como agua o pesado como leche entera."
+                value={scores.body}
+                onChange={(v) => setScores({ ...scores, body: v })}
+              />
+              <ScoreScale
+                label="Amargor"
+                description="La sensación amarga natural del café. En su justa medida le da carácter; en exceso, resulta desagradable."
+                value={scores.bitterness}
+                onChange={(v) => setScores({ ...scores, bitterness: v })}
+              />
+              <ScoreScale
+                label="Retrogusto"
+                description="El sabor que se queda en la boca después de tragar el trago, y cuánto dura."
+                value={scores.aftertaste}
+                onChange={(v) => setScores({ ...scores, aftertaste: v })}
+              />
+              <ScoreScale
+                label="Balance general"
+                description="Qué tan bien conviven todos los sabores entre sí, sin que ninguno se imponga de más sobre el resto."
+                value={scores.balance}
+                onChange={(v) => setScores({ ...scores, balance: v })}
+              />
             </div>
           </section>
 
