@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import AuthProvider from "./components/AuthProvider";
+import Header from "./components/Header";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -36,7 +38,10 @@ export default function RootLayout({
       <body
         className={`${fraunces.variable} ${inter.variable} ${jetbrainsMono.variable} font-body bg-ink text-cream antialiased`}
       >
-        {children}
+        <AuthProvider>
+          <Header />
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

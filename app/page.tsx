@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useSession, signIn } from "next-auth/react";
 import RoastSelector from "./components/RoastSelector";
 import ScoreScale from "./components/ScoreScale";
 
@@ -26,24 +27,25 @@ const initialScores = {
   balance: 0,
 };
 
+const initialForm = {
+  brand: "",
+  coffee_type: "",
+  origin: "",
+  roast_level: "",
+  brew_method: "",
+  price: "",
+  notes: "",
+};
+
 export default function Home() {
-  const [form, setForm] = useState({
-    taster_name: "",
-    brand: "",
-    coffee_type: "",
-    origin: "",
-    roast_level: "",
-    brew_method: "",
-    price: "",
-    notes: "",
-  });
+  const { data: session, status: sessionStatus } = useSession();
+  const [form, setForm] = useState(initialForm);
   const [scores, setScores] = useState(initialScores);
   const [overall, setOverall] = useState(0);
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
 
   const canSubmit =
-    form.taster_name.trim() &&
     form.brand.trim() &&
     form.coffee_type.trim() &&
     form.roast_level &&
@@ -67,7 +69,6 @@ export default function Home() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            taster_name: form.taster_name.trim(),
             brand: form.brand.trim(),
             coffee_type: form.coffee_type.trim(),
             origin: form.origin.trim() || null,
@@ -94,18 +95,56 @@ export default function Home() {
     }
 
     setStatus("sent");
-    setForm({
-      taster_name: form.taster_name, // mantenemos el nombre del catador para la próxima carga
-      brand: "",
-      coffee_type: "",
-      origin: "",
-      roast_level: "",
-      brew_method: "",
-      price: "",
-      notes: "",
-    });
+    setForm(initialForm);
     setScores(initialScores);
     setOverall(0);
+  }
+
+  if (sessionStatus === "loading") {
+    return (
+      <main className="min-h-screen flex items-center justify-center px-6">
+        <p className="font-mono text-xs text-parchment-dim uppercase tracking-widest">
+          Cargando...
+        </p>
+      </main>
+    );
+  }
+
+  if (sessionStatus === "unauthenticated") {
+    return (
+      <main className="min-h-screen flex items-center justify-center px-6">
+        <div className="max-w-sm text-center">
+          <p className="font-mono text-xs tracking-[0.2em] text-crema uppercase mb-4">
+            Coffee Lovers
+          </p>
+          <h1 className="font-display text-3xl text-cream mb-3">
+            Iniciá sesión para dejar tu review
+          </h1>
+          <p className="font-body text-parchment-dim text-sm mb-8">
+            Así cada catación queda guardada en tu perfil.
+          </p>
+          <div className="space-y-3">
+            <button
+              onClick={() => signIn("github")}
+              className="w-full py-3 bg-parchment/[0.06] border border-parchment-dim/25 hover:border-crema text-cream font-body text-sm rounded-sm transition-colors"
+            >
+              Continuar con GitHub
+            </button>
+            <button
+              onClick={() => signIn("google")}
+              className="w-full py-3 bg-parchment/[0.06] border border-parchment-dim/25 hover:border-crema text-cream font-body text-sm rounded-sm transition-colors"
+            >
+              Continuar con Google
+            </button>
+          </div>
+          <div className="mt-6">
+            <Link href="/reviews" className="text-parchment-dim text-sm underline underline-offset-4">
+              Ver reviews de la comunidad sin loguearte
+            </Link>
+          </div>
+        </div>
+      </main>
+    );
   }
 
   if (status === "sent") {
@@ -116,7 +155,7 @@ export default function Home() {
             Ficha guardada
           </p>
           <h1 className="font-display text-3xl text-cream mb-4">
-            Gracias, {form.taster_name}. Tu catación quedó registrada.
+            Gracias, {session?.user?.name?.split(" ")[0]}. Tu catación quedó registrada.
           </h1>
           <button
             onClick={() => setStatus("idle")}
@@ -148,6 +187,9 @@ export default function Home() {
             Completá cada sección en orden, tal como se cata un café: primero
             identificás el grano, después el tueste y por último el sabor.
           </p>
+          <p className="font-mono text-[11px] text-parchment-dim/80 mt-3">
+            Catando como {session?.user?.name} ({session?.user?.email})
+          </p>
         </header>
 
         <form onSubmit={handleSubmit} className="space-y-8">
@@ -158,15 +200,6 @@ export default function Home() {
               <h2 className="font-display text-xl text-cream">Identificación</h2>
             </div>
             <div className="space-y-4">
-              <Field label="Tu nombre">
-                <input
-                  required
-                  value={form.taster_name}
-                  onChange={(e) => setForm({ ...form, taster_name: e.target.value })}
-                  className="input-field"
-                  placeholder="Quién está catando"
-                />
-              </Field>
               <div className="grid grid-cols-2 gap-4">
                 <Field label="Marca">
                   <input

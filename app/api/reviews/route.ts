@@ -1,11 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import sql from '@/lib/db';
 
 export async function POST(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.email) {
+    return NextResponse.json(
+      { ok: false, error: 'Tenés que iniciar sesión para guardar una review.' },
+      { status: 401 }
+    );
+  }
+
   const body = await req.json();
 
   const required = [
-    'taster_name',
     'brand',
     'coffee_type',
     'roast_level',
@@ -32,12 +41,13 @@ export async function POST(req: NextRequest) {
       insert into coffee_reviews
         (taster_name, brand, coffee_type, origin, roast_level, brew_method,
          aroma, acidity, sweetness, body, bitterness, aftertaste, balance,
-         overall_rating, price, notes)
+         overall_rating, price, notes, user_email, user_name, user_image)
       values
-        (${body.taster_name}, ${body.brand}, ${body.coffee_type}, ${body.origin ?? null},
-         ${body.roast_level}, ${body.brew_method}, ${body.aroma}, ${body.acidity},
-         ${body.sweetness}, ${body.body}, ${body.bitterness}, ${body.aftertaste},
-         ${body.balance}, ${body.overall_rating}, ${body.price ?? null}, ${body.notes ?? null})
+        (${session.user.name ?? session.user.email}, ${body.brand}, ${body.coffee_type},
+         ${body.origin ?? null}, ${body.roast_level}, ${body.brew_method}, ${body.aroma},
+         ${body.acidity}, ${body.sweetness}, ${body.body}, ${body.bitterness}, ${body.aftertaste},
+         ${body.balance}, ${body.overall_rating}, ${body.price ?? null}, ${body.notes ?? null},
+         ${session.user.email}, ${session.user.name ?? null}, ${session.user.image ?? null})
     `;
     return NextResponse.json({ ok: true });
   } catch (err: any) {

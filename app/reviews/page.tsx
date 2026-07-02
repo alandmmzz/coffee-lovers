@@ -1,16 +1,9 @@
 import Link from "next/link";
 import sql from "@/lib/db";
 import type { CoffeeReview } from "@/lib/db";
+import ReviewCard from "../components/ReviewCard";
 
 export const dynamic = "force-dynamic";
-
-const ROAST_LABELS: Record<string, string> = {
-  light: "Claro",
-  "medium-light": "Medio claro",
-  medium: "Medio",
-  "medium-dark": "Medio oscuro",
-  dark: "Oscuro",
-};
 
 export default async function ReviewsPage() {
   let reviews: CoffeeReview[] = [];
@@ -58,61 +51,7 @@ export default async function ReviewsPage() {
 
         <ul className="space-y-4">
           {reviews.map((r) => (
-            <li
-              key={r.id}
-              className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-5"
-            >
-              <div className="flex items-start justify-between gap-4 mb-3">
-                <div>
-                  <h2 className="font-display text-xl text-cream">
-                    {r.brand} — {r.coffee_type}
-                  </h2>
-                  <p className="font-mono text-xs text-parchment-dim mt-1">
-                    {r.origin ? `${r.origin} · ` : ""}
-                    {ROAST_LABELS[r.roast_level] ?? r.roast_level} · {r.brew_method}
-                  </p>
-                </div>
-                <div className="text-right shrink-0">
-                  <p className="font-mono text-2xl text-crema leading-none">
-                    {r.overall_rating}
-                    <span className="text-xs text-parchment-dim">/10</span>
-                  </p>
-                  <p className="font-mono text-[11px] text-parchment-dim mt-1">
-                    {r.taster_name}
-                  </p>
-                </div>
-              </div>
-
-              <dl className="grid grid-cols-4 sm:grid-cols-7 gap-2 mb-3">
-                {[
-                  ["Aroma", r.aroma],
-                  ["Acidez", r.acidity],
-                  ["Dulzor", r.sweetness],
-                  ["Cuerpo", r.body],
-                  ["Amargor", r.bitterness],
-                  ["Retrog.", r.aftertaste],
-                  ["Balance", r.balance],
-                ].map(([label, val]) => (
-                  <div key={label as string} className="text-center">
-                    <dt className="font-mono text-[10px] text-parchment-dim uppercase">
-                      {label}
-                    </dt>
-                    <dd className="font-mono text-sm text-parchment">{val}/5</dd>
-                  </div>
-                ))}
-              </dl>
-
-              {r.notes && (
-                <p className="font-body text-sm text-parchment-dim italic border-t border-parchment-dim/15 pt-3">
-                  “{r.notes}”
-                </p>
-              )}
-
-              <p className="font-mono text-[10px] text-parchment-dim/70 mt-3">
-                {r.created_at ? new Date(r.created_at).toLocaleString("es-AR") : ""}
-                {r.price ? ` · $${r.price}` : ""}
-              </p>
-            </li>
+            <ReviewCard key={r.id} review={r} />
           ))}
         </ul>
       </div>

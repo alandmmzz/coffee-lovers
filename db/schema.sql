@@ -20,8 +20,13 @@ create table if not exists coffee_reviews (
   balance smallint not null check (balance between 1 and 5),
   overall_rating smallint not null check (overall_rating between 1 and 10),
   price numeric,
-  notes text
+  notes text,
+  user_email text,
+  user_name text,
+  user_image text
 );
+
+create index if not exists idx_coffee_reviews_user_email on coffee_reviews (user_email);
 
 -- Neon no maneja permisos por RLS/policies como Supabase: el control de
 -- acceso queda del lado del servidor, en app/api/reviews/route.ts. Esta
