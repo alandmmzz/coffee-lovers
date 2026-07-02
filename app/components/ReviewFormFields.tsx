@@ -1,5 +1,6 @@
 "use client";
 
+import { Snowflake, Thermometer, Flame } from "lucide-react";
 import ScoreScale from "./ScoreScale";
 import StarRating from "./StarRating";
 import CoffeeSelector from "./CoffeeSelector";
@@ -32,7 +33,14 @@ export type ReviewFormState = {
   notes: string;
   has_milk: boolean;
   milk_type: string;
+  temperature: string;
 };
+
+const TEMPERATURE_OPTIONS = [
+  { value: "frio", label: "Frío", icon: Snowflake },
+  { value: "tibio", label: "Tibio", icon: Thermometer },
+  { value: "caliente", label: "Caliente", icon: Flame },
+];
 
 export function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -145,10 +153,44 @@ export default function ReviewFormFields({
         </div>
       </section>
 
-      {/* 03 — Atributos sensoriales */}
+      {/* 03 — Temperatura */}
+      <section className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-5 sm:p-6">
+        <div className="flex items-baseline gap-3 mb-5">
+          <span className="font-mono text-crema text-sm">03</span>
+          <h2 className="font-display text-xl text-cream">Temperatura</h2>
+        </div>
+        <p className="font-mono text-[11px] text-parchment-dim mb-3">
+          ¿Cómo te gustó más tomarlo? (opcional)
+        </p>
+        <div className="grid grid-cols-3 gap-2">
+          {TEMPERATURE_OPTIONS.map(({ value, label, icon: Icon }) => {
+            const selected = form.temperature === value;
+            return (
+              <button
+                key={value}
+                type="button"
+                onClick={() =>
+                  setForm({ ...form, temperature: selected ? "" : value })
+                }
+                aria-pressed={selected}
+                className={`flex flex-col items-center gap-1.5 py-3 rounded-sm border transition-colors ${
+                  selected
+                    ? "border-crema bg-crema/10 text-crema"
+                    : "border-parchment-dim/20 text-parchment-dim hover:border-parchment-dim/40"
+                }`}
+              >
+                <Icon size={18} />
+                <span className="font-mono text-xs">{label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* 04 — Atributos sensoriales */}
       <section className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-5 sm:p-6">
         <div className="flex items-baseline gap-3 mb-2">
-          <span className="font-mono text-crema text-sm">03</span>
+          <span className="font-mono text-crema text-sm">04</span>
           <h2 className="font-display text-xl text-cream">Atributos sensoriales</h2>
         </div>
         <p className="font-mono text-[11px] text-parchment-dim mb-2">1 = bajo/débil · 5 = alto/intenso</p>
@@ -198,10 +240,10 @@ export default function ReviewFormFields({
         </div>
       </section>
 
-      {/* 04 — Puntaje general */}
+      {/* 05 — Puntaje general */}
       <section className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-5 sm:p-6">
         <div className="flex items-baseline gap-3 mb-5">
-          <span className="font-mono text-crema text-sm">04</span>
+          <span className="font-mono text-crema text-sm">05</span>
           <h2 className="font-display text-xl text-cream">Puntaje general</h2>
         </div>
         <div className="flex items-center gap-4">
@@ -223,10 +265,10 @@ export default function ReviewFormFields({
         <p className="font-mono text-[11px] text-parchment-dim mt-2">de 1 a 10</p>
       </section>
 
-      {/* 05 — Notas */}
+      {/* 06 — Notas */}
       <section className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-5 sm:p-6">
         <div className="flex items-baseline gap-3 mb-5">
-          <span className="font-mono text-crema text-sm">05</span>
+          <span className="font-mono text-crema text-sm">06</span>
           <h2 className="font-display text-xl text-cream">Notas</h2>
         </div>
         <Field label="Precio pagado (opcional)">

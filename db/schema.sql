@@ -45,6 +45,7 @@ create table if not exists coffee_reviews (
   notes text,
   has_milk boolean not null default false,
   milk_type text,
+  temperature_preference text, -- 'frio' | 'tibio' | 'caliente'
   user_email text,
   user_name text,
   user_image text

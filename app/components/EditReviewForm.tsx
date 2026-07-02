@@ -30,6 +30,7 @@ export default function EditReviewForm({ review }: { review: CoffeeReview }) {
     notes: review.notes ?? "",
     has_milk: review.has_milk,
     milk_type: review.milk_type ?? "",
+    temperature: review.temperature_preference ?? "",
   });
 
   const [scores, setScores] = useState<ReviewScores>({
@@ -75,6 +76,7 @@ export default function EditReviewForm({ review }: { review: CoffeeReview }) {
           notes: form.notes.trim() || null,
           has_milk: form.has_milk,
           milk_type: form.has_milk ? form.milk_type.trim() || null : null,
+          temperature_preference: form.temperature || null,
         }),
       });
       const data = await res.json();

@@ -44,6 +44,7 @@ export type CoffeeReview = {
   notes: string | null;
   has_milk: boolean;
   milk_type: string | null;
+  temperature_preference: string | null;
   user_email?: string | null;
   user_name?: string | null;
   user_image?: string | null;

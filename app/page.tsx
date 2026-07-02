@@ -26,6 +26,7 @@ const initialForm: ReviewFormState = {
   notes: "",
   has_milk: false,
   milk_type: "",
+  temperature: "",
 };
 
 export default function Home() {
@@ -67,6 +68,7 @@ export default function Home() {
             notes: form.notes.trim() || null,
             has_milk: form.has_milk,
             milk_type: form.has_milk ? form.milk_type.trim() || null : null,
+            temperature_preference: form.temperature || null,
           }),
         });
         const data = await res.json();

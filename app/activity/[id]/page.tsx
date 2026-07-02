@@ -1,10 +1,16 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Coffee, MapPin, Flame, Droplets, Sprout, Milk, Wallet } from "lucide-react";
+import { ArrowLeft, Coffee, MapPin, Flame, Droplets, Sprout, Milk, Snowflake, Thermometer, Wallet } from "lucide-react";
 import sql from "@/lib/db";
 import type { CoffeeReview } from "@/lib/db";
-import { ROAST_LABELS, PROCESS_LABELS } from "@/lib/constants";
+import { ROAST_LABELS, PROCESS_LABELS, TEMPERATURE_LABELS } from "@/lib/constants";
 import StarRating from "../../components/StarRating";
+
+const TEMPERATURE_ICONS: Record<string, typeof Snowflake> = {
+  frio: Snowflake,
+  tibio: Thermometer,
+  caliente: Flame,
+};
 
 export const dynamic = "force-dynamic";
 
@@ -124,6 +130,20 @@ export default async function ActivityDetailPage({
                 Leche
               </p>
               <p className="font-body text-sm text-cream">{r.milk_type || "Sí"}</p>
+            </div>
+          )}
+          {r.temperature_preference && (
+            <div className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-4">
+              <p className="flex items-center gap-1.5 font-mono text-[10px] text-parchment-dim uppercase mb-1.5">
+                {(() => {
+                  const Icon = TEMPERATURE_ICONS[r.temperature_preference];
+                  return Icon ? <Icon size={12} /> : null;
+                })()}
+                Temperatura
+              </p>
+              <p className="font-body text-sm text-cream">
+                {TEMPERATURE_LABELS[r.temperature_preference] ?? r.temperature_preference}
+              </p>
             </div>
           )}
         </div>

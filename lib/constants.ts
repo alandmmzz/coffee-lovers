@@ -11,3 +11,9 @@ export const PROCESS_LABELS: Record<string, string> = {
   honey: "Honey",
   natural: "Natural",
 };
+
+export const TEMPERATURE_LABELS: Record<string, string> = {
+  frio: "Frío",
+  tibio: "Tibio",
+  caliente: "Caliente",
+};

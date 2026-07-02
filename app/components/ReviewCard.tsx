@@ -1,8 +1,14 @@
 import Link from "next/link";
-import { Milk, Pencil } from "lucide-react";
+import { Milk, Pencil, Snowflake, Thermometer, Flame } from "lucide-react";
 import type { CoffeeReview } from "@/lib/db";
-import { ROAST_LABELS, PROCESS_LABELS } from "@/lib/constants";
+import { ROAST_LABELS, PROCESS_LABELS, TEMPERATURE_LABELS } from "@/lib/constants";
 import StarRating from "./StarRating";
+
+const TEMPERATURE_ICONS: Record<string, typeof Snowflake> = {
+  frio: Snowflake,
+  tibio: Thermometer,
+  caliente: Flame,
+};
 
 export default function ReviewCard({
   review: r,
@@ -34,6 +40,15 @@ export default function ReviewCard({
             <p className="flex items-center gap-1 font-mono text-[11px] text-parchment-dim mt-1">
               <Milk size={11} />
               Con leche{r.milk_type ? ` (${r.milk_type})` : ""}
+            </p>
+          )}
+          {r.temperature_preference && (
+            <p className="flex items-center gap-1 font-mono text-[11px] text-parchment-dim mt-1">
+              {(() => {
+                const Icon = TEMPERATURE_ICONS[r.temperature_preference];
+                return Icon ? <Icon size={11} /> : null;
+              })()}
+              {TEMPERATURE_LABELS[r.temperature_preference] ?? r.temperature_preference}
             </p>
           )}
         </div>
