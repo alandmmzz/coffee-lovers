@@ -30,7 +30,7 @@ export type CoffeeReview = {
   created_at?: string;
   taster_name: string;
   coffee_id: string;
-  roast_level: string;
+  roast_level: string | null;
   brew_method: string;
   aroma: number;
   acidity: number;

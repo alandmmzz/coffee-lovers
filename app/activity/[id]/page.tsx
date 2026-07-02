@@ -88,15 +88,17 @@ export default async function ActivityDetailPage({
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-8">
-          <div className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-4">
-            <p className="flex items-center gap-1.5 font-mono text-[10px] text-parchment-dim uppercase mb-1.5">
-              <Flame size={12} />
-              Tueste
-            </p>
-            <p className="font-body text-sm text-cream">
-              {ROAST_LABELS[r.roast_level] ?? r.roast_level}
-            </p>
-          </div>
+          {r.roast_level && (
+            <div className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-4">
+              <p className="flex items-center gap-1.5 font-mono text-[10px] text-parchment-dim uppercase mb-1.5">
+                <Flame size={12} />
+                Tueste
+              </p>
+              <p className="font-body text-sm text-cream">
+                {ROAST_LABELS[r.roast_level] ?? r.roast_level}
+              </p>
+            </div>
+          )}
           {r.process && (
             <div className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-4">
               <p className="flex items-center gap-1.5 font-mono text-[10px] text-parchment-dim uppercase mb-1.5">

@@ -17,7 +17,6 @@ export async function POST(req: NextRequest) {
 
   const required = [
     'coffee_id',
-    'roast_level',
     'brew_method',
     'aroma',
     'acidity',
@@ -44,7 +43,7 @@ export async function POST(req: NextRequest) {
          overall_rating, price, notes, has_milk, milk_type,
          user_email, user_name, user_image)
       values
-        (${session.user.name ?? session.user.email}, ${body.coffee_id}, ${body.roast_level},
+        (${session.user.name ?? session.user.email}, ${body.coffee_id}, ${body.roast_level ?? null},
          ${body.brew_method}, ${body.aroma}, ${body.acidity}, ${body.sweetness}, ${body.body},
          ${body.bitterness}, ${body.aftertaste}, ${body.balance}, ${body.overall_rating},
          ${body.price ?? null}, ${body.notes ?? null}, ${body.has_milk ?? false}, ${body.milk_type ?? null},

@@ -24,7 +24,7 @@ export default function ReviewCard({
             {[
               r.origin,
               r.process ? PROCESS_LABELS[r.process] ?? r.process : null,
-              ROAST_LABELS[r.roast_level] ?? r.roast_level,
+              r.roast_level ? ROAST_LABELS[r.roast_level] ?? r.roast_level : null,
               r.brew_method,
             ]
               .filter(Boolean)

@@ -16,7 +16,6 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
   const required = [
     'coffee_id',
-    'roast_level',
     'brew_method',
     'aroma',
     'acidity',
@@ -39,7 +38,6 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     const rows = await sql`
       update coffee_reviews set
         coffee_id = ${body.coffee_id},
-        roast_level = ${body.roast_level},
         brew_method = ${body.brew_method},
         aroma = ${body.aroma},
         acidity = ${body.acidity},

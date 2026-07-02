@@ -39,9 +39,8 @@ export default function NotificationToggle() {
   async function handleToggle() {
     setLoading(true);
     try {
-      const reg = await navigator.serviceWorker.register("/sw.js");
-
       if (subscribed) {
+        const reg = await navigator.serviceWorker.register("/sw.js");
         const sub = await reg.pushManager.getSubscription();
         if (sub) {
           await fetch("/api/push/unsubscribe", {
@@ -53,6 +52,9 @@ export default function NotificationToggle() {
         }
         setSubscribed(false);
       } else {
+        // Safari exige que esta sea la PRIMERA llamada async del handler,
+        // sin ningún await previo, para seguir considerándolo un gesto
+        // directo del usuario (si no, bloquea el permiso en silencio).
         const permission = await Notification.requestPermission();
         if (permission !== "granted") {
           setLoading(false);
@@ -65,6 +67,9 @@ export default function NotificationToggle() {
           setLoading(false);
           return;
         }
+
+        await navigator.serviceWorker.register("/sw.js");
+        const reg = await navigator.serviceWorker.ready;
 
         const sub = await reg.pushManager.subscribe({
           userVisibleOnly: true,

@@ -25,7 +25,6 @@ export default function EditReviewForm({ review }: { review: CoffeeReview }) {
   });
 
   const [form, setForm] = useState<ReviewFormState>({
-    roast_level: review.roast_level,
     brew_method: review.brew_method,
     price: review.price != null ? String(review.price) : "",
     notes: review.notes ?? "",
@@ -49,7 +48,6 @@ export default function EditReviewForm({ review }: { review: CoffeeReview }) {
 
   const canSubmit =
     coffee !== null &&
-    form.roast_level &&
     form.brew_method &&
     Object.values(scores).every((v) => v > 0) &&
     overall > 0;
@@ -57,7 +55,7 @@ export default function EditReviewForm({ review }: { review: CoffeeReview }) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!canSubmit) {
-      setErrorMsg("Faltan campos por completar: elegí un café, el tueste, el método y todas las escalas de sabor.");
+      setErrorMsg("Faltan campos por completar: elegí un café, el método y todas las escalas de sabor.");
       setStatus("error");
       return;
     }
@@ -70,7 +68,6 @@ export default function EditReviewForm({ review }: { review: CoffeeReview }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           coffee_id: coffee!.id,
-          roast_level: form.roast_level,
           brew_method: form.brew_method,
           ...scores,
           overall_rating: overall,

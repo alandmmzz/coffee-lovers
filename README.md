@@ -19,8 +19,9 @@ muestra el archivo completo de la comunidad y `/profile` muestra solo las tuyas.
      [`db/migrations/002_coffee_catalog.sql`](./db/migrations/002_coffee_catalog.sql),
      [`db/migrations/003_coffee_details.sql`](./db/migrations/003_coffee_details.sql),
      [`db/migrations/004_milk_field.sql`](./db/migrations/004_milk_field.sql),
-     [`db/migrations/005_users_table.sql`](./db/migrations/005_users_table.sql)
-     y [`db/migrations/006_push_subscriptions.sql`](./db/migrations/006_push_subscriptions.sql).
+     [`db/migrations/005_users_table.sql`](./db/migrations/005_users_table.sql),
+     [`db/migrations/006_push_subscriptions.sql`](./db/migrations/006_push_subscriptions.sql)
+     y [`db/migrations/007_roast_level_optional.sql`](./db/migrations/007_roast_level_optional.sql).
    - Opcional: corré [`db/seeds/dore.sql`](./db/seeds/dore.sql) para precargar
      el catálogo de cafés de Doré (marca, línea, finca, variedad, proceso y
      notas del tostador de cada uno).

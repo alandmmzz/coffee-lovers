@@ -1,6 +1,5 @@
 "use client";
 
-import RoastSelector from "./RoastSelector";
 import ScoreScale from "./ScoreScale";
 import StarRating from "./StarRating";
 import CoffeeSelector from "./CoffeeSelector";
@@ -28,7 +27,6 @@ export type ReviewScores = {
 };
 
 export type ReviewFormState = {
-  roast_level: string;
   brew_method: string;
   price: string;
   notes: string;
@@ -81,20 +79,13 @@ export default function ReviewFormFields({
         </div>
       </section>
 
-      {/* 02 — Tueste, método y leche */}
+      {/* 02 — Método y leche */}
       <section className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-5 sm:p-6">
         <div className="flex items-baseline gap-3 mb-5">
           <span className="font-mono text-crema text-sm">02</span>
-          <h2 className="font-display text-xl text-cream">Tueste y método</h2>
+          <h2 className="font-display text-xl text-cream">Método</h2>
         </div>
         <div className="space-y-5">
-          <div>
-            <label className="field-label">Nivel de tueste</label>
-            <RoastSelector
-              value={form.roast_level}
-              onChange={(v) => setForm({ ...form, roast_level: v })}
-            />
-          </div>
           <Field label="Método de preparación">
             <select
               required

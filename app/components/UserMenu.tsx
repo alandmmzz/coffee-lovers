@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useSession, signIn, signOut } from "next-auth/react";
 import Link from "next/link";
+import { ListChecks, LogOut } from "lucide-react";
 import NotificationToggle from "./NotificationToggle";
 
 export default function UserMenu() {
@@ -59,15 +60,17 @@ export default function UserMenu() {
               <Link
                 href="/profile"
                 onClick={() => setOpen(false)}
-                className="block px-4 py-2.5 text-sm text-parchment hover:bg-parchment/5 transition-colors"
+                className="flex items-center gap-2 px-4 py-2.5 text-sm text-parchment hover:bg-parchment/5 transition-colors"
               >
+                <ListChecks size={14} />
                 Mis reviews
               </Link>
               <NotificationToggle />
               <button
                 onClick={() => signOut({ callbackUrl: "/" })}
-                className="w-full text-left px-4 py-2.5 text-sm text-cascara-light hover:bg-parchment/5 transition-colors"
+                className="w-full flex items-center gap-2 text-left px-4 py-2.5 text-sm text-cascara-light hover:bg-parchment/5 transition-colors"
               >
+                <LogOut size={14} />
                 Cerrar sesión
               </button>
             </>
