@@ -40,12 +40,13 @@ export async function POST(req: NextRequest) {
       insert into coffee_reviews
         (taster_name, coffee_id, roast_level, brew_method,
          aroma, acidity, sweetness, body, bitterness, aftertaste, balance,
-         overall_rating, price, notes, user_email, user_name, user_image)
+         overall_rating, price, notes, has_milk, milk_type,
+         user_email, user_name, user_image)
       values
         (${session.user.name ?? session.user.email}, ${body.coffee_id}, ${body.roast_level},
          ${body.brew_method}, ${body.aroma}, ${body.acidity}, ${body.sweetness}, ${body.body},
          ${body.bitterness}, ${body.aftertaste}, ${body.balance}, ${body.overall_rating},
-         ${body.price ?? null}, ${body.notes ?? null},
+         ${body.price ?? null}, ${body.notes ?? null}, ${body.has_milk ?? false}, ${body.milk_type ?? null},
          ${session.user.email}, ${session.user.name ?? null}, ${session.user.image ?? null})
     `;
     return NextResponse.json({ ok: true });

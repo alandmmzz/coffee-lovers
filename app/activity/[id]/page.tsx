@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Coffee, MapPin, Flame, Droplets, Sprout, Wallet } from "lucide-react";
+import { ArrowLeft, Coffee, MapPin, Flame, Droplets, Sprout, Milk, Wallet } from "lucide-react";
 import sql from "@/lib/db";
 import type { CoffeeReview } from "@/lib/db";
 import { ROAST_LABELS, PROCESS_LABELS } from "@/lib/constants";
@@ -115,6 +115,15 @@ export default async function ActivityDetailPage({
             </p>
             <p className="font-body text-sm text-cream">{r.brew_method}</p>
           </div>
+          {r.has_milk && (
+            <div className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-4">
+              <p className="flex items-center gap-1.5 font-mono text-[10px] text-parchment-dim uppercase mb-1.5">
+                <Milk size={12} />
+                Leche
+              </p>
+              <p className="font-body text-sm text-cream">{r.milk_type || "Sí"}</p>
+            </div>
+          )}
         </div>
 
         <section className="mb-8">

@@ -33,6 +33,8 @@ create table if not exists coffee_reviews (
   overall_rating smallint not null check (overall_rating between 1 and 10),
   price numeric,
   notes text,
+  has_milk boolean not null default false,
+  milk_type text,
   user_email text,
   user_name text,
   user_image text

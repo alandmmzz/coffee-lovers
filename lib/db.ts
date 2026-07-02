@@ -33,6 +33,8 @@ export type CoffeeReview = {
   overall_rating: number;
   price: number | null;
   notes: string | null;
+  has_milk: boolean;
+  milk_type: string | null;
   user_email?: string | null;
   user_name?: string | null;
   user_image?: string | null;

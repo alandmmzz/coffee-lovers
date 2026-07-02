@@ -16,8 +16,9 @@ muestra el archivo completo de la comunidad y `/profile` muestra solo las tuyas.
    marca/tipo/origen sueltos).
    - Si ya tenías la tabla de una versión anterior, corré en orden:
      [`db/migrations/001_add_user_fields.sql`](./db/migrations/001_add_user_fields.sql),
-     [`db/migrations/002_coffee_catalog.sql`](./db/migrations/002_coffee_catalog.sql)
-     y [`db/migrations/003_coffee_details.sql`](./db/migrations/003_coffee_details.sql).
+     [`db/migrations/002_coffee_catalog.sql`](./db/migrations/002_coffee_catalog.sql),
+     [`db/migrations/003_coffee_details.sql`](./db/migrations/003_coffee_details.sql)
+     y [`db/migrations/004_milk_field.sql`](./db/migrations/004_milk_field.sql).
    - Opcional: corré [`db/seeds/dore.sql`](./db/seeds/dore.sql) para precargar
      el catálogo de cafés de Doré (marca, línea, finca, variedad, proceso y
      notas del tostador de cada uno).
@@ -105,8 +106,19 @@ En vez de escribir marca y línea a mano en cada review, el form busca dentro
 de un catálogo compartido (`coffees`: marca, línea/tipo, origen, proceso).
 Si no existe el café, se puede crear ahí mismo desde el selector — queda
 disponible para todos los usuarios a partir de ese momento. El proceso
-(lavado/honey/natural) y el origen viven en el café, no en cada review,
+(lavado/honey/natural/etc.) y el origen viven en el café, no en cada review,
 porque son características fijas del producto.
+
+## Perfil
+
+`/profile` muestra, además de la lista de tus propias reviews:
+- Total de cafés catados y puntaje promedio.
+- **Café favorito**: el que tiene mejor promedio entre los que probaste
+  (desempata por cantidad de veces catado).
+- **Último catado**: la review más reciente.
+- Un **calendario de actividad estilo GitHub** (`ActivityHeatmap`), con
+  la cantidad de reviews por día del último año, en tonos marrones acordes
+  a la paleta del proyecto.
 
 ## Estructura
 
@@ -119,6 +131,7 @@ porque son características fijas del producto.
 - `app/api/coffees/route.ts` — API route que lista y crea cafés del catálogo
 - `app/api/auth/[...nextauth]/route.ts` — endpoints de NextAuth
 - `app/components/CoffeeSelector.tsx` — buscador/creador de cafés del catálogo
+- `app/components/ActivityHeatmap.tsx` — calendario de actividad estilo GitHub
 - `app/components/StarRating.tsx` — rating en 5 estrellas (a partir de la escala 1-10)
 - `app/components/UserMenu.tsx` — avatar + dropdown de login/logout
 - `app/components/Header.tsx` — header compartido en todas las páginas

@@ -1,3 +1,4 @@
+import { Milk } from "lucide-react";
 import type { CoffeeReview } from "@/lib/db";
 import { ROAST_LABELS, PROCESS_LABELS } from "@/lib/constants";
 import StarRating from "./StarRating";
@@ -26,6 +27,12 @@ export default function ReviewCard({
               .filter(Boolean)
               .join(" · ")}
           </p>
+          {r.has_milk && (
+            <p className="flex items-center gap-1 font-mono text-[11px] text-parchment-dim mt-1">
+              <Milk size={11} />
+              Con leche{r.milk_type ? ` (${r.milk_type})` : ""}
+            </p>
+          )}
         </div>
         <div className="text-right shrink-0">
           <StarRating rating={r.overall_rating} size={16} />

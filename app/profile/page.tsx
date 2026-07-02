@@ -1,11 +1,13 @@
 import Link from "next/link";
-import { PlusCircle, ListFilter } from "lucide-react";
+import { PlusCircle, ListFilter, Star, Coffee, History, Award } from "lucide-react";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import sql from "@/lib/db";
 import type { CoffeeReview } from "@/lib/db";
 import ReviewCard from "../components/ReviewCard";
+import ActivityHeatmap from "../components/ActivityHeatmap";
+import { formatRelativeTime } from "@/lib/formatRelativeTime";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +19,7 @@ export default async function ProfilePage() {
   }
 
   let reviews: CoffeeReview[] = [];
+  let dailyCounts: { date: string; count: number }[] = [];
   let error: string | null = null;
 
   try {
@@ -27,8 +30,17 @@ export default async function ProfilePage() {
       where r.user_email = ${session.user.email}
       order by r.created_at desc
     `) as unknown as CoffeeReview[];
+
+    const rows = (await sql`
+      select to_char(created_at, 'YYYY-MM-DD') as date, count(*)::int as count
+      from coffee_reviews
+      where user_email = ${session.user.email}
+        and created_at >= now() - interval '371 days'
+      group by date
+    `) as unknown as { date: string; count: number }[];
+    dailyCounts = rows;
   } catch (err: any) {
-    console.error("Error al cargar reviews del perfil:", err);
+    console.error("Error al cargar el perfil:", err);
     error = "Hubo un problema al conectar con la base de datos. Probá de nuevo en un momento.";
   }
 
@@ -36,6 +48,21 @@ export default async function ProfilePage() {
     reviews.length > 0
       ? (reviews.reduce((sum, r) => sum + r.overall_rating, 0) / reviews.length).toFixed(1)
       : null;
+
+  // Café favorito: el de mejor promedio entre los que probó, desempatando por cantidad de veces catado
+  const byCoffee = new Map<string, { label: string; total: number; count: number }>();
+  for (const r of reviews) {
+    const key = `${r.brand} — ${r.line}`;
+    const entry = byCoffee.get(key) ?? { label: key, total: 0, count: 0 };
+    entry.total += r.overall_rating;
+    entry.count += 1;
+    byCoffee.set(key, entry);
+  }
+  const favorite = [...byCoffee.values()]
+    .map((c) => ({ ...c, avg: c.total / c.count }))
+    .sort((a, b) => b.avg - a.avg || b.count - a.count)[0];
+
+  const lastReview = reviews[0];
 
   return (
     <main className="min-h-screen px-4 py-12 sm:py-16">
@@ -62,23 +89,6 @@ export default async function ProfilePage() {
             </div>
           </div>
 
-          <div className="flex gap-6 mb-6">
-            <div>
-              <p className="font-mono text-2xl text-crema leading-none">{reviews.length}</p>
-              <p className="font-mono text-[11px] text-parchment-dim uppercase mt-1">
-                Café{reviews.length === 1 ? "" : "s"} catado{reviews.length === 1 ? "" : "s"}
-              </p>
-            </div>
-            {avgRating && (
-              <div>
-                <p className="font-mono text-2xl text-crema leading-none">{avgRating}</p>
-                <p className="font-mono text-[11px] text-parchment-dim uppercase mt-1">
-                  Puntaje promedio
-                </p>
-              </div>
-            )}
-          </div>
-
           <div className="flex gap-3">
             <Link
               href="/"
@@ -97,9 +107,7 @@ export default async function ProfilePage() {
           </div>
         </header>
 
-        {error && (
-          <p className="text-cascara-light text-sm">{error}</p>
-        )}
+        {error && <p className="text-cascara-light text-sm mb-8">{error}</p>}
 
         {!error && reviews.length === 0 && (
           <p className="font-body text-parchment-dim">
@@ -111,11 +119,65 @@ export default async function ProfilePage() {
           </p>
         )}
 
-        <ul className="space-y-4">
-          {reviews.map((r) => (
-            <ReviewCard key={r.id} review={r} showTaster={false} />
-          ))}
-        </ul>
+        {!error && reviews.length > 0 && (
+          <>
+            {/* Insights */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-10">
+              <div className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-4">
+                <Coffee size={14} className="text-parchment-dim mb-2" />
+                <p className="font-mono text-xl text-crema leading-none">{reviews.length}</p>
+                <p className="font-mono text-[10px] text-parchment-dim uppercase mt-1.5">
+                  Café{reviews.length === 1 ? "" : "s"} catado{reviews.length === 1 ? "" : "s"}
+                </p>
+              </div>
+
+              <div className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-4">
+                <Star size={14} className="text-parchment-dim mb-2" />
+                <p className="font-mono text-xl text-crema leading-none">{avgRating}</p>
+                <p className="font-mono text-[10px] text-parchment-dim uppercase mt-1.5">
+                  Puntaje promedio
+                </p>
+              </div>
+
+              {favorite && (
+                <div className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-4">
+                  <Award size={14} className="text-parchment-dim mb-2" />
+                  <p className="font-body text-sm text-cream leading-tight truncate">
+                    {favorite.label}
+                  </p>
+                  <p className="font-mono text-[10px] text-parchment-dim uppercase mt-1.5">
+                    Café favorito
+                  </p>
+                </div>
+              )}
+
+              {lastReview && (
+                <div className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-4">
+                  <History size={14} className="text-parchment-dim mb-2" />
+                  <p className="font-body text-sm text-cream leading-tight truncate">
+                    {lastReview.brand} — {lastReview.line}
+                  </p>
+                  <p className="font-mono text-[10px] text-parchment-dim uppercase mt-1.5">
+                    {lastReview.created_at ? formatRelativeTime(lastReview.created_at) : ""}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Calendario de actividad */}
+            <div className="mb-10">
+              <h2 className="font-display text-lg text-cream mb-4">Actividad del último año</h2>
+              <ActivityHeatmap counts={dailyCounts} />
+            </div>
+
+            <h2 className="font-display text-lg text-cream mb-4">Todas tus reviews</h2>
+            <ul className="space-y-4">
+              {reviews.map((r) => (
+                <ReviewCard key={r.id} review={r} showTaster={false} />
+              ))}
+            </ul>
+          </>
+        )}
       </div>
     </main>
   );

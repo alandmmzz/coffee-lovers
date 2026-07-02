@@ -36,6 +36,8 @@ const initialForm = {
   brew_method: "",
   price: "",
   notes: "",
+  has_milk: false,
+  milk_type: "",
 };
 
 export default function Home() {
@@ -77,6 +79,8 @@ export default function Home() {
             overall_rating: overall,
             price: form.price ? Number(form.price) : null,
             notes: form.notes.trim() || null,
+            has_milk: form.has_milk,
+            milk_type: form.has_milk ? form.milk_type.trim() || null : null,
           }),
         });
         const data = await res.json();
@@ -243,6 +247,45 @@ export default function Home() {
                   ))}
                 </select>
               </Field>
+
+              <div>
+                <label className="flex items-center gap-2.5 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={form.has_milk}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        has_milk: e.target.checked,
+                        milk_type: e.target.checked ? form.milk_type : "",
+                      })
+                    }
+                    className="w-4 h-4 accent-cascara"
+                  />
+                  <span className="font-body text-sm text-parchment">Le agregué leche</span>
+                </label>
+
+                {form.has_milk && (
+                  <div className="mt-3">
+                    <label className="field-label">Tipo de leche (opcional)</label>
+                    <input
+                      list="milk-suggestions"
+                      value={form.milk_type}
+                      onChange={(e) => setForm({ ...form, milk_type: e.target.value })}
+                      className="input-field"
+                      placeholder="Ej: Entera, descremada, avena..."
+                    />
+                    <datalist id="milk-suggestions">
+                      <option value="Entera" />
+                      <option value="Descremada" />
+                      <option value="Deslactosada" />
+                      <option value="Avena" />
+                      <option value="Almendra" />
+                      <option value="Soja" />
+                    </datalist>
+                  </div>
+                )}
+              </div>
             </div>
           </section>
 
