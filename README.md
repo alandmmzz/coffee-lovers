@@ -137,13 +137,25 @@ Cada login (vía GitHub o Google) registra o actualiza una fila en la tabla
 `users` — es la única forma de saber quién usó la app sin depender de que
 haya dejado alguna review.
 
+## Insights
+
+`/activity/insights` (pestaña dentro de Actividad) muestra tres rankings
+calculados sobre todas las reviews de la comunidad:
+- **Mejor valorado**: los cafés con mejor promedio de puntaje.
+- **Le gusta a varios**: los cafés que probaron más personas distintas
+  (no el más repetido por una sola persona, sino el de mayor alcance).
+- **Ranking de catadores**: quién dejó más reviews, con el promedio que
+  suele puntuar.
+
 ## Estructura
 
 - `app/page.tsx` — formulario principal (pide login si no hay sesión)
 - `app/reviews/page.tsx` — archivo público de todas las reviews
 - `app/reviews/[id]/edit/page.tsx` — edición de una review (solo el dueño)
 - `app/activity/page.tsx` — feed cronológico de actividad
+- `app/activity/insights/page.tsx` — rankings: mejor valorado, más popular, top catadores
 - `app/activity/[id]/page.tsx` — detalle completo de una review
+- `app/components/ActivityTabs.tsx` — pestañas Actividad / Insights
 - `app/profile/page.tsx` — reviews propias, insights y calendario de actividad
 - `app/admin/users/page.tsx` — lista de usuarios registrados (protegida por `ADMIN_EMAIL`)
 - `app/api/reviews/route.ts` — API route que inserta y lista reviews

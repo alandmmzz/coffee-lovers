@@ -4,6 +4,7 @@ import sql from "@/lib/db";
 import type { CoffeeReview } from "@/lib/db";
 import { formatRelativeTime } from "@/lib/formatRelativeTime";
 import StarRating from "../components/StarRating";
+import ActivityTabs from "../components/ActivityTabs";
 
 export const dynamic = "force-dynamic";
 
@@ -27,7 +28,7 @@ export default async function ActivityPage() {
   return (
     <main className="min-h-screen px-4 py-12 sm:py-16">
       <div className="max-w-2xl mx-auto">
-        <header className="mb-10">
+        <header className="mb-2">
           <p className="font-mono text-xs tracking-[0.2em] text-crema uppercase mb-3">
             Coffee Lovers · Actividad
           </p>
@@ -39,6 +40,8 @@ export default async function ActivityPage() {
             Tocá cualquier fila para ver el detalle completo.
           </p>
         </header>
+
+        <ActivityTabs />
 
         {error && <p className="text-cascara-light text-sm">{error}</p>}
 
