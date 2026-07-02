@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { X } from "lucide-react";
+import { X, Trash2 } from "lucide-react";
 import ReviewFormFields, {
   type ReviewFormState,
   type ReviewScores,
@@ -46,6 +46,7 @@ export default function EditReviewForm({ review }: { review: CoffeeReview }) {
   const [overall, setOverall] = useState(review.overall_rating);
   const [status, setStatus] = useState<"idle" | "sending" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
+  const [deleting, setDeleting] = useState(false);
 
   const canSubmit =
     coffee !== null &&
@@ -93,6 +94,31 @@ export default function EditReviewForm({ review }: { review: CoffeeReview }) {
     }
   }
 
+  async function handleDelete() {
+    const confirmed = window.confirm(
+      `¿Eliminar esta review de ${review.brand} — ${review.line}? No se puede deshacer.`
+    );
+    if (!confirmed) return;
+
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/reviews/${review.id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (!data.ok) {
+        setStatus("error");
+        setErrorMsg(data.error ?? "No se pudo eliminar la review.");
+        setDeleting(false);
+        return;
+      }
+      router.push("/profile");
+      router.refresh();
+    } catch (err: any) {
+      setStatus("error");
+      setErrorMsg(err.message ?? "No se pudo conectar con el servidor.");
+      setDeleting(false);
+    }
+  }
+
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
       <ReviewFormFields
@@ -128,6 +154,16 @@ export default function EditReviewForm({ review }: { review: CoffeeReview }) {
           Cancelar
         </Link>
       </div>
+
+      <button
+        type="button"
+        onClick={handleDelete}
+        disabled={deleting}
+        className="w-full flex items-center justify-center gap-1.5 py-3 border border-cascara/30 hover:border-cascara text-cascara-light disabled:opacity-60 font-body text-sm rounded-sm transition-colors"
+      >
+        <Trash2 size={15} />
+        {deleting ? "Eliminando..." : "Eliminar review"}
+      </button>
     </form>
   );
 }

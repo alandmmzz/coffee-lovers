@@ -3,6 +3,8 @@ import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import AuthProvider from "./components/AuthProvider";
 import Header from "./components/Header";
+import NotificationPrompt from "./components/NotificationPrompt";
+import InstallPrompt from "./components/InstallPrompt";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -52,7 +54,9 @@ export default function RootLayout({
         <AuthProvider>
           <Header />
           {children}
+          <NotificationPrompt />
         </AuthProvider>
+        <InstallPrompt />
       </body>
     </html>
   );

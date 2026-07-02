@@ -72,3 +72,36 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     );
   }
 }
+
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.email) {
+    return NextResponse.json(
+      { ok: false, error: 'Tenés que iniciar sesión para eliminar una review.' },
+      { status: 401 }
+    );
+  }
+
+  try {
+    const rows = await sql`
+      delete from coffee_reviews
+      where id = ${params.id} and user_email = ${session.user.email}
+      returning id
+    `;
+
+    if (rows.length === 0) {
+      return NextResponse.json(
+        { ok: false, error: 'No se encontró la review, o no te pertenece.' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ ok: true });
+  } catch (err: any) {
+    console.error("Error al eliminar review:", err);
+    return NextResponse.json(
+      { ok: false, error: 'No se pudo eliminar la review. Probá de nuevo en un momento.' },
+      { status: 500 }
+    );
+  }
+}

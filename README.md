@@ -124,7 +124,8 @@ porque son características fijas del producto.
   la cantidad de reviews por día del último año, en tonos marrones acordes
   a la paleta del proyecto.
 - Cada review propia tiene un link para **editarla** (marca, tueste,
-  atributos, todo). Solo el dueño de la review puede editarla — se valida
+  atributos, todo) y un botón para **eliminarla** (pide confirmación antes).
+  Solo el dueño de la review puede editarla o borrarla — se valida
   tanto en la página (`app/reviews/[id]/edit`) como en la API
   (`app/api/reviews/[id]/route.ts`, comparando el email de la sesión).
 
@@ -165,12 +166,30 @@ desde Chrome (Android) o Safari (iOS), la opción "Agregar a pantalla de
 inicio" la instala con ícono propio y sin la barra del navegador (modo
 `standalone`).
 
+Además, `app/components/InstallPrompt.tsx` muestra un banner sugiriendo
+instalarla, **solo en mobile** y solo si todavía no está instalada:
+- En Android/Chrome, dispara el diálogo nativo de instalación (evento
+  `beforeinstallprompt`).
+- En iOS, como Apple no expone ninguna API para instalar programáticamente,
+  muestra instrucciones ("Tocá Compartir → Agregar a inicio").
+- En desktop no aparece nunca.
+- Se puede cerrar, y no vuelve a insistir en ese dispositivo (`localStorage`).
+
 ## Notificaciones push
 
 Desde el dropdown del avatar (usuario logueado), "Activar notificaciones"
-suscribe ese dispositivo. A partir de ahí, cada vez que alguien carga una
-review nueva, todos los demás dispositivos suscriptos reciben un push tipo
-"Fulano cató Doré — 07", incluso con la app cerrada.
+suscribe ese dispositivo. Además, la primera vez que alguien entra logueado
+(y todavía no decidió nada sobre notificaciones en ese navegador), aparece
+un banner abajo a la derecha preguntando directamente si las quiere activar
+(`app/components/NotificationPrompt.tsx`) — no hace falta ir a buscarlo al
+menú. El banner no vuelve a aparecer una vez que la persona elige "Sí,
+activar" o "Ahora no" (se guarda en `localStorage`, por dispositivo), ni si
+el navegador ya tiene una decisión tomada de antes (permiso concedido o
+rechazado).
+
+A partir de ahí, cada vez que alguien carga una review nueva, todos los
+demás dispositivos suscriptos reciben un push tipo "Fulano cató Doré — 07",
+incluso con la app cerrada.
 
 **Cómo configurarlo:**
 
@@ -215,6 +234,8 @@ review nueva, todos los demás dispositivos suscriptos reciben un push tipo
 - `app/components/ActivityHeatmap.tsx` — calendario de actividad estilo GitHub
 - `app/components/StarRating.tsx` — rating en 5 estrellas (a partir de la escala 1-10)
 - `app/components/UserMenu.tsx` — avatar + dropdown de login/logout
+- `app/components/NotificationPrompt.tsx` — banner que pregunta por activar notificaciones la primera vez
+- `app/components/InstallPrompt.tsx` — banner que sugiere instalar la app, solo en mobile
 - `app/components/Header.tsx` — header compartido en todas las páginas
 - `app/components/AuthProvider.tsx` — wrapper del SessionProvider
 - `app/components/ReviewCard.tsx` — tarjeta de review, reutilizada en /reviews, /profile y /activity
