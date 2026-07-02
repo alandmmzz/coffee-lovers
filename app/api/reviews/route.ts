@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import sql from '@/lib/db';
+import { sendPushToAllExcept } from '@/lib/push';
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -49,6 +50,22 @@ export async function POST(req: NextRequest) {
          ${body.price ?? null}, ${body.notes ?? null}, ${body.has_milk ?? false}, ${body.milk_type ?? null},
          ${session.user.email}, ${session.user.name ?? null}, ${session.user.image ?? null})
     `;
+
+    // Avisar a los demás usuarios suscriptos (no rompe el guardado si esto falla)
+    try {
+      const coffeeRows = await sql`select brand, line from coffees where id = ${body.coffee_id}`;
+      const coffee = coffeeRows[0] as { brand: string; line: string } | undefined;
+      if (coffee) {
+        await sendPushToAllExcept(session.user.email, {
+          title: "Nueva review en Coffee Lovers",
+          body: `${session.user.name ?? "Alguien"} cató ${coffee.brand} — ${coffee.line}`,
+          url: "/activity",
+        });
+      }
+    } catch (pushErr) {
+      console.error("Error al enviar notificaciones push:", pushErr);
+    }
+
     return NextResponse.json({ ok: true });
   } catch (err: any) {
     console.error("Error al guardar review:", err);

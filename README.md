@@ -18,8 +18,9 @@ muestra el archivo completo de la comunidad y `/profile` muestra solo las tuyas.
      [`db/migrations/001_add_user_fields.sql`](./db/migrations/001_add_user_fields.sql),
      [`db/migrations/002_coffee_catalog.sql`](./db/migrations/002_coffee_catalog.sql),
      [`db/migrations/003_coffee_details.sql`](./db/migrations/003_coffee_details.sql),
-     [`db/migrations/004_milk_field.sql`](./db/migrations/004_milk_field.sql)
-     y [`db/migrations/005_users_table.sql`](./db/migrations/005_users_table.sql).
+     [`db/migrations/004_milk_field.sql`](./db/migrations/004_milk_field.sql),
+     [`db/migrations/005_users_table.sql`](./db/migrations/005_users_table.sql)
+     y [`db/migrations/006_push_subscriptions.sql`](./db/migrations/006_push_subscriptions.sql).
    - Opcional: corré [`db/seeds/dore.sql`](./db/seeds/dore.sql) para precargar
      el catálogo de cafés de Doré (marca, línea, finca, variedad, proceso y
      notas del tostador de cada uno).
@@ -160,8 +161,36 @@ El favicon y los íconos (`app/favicon.ico`, `app/icon.png`, `app/apple-icon.png
 además tiene `app/manifest.ts`, lo que la hace **instalable en el celular**:
 desde Chrome (Android) o Safari (iOS), la opción "Agregar a pantalla de
 inicio" la instala con ícono propio y sin la barra del navegador (modo
-`standalone`). No incluye service worker ni funcionamiento offline —
-eso es un paso aparte, más complejo, y no hacía falta para lo que pediste.
+`standalone`).
+
+## Notificaciones push
+
+Desde el dropdown del avatar (usuario logueado), "Activar notificaciones"
+suscribe ese dispositivo. A partir de ahí, cada vez que alguien carga una
+review nueva, todos los demás dispositivos suscriptos reciben un push tipo
+"Fulano cató Doré — 07", incluso con la app cerrada.
+
+**Cómo configurarlo:**
+
+1. Generá tu propio par de claves (no reutilices las de ejemplo en producción):
+   ```bash
+   npx web-push generate-vapid-keys
+   ```
+2. Cargá en `.env.local` y en Vercel:
+   ```
+   NEXT_PUBLIC_VAPID_PUBLIC_KEY=<Public Key>
+   VAPID_PRIVATE_KEY=<Private Key>
+   VAPID_SUBJECT=mailto:tu-email@ejemplo.com
+   ```
+3. Corré la migración [`db/migrations/006_push_subscriptions.sql`](./db/migrations/006_push_subscriptions.sql)
+   (crea la tabla `push_subscriptions`).
+
+**Limitaciones a tener en cuenta:**
+- En iPhone, solo funciona si la persona **instaló** la app a la pantalla
+  de inicio (no alcanza con tenerla abierta en Safari), y necesita iOS 16.4+.
+- En Android/Chrome funciona directo, instalada o no.
+- Si el navegador no soporta push, el botón de notificaciones directamente
+  no aparece (en vez de mostrar un error).
 
 ## Estructura
 

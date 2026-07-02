@@ -53,6 +53,18 @@ create table if not exists coffee_reviews (
 create index if not exists idx_coffee_reviews_user_email on coffee_reviews (user_email);
 create index if not exists idx_coffee_reviews_coffee_id on coffee_reviews (coffee_id);
 
+-- Suscripciones a notificaciones push, una fila por dispositivo que las activó
+create table if not exists push_subscriptions (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+  user_email text not null,
+  endpoint text not null unique,
+  p256dh text not null,
+  auth text not null
+);
+
+create index if not exists idx_push_subscriptions_user_email on push_subscriptions (user_email);
+
 -- Neon no maneja permisos por RLS/policies como Supabase: el control de
 -- acceso queda del lado del servidor, en las API routes. Estas tablas
 -- quedan accesibles solo a través de esas rutas, nunca directo desde
