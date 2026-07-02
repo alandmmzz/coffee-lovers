@@ -27,7 +27,7 @@ export default async function ActivityDetailPage({
 
   try {
     const rows = (await sql`
-      select r.*, c.brand, c.line, c.origin, c.process
+      select r.*, c.brand, c.line, c.origin, c.farm, c.variety, c.process, c.tasting_notes
       from coffee_reviews r
       join coffees c on c.id = r.coffee_id
       where r.id = ${params.id}
@@ -76,10 +76,10 @@ export default async function ActivityDetailPage({
           {r.brand} — {r.line}
         </h1>
 
-        {r.origin && (
+        {(r.origin || r.variety) && (
           <p className="flex items-center gap-1.5 font-mono text-xs text-parchment-dim mb-5">
             <MapPin size={13} />
-            {r.origin}
+            {[r.origin, r.variety].filter(Boolean).join(" · ")}
           </p>
         )}
 
@@ -142,6 +142,28 @@ export default async function ActivityDetailPage({
             ))}
           </div>
         </section>
+
+        {(r.farm || r.tasting_notes) && (
+          <section className="mb-8">
+            <h2 className="font-display text-lg text-cream mb-3">Ficha del café</h2>
+            <div className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-4 space-y-3">
+              {r.farm && (
+                <div>
+                  <p className="font-mono text-[10px] text-parchment-dim uppercase mb-1">Finca</p>
+                  <p className="font-body text-sm text-cream">{r.farm}</p>
+                </div>
+              )}
+              {r.tasting_notes && (
+                <div>
+                  <p className="font-mono text-[10px] text-parchment-dim uppercase mb-1">
+                    Notas del tostador
+                  </p>
+                  <p className="font-body text-sm text-parchment">{r.tasting_notes}</p>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
 
         {r.notes && (
           <section className="mb-8">

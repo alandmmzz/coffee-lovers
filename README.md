@@ -15,10 +15,12 @@ muestra el archivo completo de la comunidad y `/profile` muestra solo las tuyas.
    `coffees` (el catálogo) y `coffee_reviews` (ya con `coffee_id` en vez de
    marca/tipo/origen sueltos).
    - Si ya tenías la tabla de una versión anterior, corré en orden:
-     [`db/migrations/001_add_user_fields.sql`](./db/migrations/001_add_user_fields.sql)
-     y después
+     [`db/migrations/001_add_user_fields.sql`](./db/migrations/001_add_user_fields.sql),
      [`db/migrations/002_coffee_catalog.sql`](./db/migrations/002_coffee_catalog.sql)
-     (esta última migra los cafés que ya tenías cargados al nuevo catálogo).
+     y [`db/migrations/003_coffee_details.sql`](./db/migrations/003_coffee_details.sql).
+   - Opcional: corré [`db/seeds/dore.sql`](./db/seeds/dore.sql) para precargar
+     el catálogo de cafés de Doré (marca, línea, finca, variedad, proceso y
+     notas del tostador de cada uno).
 3. En el dashboard del proyecto, copiá el **Connection string**.
 
 ## 2. Crear la app de OAuth en GitHub

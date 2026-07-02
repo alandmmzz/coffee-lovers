@@ -12,7 +12,7 @@ export default async function ReviewsPage() {
 
   try {
     reviews = (await sql`
-      select r.*, c.brand, c.line, c.origin, c.process
+      select r.*, c.brand, c.line, c.origin, c.farm, c.variety, c.process, c.tasting_notes
       from coffee_reviews r
       join coffees c on c.id = r.coffee_id
       order by r.created_at desc

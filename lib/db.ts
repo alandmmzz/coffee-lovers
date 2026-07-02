@@ -10,7 +10,10 @@ export type Coffee = {
   brand: string;
   line: string;
   origin: string | null;
+  farm: string | null;
+  variety: string | null;
   process: string | null;
+  tasting_notes: string | null;
 };
 
 export type CoffeeReview = {
@@ -37,5 +40,8 @@ export type CoffeeReview = {
   brand?: string;
   line?: string;
   origin?: string | null;
+  farm?: string | null;
+  variety?: string | null;
   process?: string | null;
+  tasting_notes?: string | null;
 };

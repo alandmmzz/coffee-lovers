@@ -9,7 +9,10 @@ create table if not exists coffees (
   brand text not null,
   line text not null,
   origin text,
-  process text, -- 'lavado' | 'honey' | 'natural'
+  farm text,
+  variety text,
+  process text, -- texto libre: 'Lavado', 'Honey', 'Natural', 'Fermentación anaeróbica', etc.
+  tasting_notes text, -- notas de cata del tostador (distinto a las notas de cada review)
   unique (brand, line)
 );
 
@@ -42,3 +45,6 @@ create index if not exists idx_coffee_reviews_coffee_id on coffee_reviews (coffe
 -- acceso queda del lado del servidor, en las API routes. Estas tablas
 -- quedan accesibles solo a través de esas rutas, nunca directo desde
 -- el navegador (la connection string nunca se expone al cliente).
+
+-- Para precargar el catálogo de cafés de Doré, correr después:
+-- db/seeds/dore.sql

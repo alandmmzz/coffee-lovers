@@ -20,6 +20,8 @@ export default function CoffeeSelector({
   const [newBrand, setNewBrand] = useState("");
   const [newLine, setNewLine] = useState("");
   const [newOrigin, setNewOrigin] = useState("");
+  const [newFarm, setNewFarm] = useState("");
+  const [newVariety, setNewVariety] = useState("");
   const [newProcess, setNewProcess] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -65,7 +67,9 @@ export default function CoffeeSelector({
           brand: newBrand.trim(),
           line: newLine.trim(),
           origin: newOrigin.trim() || null,
-          process: newProcess || null,
+          farm: newFarm.trim() || null,
+          variety: newVariety.trim() || null,
+          process: newProcess.trim() || null,
         }),
       });
       const data = await res.json();
@@ -82,6 +86,8 @@ export default function CoffeeSelector({
       setNewBrand("");
       setNewLine("");
       setNewOrigin("");
+      setNewFarm("");
+      setNewVariety("");
       setNewProcess("");
     } catch (err: any) {
       setError(err.message ?? "No se pudo crear el café.");
@@ -145,9 +151,9 @@ export default function CoffeeSelector({
                         <span className="font-body text-sm text-cream">
                           {c.brand} — {c.line}
                         </span>
-                        {(c.origin || c.process) && (
+                        {(c.origin || c.process || c.variety) && (
                           <span className="block font-mono text-[11px] text-parchment-dim mt-0.5">
-                            {[c.origin, c.process ? PROCESS_LABELS[c.process] ?? c.process : null]
+                            {[c.origin, c.variety, c.process ? PROCESS_LABELS[c.process] ?? c.process : null]
                               .filter(Boolean)
                               .join(" · ")}
                           </span>
@@ -201,21 +207,45 @@ export default function CoffeeSelector({
                   value={newOrigin}
                   onChange={(e) => setNewOrigin(e.target.value)}
                   className="input-field"
-                  placeholder="Ej: Brasil, Colombia..."
+                  placeholder="Ej: Brasil, Mantiqueira de Minas"
                 />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="field-label">Finca (opcional)</label>
+                  <input
+                    value={newFarm}
+                    onChange={(e) => setNewFarm(e.target.value)}
+                    className="input-field"
+                    placeholder="Ej: Capadoccia"
+                  />
+                </div>
+                <div>
+                  <label className="field-label">Variedad (opcional)</label>
+                  <input
+                    value={newVariety}
+                    onChange={(e) => setNewVariety(e.target.value)}
+                    className="input-field"
+                    placeholder="Ej: Catuaí rojo"
+                  />
+                </div>
               </div>
               <div>
                 <label className="field-label">Proceso (opcional)</label>
-                <select
+                <input
+                  list="process-suggestions"
                   value={newProcess}
                   onChange={(e) => setNewProcess(e.target.value)}
                   className="input-field"
-                >
-                  <option value="">Sin especificar</option>
-                  <option value="lavado">Lavado</option>
-                  <option value="honey">Honey</option>
-                  <option value="natural">Natural</option>
-                </select>
+                  placeholder="Ej: Lavado, Honey, Natural..."
+                />
+                <datalist id="process-suggestions">
+                  <option value="Lavado" />
+                  <option value="Honey" />
+                  <option value="Natural" />
+                  <option value="Natural fermentado" />
+                  <option value="Fermentación anaeróbica" />
+                </datalist>
               </div>
 
               {error && <p className="text-cascara-light text-xs">{error}</p>}
