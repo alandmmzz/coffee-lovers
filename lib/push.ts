@@ -18,11 +18,16 @@ type PushPayload = {
 };
 
 /**
- * Manda una notificación push a todos los usuarios suscriptos, excepto
- * a quien disparó la acción (por ejemplo, el que acaba de cargar la review).
+ * Manda una notificación push a los demás miembros de un grupo puntual,
+ * excepto a quien disparó la acción. Nunca sale del grupo: alguien que no
+ * comparte ningún grupo con el que catoó no recibe nada.
  * Si una suscripción ya no es válida (410/404), se borra de la base.
  */
-export async function sendPushToAllExcept(excludeEmail: string | null, payload: PushPayload) {
+export async function sendPushToGroupExcept(
+  groupId: string,
+  excludeEmail: string | null,
+  payload: PushPayload
+) {
   if (!configured) {
     console.warn('VAPID keys no configuradas: no se van a enviar notificaciones push.');
     return;
@@ -31,11 +36,13 @@ export async function sendPushToAllExcept(excludeEmail: string | null, payload: 
   let subscriptions: { id: string; endpoint: string; p256dh: string; auth: string }[] = [];
   try {
     subscriptions = (await sql`
-      select id, endpoint, p256dh, auth from push_subscriptions
-      where user_email is distinct from ${excludeEmail}
+      select ps.id, ps.endpoint, ps.p256dh, ps.auth
+      from push_subscriptions ps
+      join group_members gm on gm.user_email = ps.user_email
+      where gm.group_id = ${groupId} and ps.user_email is distinct from ${excludeEmail}
     `) as unknown as typeof subscriptions;
   } catch (err) {
-    console.error('Error al leer suscripciones push:', err);
+    console.error('Error al leer suscripciones push del grupo:', err);
     return;
   }
 

@@ -1,22 +1,47 @@
-import Link from "next/link";
-import { PlusCircle, ListFilter, Star, Coffee, History, Award, Milk } from "lucide-react";
 import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
+import { redirect, notFound } from "next/navigation";
+import { Star, Coffee as CoffeeIcon, History, Award, Milk } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import sql from "@/lib/db";
 import type { CoffeeReview } from "@/lib/db";
-import ReviewCard from "../components/ReviewCard";
-import ActivityHeatmap from "../components/ActivityHeatmap";
+import ReviewCard from "../../../../components/ReviewCard";
+import ActivityHeatmap from "../../../../components/ActivityHeatmap";
 import { formatRelativeTime } from "@/lib/formatRelativeTime";
 
 export const dynamic = "force-dynamic";
 
-export default async function ProfilePage() {
-  const session = await getServerSession(authOptions);
+type TargetUser = { email: string; name: string | null; image: string | null };
 
+export default async function MemberProfilePage({
+  params,
+}: {
+  params: { groupId: string; email: string };
+}) {
+  const session = await getServerSession(authOptions);
   if (!session?.user?.email) {
     redirect("/");
   }
+
+  const targetEmail = decodeURIComponent(params.email);
+
+  const viewerMembership = await sql`
+    select 1 from group_members where group_id = ${params.groupId} and user_email = ${session.user.email}
+  `;
+  if (viewerMembership.length === 0) {
+    redirect("/groups");
+  }
+
+  const targetMembership = await sql`
+    select 1 from group_members where group_id = ${params.groupId} and user_email = ${targetEmail}
+  `;
+  if (targetMembership.length === 0) {
+    notFound();
+  }
+
+  const userRows = (await sql`
+    select email, name, image from users where email = ${targetEmail}
+  `) as unknown as TargetUser[];
+  const targetUser = userRows[0];
 
   let reviews: CoffeeReview[] = [];
   let dailyCounts: { date: string; count: number }[] = [];
@@ -24,25 +49,22 @@ export default async function ProfilePage() {
 
   try {
     reviews = (await sql`
-      select r.*, c.brand, c.line, c.origin, c.farm, c.variety, c.process, c.tasting_notes,
-             g.name as group_name
+      select r.*, c.brand, c.line, c.origin, c.farm, c.variety, c.process, c.tasting_notes
       from coffee_reviews r
       join coffees c on c.id = r.coffee_id
-      join groups g on g.id = r.group_id
-      where r.user_email = ${session.user.email}
+      where r.group_id = ${params.groupId} and r.user_email = ${targetEmail}
       order by r.created_at desc
     `) as unknown as CoffeeReview[];
 
-    const rows = (await sql`
+    dailyCounts = (await sql`
       select to_char(created_at, 'YYYY-MM-DD') as date, count(*)::int as count
       from coffee_reviews
-      where user_email = ${session.user.email}
+      where group_id = ${params.groupId} and user_email = ${targetEmail}
         and created_at >= now() - interval '371 days'
       group by date
     `) as unknown as { date: string; count: number }[];
-    dailyCounts = rows;
-  } catch (err: any) {
-    console.error("Error al cargar el perfil:", err);
+  } catch (err) {
+    console.error("Error al cargar perfil del miembro:", err);
     error = "Hubo un problema al conectar con la base de datos. Probá de nuevo en un momento.";
   }
 
@@ -51,7 +73,6 @@ export default async function ProfilePage() {
       ? (reviews.reduce((sum, r) => sum + r.overall_rating, 0) / reviews.length).toFixed(1)
       : null;
 
-  // Café favorito: el de mejor promedio entre los que probó, desempatando por cantidad de veces catado
   const byCoffee = new Map<string, { label: string; total: number; count: number }>();
   for (const r of reviews) {
     const key = `${r.brand} — ${r.line}`;
@@ -66,81 +87,49 @@ export default async function ProfilePage() {
 
   const lastReview = reviews[0];
 
-  // Leche: qué porcentaje de tus reviews la llevaron, y qué tipo usás más
   const withMilk = reviews.filter((r) => r.has_milk);
-  const milkPercent =
-    reviews.length > 0 ? Math.round((withMilk.length / reviews.length) * 100) : 0;
-  const milkTypeCounts = new Map<string, number>();
-  for (const r of withMilk) {
-    if (!r.milk_type) continue;
-    milkTypeCounts.set(r.milk_type, (milkTypeCounts.get(r.milk_type) ?? 0) + 1);
-  }
-  const topMilkType = [...milkTypeCounts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
+  const milkPercent = reviews.length > 0 ? Math.round((withMilk.length / reviews.length) * 100) : 0;
 
   return (
     <main className="min-h-screen px-4 py-12 sm:py-16">
       <div className="max-w-3xl mx-auto">
         <header className="mb-10">
-          <div className="flex items-center gap-4 mb-6">
-            {session.user.image ? (
+          <div className="flex items-center gap-4">
+            {targetUser?.image ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={session.user.image}
-                alt={session.user.name ?? "Tu perfil"}
+                src={targetUser.image}
+                alt={targetUser.name ?? targetEmail}
                 className="w-16 h-16 rounded-full object-cover border-2 border-parchment-dim/25"
               />
             ) : (
               <div className="w-16 h-16 rounded-full bg-cascara/25 flex items-center justify-center font-display text-2xl text-cream">
-                {session.user.name?.[0]?.toUpperCase() ?? "?"}
+                {(targetUser?.name ?? targetEmail)[0]?.toUpperCase()}
               </div>
             )}
             <div>
               <h1 className="font-display text-2xl text-cream leading-tight">
-                {session.user.name}
+                {targetUser?.name ?? targetEmail}
               </h1>
-              <p className="font-mono text-xs text-parchment-dim mt-0.5">{session.user.email}</p>
+              <p className="font-mono text-xs text-parchment-dim mt-0.5">{targetEmail}</p>
             </div>
-          </div>
-
-          <div className="flex gap-3">
-            <Link
-              href="/"
-              className="flex items-center gap-1.5 px-4 py-2.5 bg-cascara hover:bg-cascara-light text-cream font-body text-sm rounded-sm transition-colors"
-            >
-              <PlusCircle size={16} />
-              Nueva review
-            </Link>
-            <Link
-              href="/groups"
-              className="flex items-center gap-1.5 px-4 py-2.5 border border-parchment-dim/25 hover:border-crema text-parchment font-body text-sm rounded-sm transition-colors"
-            >
-              <ListFilter size={16} />
-              Ver mis grupos
-            </Link>
           </div>
         </header>
 
         {error && <p className="text-cascara-light text-sm mb-8">{error}</p>}
 
         {!error && reviews.length === 0 && (
-          <p className="font-body text-parchment-dim">
-            Todavía no cargaste ninguna review. Andá a{" "}
-            <Link href="/" className="underline underline-offset-4">
-              catar tu primer café
-            </Link>
-            .
-          </p>
+          <p className="font-body text-parchment-dim">Todavía no cató nada en este grupo.</p>
         )}
 
         {!error && reviews.length > 0 && (
           <>
-            {/* Insights */}
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-10">
               <div className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-4">
-                <Coffee size={14} className="text-parchment-dim mb-2" />
+                <CoffeeIcon size={14} className="text-parchment-dim mb-2" />
                 <p className="font-mono text-xl text-crema leading-none">{reviews.length}</p>
                 <p className="font-mono text-[10px] text-parchment-dim uppercase mt-1.5">
-                  Café{reviews.length === 1 ? "" : "s"} catado{reviews.length === 1 ? "" : "s"}
+                  Café{reviews.length === 1 ? "" : "s"} en este grupo
                 </p>
               </div>
 
@@ -179,22 +168,19 @@ export default async function ProfilePage() {
               <div className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-4">
                 <Milk size={14} className="text-parchment-dim mb-2" />
                 <p className="font-mono text-xl text-crema leading-none">{milkPercent}%</p>
-                <p className="font-mono text-[10px] text-parchment-dim uppercase mt-1.5">
-                  Con leche{topMilkType ? ` · ${topMilkType}` : ""}
-                </p>
+                <p className="font-mono text-[10px] text-parchment-dim uppercase mt-1.5">Con leche</p>
               </div>
             </div>
 
-            {/* Calendario de actividad */}
             <div className="mb-10">
               <h2 className="font-display text-lg text-cream mb-4">Actividad del último año</h2>
               <ActivityHeatmap counts={dailyCounts} />
             </div>
 
-            <h2 className="font-display text-lg text-cream mb-4">Todas tus reviews</h2>
+            <h2 className="font-display text-lg text-cream mb-4">Reviews en este grupo</h2>
             <ul className="space-y-4">
               {reviews.map((r) => (
-                <ReviewCard key={r.id} review={r} showTaster={false} editable />
+                <ReviewCard key={r.id} review={r} showTaster={false} />
               ))}
             </ul>
           </>

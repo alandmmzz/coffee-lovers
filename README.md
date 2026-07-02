@@ -21,8 +21,11 @@ muestra el archivo completo de la comunidad y `/profile` muestra solo las tuyas.
      [`db/migrations/004_milk_field.sql`](./db/migrations/004_milk_field.sql),
      [`db/migrations/005_users_table.sql`](./db/migrations/005_users_table.sql),
      [`db/migrations/006_push_subscriptions.sql`](./db/migrations/006_push_subscriptions.sql),
-     [`db/migrations/007_roast_level_optional.sql`](./db/migrations/007_roast_level_optional.sql)
-     y [`db/migrations/008_temperature_preference.sql`](./db/migrations/008_temperature_preference.sql).
+     [`db/migrations/007_roast_level_optional.sql`](./db/migrations/007_roast_level_optional.sql),
+     [`db/migrations/008_temperature_preference.sql`](./db/migrations/008_temperature_preference.sql)
+     y [`db/migrations/009_groups.sql`](./db/migrations/009_groups.sql) (esta
+     última crea un grupo "Café original" con todo tu historial previo, y
+     agrega como miembros a todos los que ya habían participado).
    - Opcional: corré [`db/seeds/dore.sql`](./db/seeds/dore.sql) para precargar
      el catálogo de cafés de Doré (marca, línea, finca, variedad, proceso y
      notas del tostador de cada uno).
@@ -213,35 +216,77 @@ incluso con la app cerrada.
 - Si el navegador no soporta push, el botón de notificaciones directamente
   no aparece (en vez de mostrar un error).
 
+## Grupos (privacidad)
+
+La actividad, los insights y el archivo de reviews **ya no son globales**:
+viven dentro de un grupo, y solo sus miembros pueden verlos.
+
+- Cualquiera puede **crear un grupo** (`/groups/new`): nombre y, opcional,
+  una foto (por ahora se pega un link a una imagen, no hay subida de
+  archivos — eso queda para más adelante).
+- Cada grupo tiene un **link de invitación** único
+  (`/groups/join/[código]`). Cualquiera que entre a ese link y se loguee
+  queda adentro.
+- **Cualquier miembro** puede editar el nombre y la foto del grupo, no
+  solo quien lo creó.
+- Al catar un café, si sos miembro de más de un grupo, elegís en cuál
+  cargar la review. Si sos de uno solo, se usa automáticamente. Si no sos
+  de ninguno, el form te manda a crear uno primero.
+- Dentro de un grupo podés ver el **perfil de cualquier otro miembro**
+  (`/groups/[id]/members/[email]`) — pero solo sus datos dentro de ese
+  grupo puntual, no lo que haya cargado en otros grupos.
+- `/profile` sigue mostrando **tus propias reviews en todos tus grupos**
+  juntas (nunca fue un problema de privacidad, ya que solo mostraba tus
+  propios datos) — ahora cada tarjeta indica de qué grupo es, ya que
+  pueden mezclarse.
+- Las notificaciones push también quedaron acotadas: al cargar una review,
+  solo avisa a los demás miembros de **ese** grupo.
+
+**Reviews de antes de esta feature:** la migración `009_groups.sql` las
+mete a todas en un grupo llamado "Café original", y agrega como miembros a
+todos los que ya habían dejado alguna review — así nadie pierde su
+historial ni queda afuera.
+
 ## Estructura
 
-- `app/page.tsx` — formulario principal (pide login si no hay sesión)
-- `app/reviews/page.tsx` — archivo público de todas las reviews
-- `app/reviews/[id]/edit/page.tsx` — edición de una review (solo el dueño)
-- `app/activity/page.tsx` — feed cronológico de actividad
-- `app/activity/insights/page.tsx` — rankings: mejor valorado, más popular, top catadores
-- `app/activity/[id]/page.tsx` — detalle completo de una review
-- `app/components/ActivityTabs.tsx` — pestañas Actividad / Insights
-- `app/profile/page.tsx` — reviews propias, insights y calendario de actividad
+- `app/page.tsx` — formulario principal (pide login y grupo antes de mostrar el form)
+- `app/groups/page.tsx` — listado de mis grupos
+- `app/groups/new/page.tsx` — crear un grupo
+- `app/groups/[groupId]/page.tsx` — home del grupo: header editable, miembros
+- `app/groups/[groupId]/activity/page.tsx` — feed cronológico del grupo
+- `app/groups/[groupId]/activity/[id]/page.tsx` — detalle de una review
+- `app/groups/[groupId]/insights/page.tsx` — rankings del grupo
+- `app/groups/[groupId]/reviews/page.tsx` — archivo de reviews del grupo
+- `app/groups/[groupId]/members/[email]/page.tsx` — perfil de un miembro, acotado a ese grupo
+- `app/groups/join/[code]/page.tsx` — pantalla de invitación
+- `app/reviews/[id]/edit/page.tsx` — edición de una review (solo el dueño, sin importar el grupo)
+- `app/profile/page.tsx` — tus propias reviews en todos tus grupos, insights y calendario
 - `app/admin/users/page.tsx` — lista de usuarios registrados (protegida por `ADMIN_EMAIL`)
-- `app/api/reviews/route.ts` — API route que inserta y lista reviews
-- `app/api/reviews/[id]/route.ts` — API route que edita una review propia
+- `app/api/groups/route.ts` — listar mis grupos / crear uno
+- `app/api/groups/[id]/route.ts` — editar nombre/foto de un grupo
+- `app/api/groups/join/[code]/route.ts` — unirse por código de invitación
+- `app/api/reviews/route.ts` — crear una review (valida membresía al grupo)
+- `app/api/reviews/[id]/route.ts` — editar/eliminar una review propia
 - `app/api/coffees/route.ts` — API route que lista y crea cafés del catálogo
 - `app/api/auth/[...nextauth]/route.ts` — endpoints de NextAuth
+- `app/components/GroupHeader.tsx` — nombre/foto del grupo, editable por cualquier miembro
+- `app/components/GroupTabs.tsx` — pestañas Actividad / Insights / Reviews dentro de un grupo
+- `app/components/JoinGroupButton.tsx` — botón de unirse (o loguearse primero)
 - `app/components/ReviewFormFields.tsx` — campos del form, compartidos entre crear y editar
 - `app/components/EditReviewForm.tsx` — wrapper de edición sobre ReviewFormFields
 - `app/components/CoffeeSelector.tsx` — buscador/creador de cafés del catálogo
 - `app/components/ActivityHeatmap.tsx` — calendario de actividad estilo GitHub
 - `app/components/StarRating.tsx` — rating en 5 estrellas (a partir de la escala 1-10)
 - `app/components/UserMenu.tsx` — avatar + dropdown de login/logout
-- `app/components/NotificationPrompt.tsx` — banner que pregunta por activar notificaciones la primera vez
-- `app/components/InstallPrompt.tsx` — banner que sugiere instalar la app, solo en mobile
 - `app/components/Header.tsx` — header compartido en todas las páginas
 - `app/components/AuthProvider.tsx` — wrapper del SessionProvider
-- `app/components/ReviewCard.tsx` — tarjeta de review, reutilizada en /reviews, /profile y /activity
+- `app/components/NotificationPrompt.tsx` — banner que pregunta por activar notificaciones la primera vez
+- `app/components/InstallPrompt.tsx` — banner que sugiere instalar la app, solo en mobile
+- `app/components/ReviewCard.tsx` — tarjeta de review, reutilizada en varias páginas
 - `lib/auth.ts` — configuración de NextAuth (providers, callbacks, registro de logins)
 - `lib/db.ts` — cliente de conexión a Neon y tipos
-- `lib/constants.ts` — etiquetas compartidas (tueste, proceso)
+- `lib/push.ts` — envío de notificaciones push acotado a un grupo
+- `lib/constants.ts` — etiquetas compartidas (tueste, proceso, temperatura)
 - `lib/formatRelativeTime.ts` — formateo de fechas relativas ("hace 2 horas")
 - `db/schema.sql` — script para crear las tablas desde cero
 - `db/migrations/` — migraciones incrementales, correr en orden si ya tenías datos

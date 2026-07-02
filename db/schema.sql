@@ -12,6 +12,26 @@ create table if not exists users (
   last_seen_at timestamptz not null default now()
 );
 
+-- Grupos: cualquiera puede crear uno, e invitar gente con el link.
+-- Solo los miembros de un grupo ven la actividad/insights de ese grupo.
+create table if not exists groups (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+  name text not null,
+  image_url text,
+  invite_code text not null unique,
+  created_by text not null
+);
+
+create table if not exists group_members (
+  group_id uuid not null references groups(id) on delete cascade,
+  user_email text not null,
+  joined_at timestamptz not null default now(),
+  primary key (group_id, user_email)
+);
+
+create index if not exists idx_group_members_user_email on group_members (user_email);
+
 -- Catálogo de cafés: Marca + Línea/Tipo, con Origen y Proceso fijos por café
 create table if not exists coffees (
   id uuid primary key default gen_random_uuid(),
@@ -31,6 +51,7 @@ create table if not exists coffee_reviews (
   created_at timestamptz not null default now(),
   taster_name text not null,
   coffee_id uuid not null references coffees(id),
+  group_id uuid not null references groups(id),
   roast_level text,
   brew_method text not null,
   aroma smallint not null check (aroma between 1 and 5),

@@ -26,6 +26,11 @@ export default function ReviewCard({
           <h2 className="font-display text-xl text-cream">
             {r.brand} — {r.line}
           </h2>
+          {r.group_name && (
+            <p className="font-mono text-[10px] text-crema/80 uppercase tracking-wide mt-0.5">
+              {r.group_name}
+            </p>
+          )}
           <p className="font-mono text-xs text-parchment-dim mt-1">
             {[
               r.origin,

@@ -25,11 +25,21 @@ export type Coffee = {
   tasting_notes: string | null;
 };
 
+export type Group = {
+  id: string;
+  created_at?: string;
+  name: string;
+  image_url: string | null;
+  invite_code: string;
+  created_by: string;
+};
+
 export type CoffeeReview = {
   id?: string;
   created_at?: string;
   taster_name: string;
   coffee_id: string;
+  group_id: string;
   roast_level: string | null;
   brew_method: string;
   aroma: number;
@@ -56,4 +66,5 @@ export type CoffeeReview = {
   variety?: string | null;
   process?: string | null;
   tasting_notes?: string | null;
+  group_name?: string;
 };

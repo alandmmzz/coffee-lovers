@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Coffee, PlusCircle, Activity } from "lucide-react";
+import { Coffee, PlusCircle, Users } from "lucide-react";
 import UserMenu from "./UserMenu";
 
 export default function Header() {
@@ -20,11 +20,11 @@ export default function Header() {
             <span className="hidden sm:inline">Nueva review</span>
           </Link>
           <Link
-            href="/activity"
+            href="/groups"
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-sm text-parchment hover:bg-parchment/5 transition-colors"
           >
-            <Activity size={16} />
-            <span className="hidden sm:inline">Actividad</span>
+            <Users size={16} />
+            <span className="hidden sm:inline">Grupos</span>
           </Link>
         </nav>
 
