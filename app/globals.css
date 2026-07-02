@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  background-image:
+    radial-gradient(circle at 15% 10%, rgba(212, 168, 87, 0.06), transparent 40%),
+    radial-gradient(circle at 85% 90%, rgba(124, 139, 94, 0.05), transparent 45%);
+}
+
+::selection {
+  background-color: #D4A857;
+  color: #241812;
+}
+
+/* Focus visible consistente y accesible en toda la app */
+:focus-visible {
+  outline: 2px solid #D4A857;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+.tile-roast {
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+.tile-roast:hover {
+  transform: translateY(-2px);
+}
+
+.star-btn {
+  transition: transform 120ms ease;
+}
+
+.star-btn:hover {
+  transform: scale(1.15);
+}
+
+.field-label {
+  display: block;
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #DDD0B6;
+  margin-bottom: 0.375rem;
+}
+
+.input-field {
+  width: 100%;
+  background-color: rgba(237, 227, 208, 0.06);
+  border: 1px solid rgba(221, 208, 182, 0.25);
+  border-radius: 2px;
+  padding: 0.65rem 0.75rem;
+  font-family: var(--font-inter), sans-serif;
+  font-size: 0.9rem;
+  color: #F2E9DC;
+}
+
+.input-field::placeholder {
+  color: rgba(221, 208, 182, 0.4);
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: #D4A857;
+  background-color: rgba(237, 227, 208, 0.09);
+}
