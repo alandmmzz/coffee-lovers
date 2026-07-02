@@ -153,6 +153,16 @@ calculados sobre todas las reviews de la comunidad:
 El perfil (`/profile`) también suma una tarjeta personal: qué porcentaje
 de tus propias reviews llevaron leche y cuál es el tipo que más usás.
 
+## Ícono y PWA
+
+El favicon y los íconos (`app/favicon.ico`, `app/icon.png`, `app/apple-icon.png`,
+`public/icons/`) usan el mismo diseño de taza que el logo del header. La app
+además tiene `app/manifest.ts`, lo que la hace **instalable en el celular**:
+desde Chrome (Android) o Safari (iOS), la opción "Agregar a pantalla de
+inicio" la instala con ícono propio y sin la barra del navegador (modo
+`standalone`). No incluye service worker ni funcionamiento offline —
+eso es un paso aparte, más complejo, y no hacía falta para lo que pediste.
+
 ## Estructura
 
 - `app/page.tsx` — formulario principal (pide login si no hay sesión)
