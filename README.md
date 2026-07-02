@@ -17,8 +17,9 @@ muestra el archivo completo de la comunidad y `/profile` muestra solo las tuyas.
    - Si ya tenías la tabla de una versión anterior, corré en orden:
      [`db/migrations/001_add_user_fields.sql`](./db/migrations/001_add_user_fields.sql),
      [`db/migrations/002_coffee_catalog.sql`](./db/migrations/002_coffee_catalog.sql),
-     [`db/migrations/003_coffee_details.sql`](./db/migrations/003_coffee_details.sql)
-     y [`db/migrations/004_milk_field.sql`](./db/migrations/004_milk_field.sql).
+     [`db/migrations/003_coffee_details.sql`](./db/migrations/003_coffee_details.sql),
+     [`db/migrations/004_milk_field.sql`](./db/migrations/004_milk_field.sql)
+     y [`db/migrations/005_users_table.sql`](./db/migrations/005_users_table.sql).
    - Opcional: corré [`db/seeds/dore.sql`](./db/seeds/dore.sql) para precargar
      el catálogo de cafés de Doré (marca, línea, finca, variedad, proceso y
      notas del tostador de cada uno).
@@ -119,25 +120,46 @@ porque son características fijas del producto.
 - Un **calendario de actividad estilo GitHub** (`ActivityHeatmap`), con
   la cantidad de reviews por día del último año, en tonos marrones acordes
   a la paleta del proyecto.
+- Cada review propia tiene un link para **editarla** (marca, tueste,
+  atributos, todo). Solo el dueño de la review puede editarla — se valida
+  tanto en la página (`app/reviews/[id]/edit`) como en la API
+  (`app/api/reviews/[id]/route.ts`, comparando el email de la sesión).
+
+## Panel de admin
+
+`/admin/users` lista a todas las personas que alguna vez iniciaron sesión
+(hayan dejado una review o no), con cuántas reviews dejó cada una y cuándo
+fue su última actividad. Está protegido por la variable `ADMIN_EMAIL`: solo
+la sesión cuyo email coincida con esa variable puede entrar; cualquier otra
+persona logueada es redirigida a `/`.
+
+Cada login (vía GitHub o Google) registra o actualiza una fila en la tabla
+`users` — es la única forma de saber quién usó la app sin depender de que
+haya dejado alguna review.
 
 ## Estructura
 
 - `app/page.tsx` — formulario principal (pide login si no hay sesión)
 - `app/reviews/page.tsx` — archivo público de todas las reviews
+- `app/reviews/[id]/edit/page.tsx` — edición de una review (solo el dueño)
 - `app/activity/page.tsx` — feed cronológico de actividad
 - `app/activity/[id]/page.tsx` — detalle completo de una review
-- `app/profile/page.tsx` — reviews propias del usuario logueado
+- `app/profile/page.tsx` — reviews propias, insights y calendario de actividad
+- `app/admin/users/page.tsx` — lista de usuarios registrados (protegida por `ADMIN_EMAIL`)
 - `app/api/reviews/route.ts` — API route que inserta y lista reviews
+- `app/api/reviews/[id]/route.ts` — API route que edita una review propia
 - `app/api/coffees/route.ts` — API route que lista y crea cafés del catálogo
 - `app/api/auth/[...nextauth]/route.ts` — endpoints de NextAuth
+- `app/components/ReviewFormFields.tsx` — campos del form, compartidos entre crear y editar
+- `app/components/EditReviewForm.tsx` — wrapper de edición sobre ReviewFormFields
 - `app/components/CoffeeSelector.tsx` — buscador/creador de cafés del catálogo
 - `app/components/ActivityHeatmap.tsx` — calendario de actividad estilo GitHub
 - `app/components/StarRating.tsx` — rating en 5 estrellas (a partir de la escala 1-10)
 - `app/components/UserMenu.tsx` — avatar + dropdown de login/logout
 - `app/components/Header.tsx` — header compartido en todas las páginas
 - `app/components/AuthProvider.tsx` — wrapper del SessionProvider
-- `app/components/ReviewCard.tsx` — tarjeta de review reutilizada en /reviews y /profile
-- `lib/auth.ts` — configuración de NextAuth (providers, callbacks)
+- `app/components/ReviewCard.tsx` — tarjeta de review, reutilizada en /reviews, /profile y /activity
+- `lib/auth.ts` — configuración de NextAuth (providers, callbacks, registro de logins)
 - `lib/db.ts` — cliente de conexión a Neon y tipos
 - `lib/constants.ts` — etiquetas compartidas (tueste, proceso)
 - `lib/formatRelativeTime.ts` — formateo de fechas relativas ("hace 2 horas")

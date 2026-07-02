@@ -19,12 +19,6 @@ export default async function ActivityPage() {
       order by r.created_at desc
       limit 100
     `) as unknown as CoffeeReview[];
-    console.log(
-      "[DEBUG activity] filas:",
-      reviews.length,
-      "| DB host:",
-      process.env.DATABASE_URL?.split("@")[1]?.split("/")[0]
-    );
   } catch (err: any) {
     console.error("Error al cargar la actividad:", err);
     error = "Hubo un problema al conectar con la base de datos. Probá de nuevo en un momento.";

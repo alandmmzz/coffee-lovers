@@ -2,6 +2,16 @@
 
 create extension if not exists "pgcrypto";
 
+-- Usuarios que iniciaron sesión al menos una vez (se registra en cada login,
+-- incluso si esa persona nunca llega a dejar una review)
+create table if not exists users (
+  email text primary key,
+  name text,
+  image text,
+  first_seen_at timestamptz not null default now(),
+  last_seen_at timestamptz not null default now()
+);
+
 -- Catálogo de cafés: Marca + Línea/Tipo, con Origen y Proceso fijos por café
 create table if not exists coffees (
   id uuid primary key default gen_random_uuid(),

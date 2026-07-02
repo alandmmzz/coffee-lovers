@@ -1,4 +1,5 @@
-import { Milk } from "lucide-react";
+import Link from "next/link";
+import { Milk, Pencil } from "lucide-react";
 import type { CoffeeReview } from "@/lib/db";
 import { ROAST_LABELS, PROCESS_LABELS } from "@/lib/constants";
 import StarRating from "./StarRating";
@@ -6,9 +7,11 @@ import StarRating from "./StarRating";
 export default function ReviewCard({
   review: r,
   showTaster = true,
+  editable = false,
 }: {
   review: CoffeeReview;
   showTaster?: boolean;
+  editable?: boolean;
 }) {
   return (
     <li className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-5">
@@ -50,6 +53,15 @@ export default function ReviewCard({
                 {r.taster_name}
               </p>
             </div>
+          )}
+          {editable && r.id && (
+            <Link
+              href={`/reviews/${r.id}/edit`}
+              className="inline-flex items-center gap-1 font-mono text-[11px] text-parchment-dim hover:text-crema transition-colors mt-1.5"
+            >
+              <Pencil size={11} />
+              Editar
+            </Link>
           )}
         </div>
       </div>

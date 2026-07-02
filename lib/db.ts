@@ -1,6 +1,15 @@
 import { neon } from '@neondatabase/serverless';
 
-const sql = neon(process.env.DATABASE_URL as string);
+// fetchOptions con cache: 'no-store' es necesario porque Next.js cachea
+// por default cualquier fetch() que se haga durante el render — incluido
+// el que usa el driver de Neon por debajo — aunque la página esté marcada
+// como force-dynamic. Sin esto, las páginas muestran siempre la primera
+// respuesta que se cacheó, ignorando filas nuevas.
+const sql = neon(process.env.DATABASE_URL as string, {
+  fetchOptions: {
+    cache: 'no-store',
+  },
+});
 
 export default sql;
 

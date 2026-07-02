@@ -173,7 +173,7 @@ export default async function ProfilePage() {
             <h2 className="font-display text-lg text-cream mb-4">Todas tus reviews</h2>
             <ul className="space-y-4">
               {reviews.map((r) => (
-                <ReviewCard key={r.id} review={r} showTaster={false} />
+                <ReviewCard key={r.id} review={r} showTaster={false} editable />
               ))}
             </ul>
           </>

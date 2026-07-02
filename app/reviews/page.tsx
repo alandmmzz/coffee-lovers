@@ -17,12 +17,6 @@ export default async function ReviewsPage() {
       join coffees c on c.id = r.coffee_id
       order by r.created_at desc
     `) as unknown as CoffeeReview[];
-    console.log(
-      "[DEBUG reviews] filas:",
-      reviews.length,
-      "| DB host:",
-      process.env.DATABASE_URL?.split("@")[1]?.split("/")[0]
-    );
   } catch (err: any) {
     console.error("Error al cargar el archivo de reviews:", err);
     error = "Hubo un problema al conectar con la base de datos. Probá de nuevo en un momento.";
