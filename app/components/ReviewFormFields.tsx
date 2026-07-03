@@ -1,9 +1,10 @@
 "use client";
 
-import { Snowflake, Thermometer, Flame, Wind, Citrus, Candy, Layers, Leaf, Clock, Scale } from "lucide-react";
+import { Snowflake, Thermometer, Flame, Wind, Citrus, Candy, Layers, Leaf, Clock, Scale, MapPin, Home } from "lucide-react";
 import ScoreScale from "./ScoreScale";
 import StarRating from "./StarRating";
 import CoffeeSelector from "./CoffeeSelector";
+import PlaceAutocomplete, { type PlaceValue } from "./PlaceAutocomplete";
 import type { Coffee } from "@/lib/db";
 
 export const BREW_METHODS = [
@@ -34,12 +35,13 @@ export type ReviewFormState = {
   has_milk: boolean;
   milk_type: string;
   temperature: string;
+  consumption_type: string;
 };
 
 const TEMPERATURE_OPTIONS = [
-  { value: "frio", label: "Frío", icon: Snowflake },
-  { value: "tibio", label: "Tibio", icon: Thermometer },
-  { value: "caliente", label: "Caliente", icon: Flame },
+  { value: "frio", label: "Frío", icon: Snowflake, color: "#5A8FB8" },
+  { value: "tibio", label: "Tibio", icon: Thermometer, color: "#C98A3D" },
+  { value: "caliente", label: "Caliente", icon: Flame, color: "#C1432E" },
 ];
 
 export function Field({ label, children }: { label: string; children: React.ReactNode }) {
@@ -54,6 +56,8 @@ export function Field({ label, children }: { label: string; children: React.Reac
 export default function ReviewFormFields({
   coffee,
   setCoffee,
+  place,
+  setPlace,
   form,
   setForm,
   scores,
@@ -63,6 +67,8 @@ export default function ReviewFormFields({
 }: {
   coffee: Coffee | null;
   setCoffee: (c: Coffee) => void;
+  place: PlaceValue | null;
+  setPlace: (p: PlaceValue | null) => void;
   form: ReviewFormState;
   setForm: (f: ReviewFormState) => void;
   scores: ReviewScores;
@@ -163,7 +169,7 @@ export default function ReviewFormFields({
           ¿Cómo te gustó más tomarlo? (opcional)
         </p>
         <div className="grid grid-cols-3 gap-2">
-          {TEMPERATURE_OPTIONS.map(({ value, label, icon: Icon }) => {
+          {TEMPERATURE_OPTIONS.map(({ value, label, icon: Icon, color }) => {
             const selected = form.temperature === value;
             return (
               <button
@@ -173,24 +179,84 @@ export default function ReviewFormFields({
                   setForm({ ...form, temperature: selected ? "" : value })
                 }
                 aria-pressed={selected}
-                className={`flex flex-col items-center gap-1.5 py-3 rounded-sm border transition-colors ${
+                className="flex flex-col items-center gap-1.5 py-3 rounded-sm border transition-colors"
+                style={
                   selected
-                    ? "border-crema bg-crema/10 text-crema"
-                    : "border-parchment-dim/20 text-parchment-dim hover:border-parchment-dim/40"
-                }`}
+                    ? { borderColor: color, backgroundColor: `${color}1A`, color }
+                    : undefined
+                }
               >
-                <Icon size={18} />
-                <span className="font-mono text-xs">{label}</span>
+                <Icon
+                  size={18}
+                  className={selected ? "" : "text-parchment-dim"}
+                  style={selected ? { color } : undefined}
+                />
+                <span
+                  className={`font-mono text-xs ${selected ? "" : "text-parchment-dim"}`}
+                  style={selected ? { color } : undefined}
+                >
+                  {label}
+                </span>
               </button>
             );
           })}
         </div>
       </section>
 
-      {/* 04 — Atributos sensoriales */}
+      {/* 04 — Lugar */}
+      <section className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-5 sm:p-6">
+        <div className="flex items-baseline gap-3 mb-5">
+          <span className="font-mono text-crema text-sm">04</span>
+          <h2 className="font-display text-xl text-cream">Lugar</h2>
+        </div>
+        <p className="font-mono text-[11px] text-parchment-dim mb-3">(opcional)</p>
+        <div className="grid grid-cols-2 gap-2 mb-4">
+          <button
+            type="button"
+            onClick={() => setForm({ ...form, consumption_type: "lugar" })}
+            aria-pressed={form.consumption_type === "lugar"}
+            className={`flex items-center justify-center gap-2 py-3 rounded-sm border transition-colors ${
+              form.consumption_type === "lugar"
+                ? "border-crema bg-crema/10 text-crema"
+                : "border-parchment-dim/20 text-parchment-dim hover:border-parchment-dim/40"
+            }`}
+          >
+            <MapPin size={16} />
+            <span className="font-mono text-xs">Lo tomé ahí</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setForm({ ...form, consumption_type: "casa" });
+              setPlace(null);
+            }}
+            aria-pressed={form.consumption_type === "casa"}
+            className={`flex items-center justify-center gap-2 py-3 rounded-sm border transition-colors ${
+              form.consumption_type === "casa"
+                ? "border-crema bg-crema/10 text-crema"
+                : "border-parchment-dim/20 text-parchment-dim hover:border-parchment-dim/40"
+            }`}
+          >
+            <Home size={16} />
+            <span className="font-mono text-xs">Lo preparé en casa</span>
+          </button>
+        </div>
+
+        {form.consumption_type === "lugar" && (
+          <div>
+            <label className="field-label">Buscar el lugar</label>
+            <PlaceAutocomplete value={place} onChange={setPlace} />
+            {place && (
+              <p className="font-mono text-[11px] text-parchment-dim mt-2">{place.address}</p>
+            )}
+          </div>
+        )}
+      </section>
+
+      {/* 05 — Atributos sensoriales */}
       <section className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-5 sm:p-6">
         <div className="flex items-baseline gap-3 mb-2">
-          <span className="font-mono text-crema text-sm">04</span>
+          <span className="font-mono text-crema text-sm">05</span>
           <h2 className="font-display text-xl text-cream">Atributos sensoriales</h2>
         </div>
         <p className="font-mono text-[11px] text-parchment-dim mb-2">1 = bajo/débil · 5 = alto/intenso</p>
@@ -254,10 +320,10 @@ export default function ReviewFormFields({
         </div>
       </section>
 
-      {/* 05 — Puntaje general */}
+      {/* 06 — Puntaje general */}
       <section className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-5 sm:p-6">
         <div className="flex items-baseline gap-3 mb-5">
-          <span className="font-mono text-crema text-sm">05</span>
+          <span className="font-mono text-crema text-sm">06</span>
           <h2 className="font-display text-xl text-cream">Puntaje general</h2>
         </div>
         <div className="flex items-center gap-4">
@@ -279,10 +345,10 @@ export default function ReviewFormFields({
         <p className="font-mono text-[11px] text-parchment-dim mt-2">de 1 a 10</p>
       </section>
 
-      {/* 06 — Notas */}
+      {/* 07 — Notas */}
       <section className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-5 sm:p-6">
         <div className="flex items-baseline gap-3 mb-5">
-          <span className="font-mono text-crema text-sm">06</span>
+          <span className="font-mono text-crema text-sm">07</span>
           <h2 className="font-display text-xl text-cream">Notas</h2>
         </div>
         <Field label="Precio pagado (opcional)">

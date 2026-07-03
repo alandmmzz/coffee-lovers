@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { PlusCircle, ListFilter, Star, Coffee, History, Award, Milk } from "lucide-react";
+import { PlusCircle, ListFilter, Star, Coffee, History, Award, Milk, MapPin } from "lucide-react";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
@@ -74,6 +74,25 @@ export default async function ProfilePage() {
     milkTypeCounts.set(r.milk_type, (milkTypeCounts.get(r.milk_type) ?? 0) + 1);
   }
   const topMilkType = [...milkTypeCounts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
+
+  const placesMap = new Map<
+    string,
+    { place_id: string; name: string; address: string | null; lat: number | null; lng: number | null; count: number }
+  >();
+  for (const r of reviews) {
+    if (!r.place_id) continue;
+    const entry = placesMap.get(r.place_id) ?? {
+      place_id: r.place_id,
+      name: r.place_name ?? r.place_id,
+      address: r.place_address,
+      lat: r.place_lat,
+      lng: r.place_lng,
+      count: 0,
+    };
+    entry.count += 1;
+    placesMap.set(r.place_id, entry);
+  }
+  const places = [...placesMap.values()].sort((a, b) => b.count - a.count);
 
   return (
     <main className="min-h-screen px-4 py-12 sm:py-16">
@@ -188,6 +207,38 @@ export default async function ProfilePage() {
               <h2 className="font-display text-lg text-cream mb-4">Actividad del último año</h2>
               <ActivityHeatmap counts={dailyCounts} />
             </div>
+
+            {places.length > 0 && (
+              <div className="mb-10">
+                <h2 className="font-display text-lg text-cream mb-4">
+                  Lugares visitados ({places.length})
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {places.map((p) => (
+                    <a
+                      key={p.place_id}
+                      href={`https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}&query_place_id=${p.place_id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-start gap-3 bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-4 hover:border-crema transition-colors"
+                    >
+                      <MapPin size={16} className="text-crema shrink-0 mt-0.5" />
+                      <div className="min-w-0">
+                        <p className="font-body text-sm text-cream truncate">{p.name}</p>
+                        {p.address && (
+                          <p className="font-mono text-[11px] text-parchment-dim truncate mt-0.5">
+                            {p.address}
+                          </p>
+                        )}
+                        <p className="font-mono text-[10px] text-parchment-dim mt-1">
+                          {p.count} café{p.count === 1 ? "" : "s"} ahí
+                        </p>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <h2 className="font-display text-lg text-cream mb-4">Todas tus reviews</h2>
             <ul className="space-y-4">

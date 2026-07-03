@@ -66,6 +66,12 @@ create table if not exists coffee_reviews (
   has_milk boolean not null default false,
   milk_type text,
   temperature_preference text, -- 'frio' | 'tibio' | 'caliente'
+  consumption_type text, -- 'lugar' | 'casa'
+  place_id text,
+  place_name text,
+  place_address text,
+  place_lat double precision,
+  place_lng double precision,
   user_email text,
   user_name text,
   user_image text
@@ -73,6 +79,7 @@ create table if not exists coffee_reviews (
 
 create index if not exists idx_coffee_reviews_user_email on coffee_reviews (user_email);
 create index if not exists idx_coffee_reviews_coffee_id on coffee_reviews (coffee_id);
+create index if not exists idx_coffee_reviews_place_id on coffee_reviews (place_id);
 
 -- Suscripciones a notificaciones push, una fila por dispositivo que las activó
 create table if not exists push_subscriptions (

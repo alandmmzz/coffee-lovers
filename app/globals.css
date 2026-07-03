@@ -78,6 +78,36 @@ body {
   background-color: rgba(237, 227, 208, 0.09);
 }
 
+/* Dropdown de sugerencias de Google Places: lo inyecta Google directo en
+   el <body>, así que hay que pisarle los estilos default (blanco/negro). */
+.pac-container {
+  background-color: #332318 !important;
+  border: 1px solid rgba(221, 208, 182, 0.25) !important;
+  border-radius: 2px !important;
+  font-family: var(--font-inter), sans-serif !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+  margin-top: 4px !important;
+}
+.pac-item {
+  color: #F2E9DC !important;
+  border-top: 1px solid rgba(221, 208, 182, 0.1) !important;
+  padding: 8px 12px !important;
+  font-size: 0.85rem !important;
+}
+.pac-item:hover,
+.pac-item-selected {
+  background-color: rgba(237, 227, 208, 0.06) !important;
+}
+.pac-item-query {
+  color: #F2E9DC !important;
+}
+.pac-matched {
+  color: #D4A857 !important;
+}
+.pac-icon {
+  display: none !important;
+}
+
 /* Los <option> heredan el fondo blanco del navegador si no se
    especifica: sin esto, el texto claro queda ilegible en el popup. */
 select.input-field option {

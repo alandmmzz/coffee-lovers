@@ -1,13 +1,13 @@
 import Link from "next/link";
-import { Milk, Pencil, Snowflake, Thermometer, Flame, Wind, Citrus, Candy, Layers, Leaf, Clock, Scale } from "lucide-react";
+import { Milk, Pencil, Snowflake, Thermometer, Flame, Wind, Citrus, Candy, Layers, Leaf, Clock, Scale, MapPin, Home } from "lucide-react";
 import type { CoffeeReview } from "@/lib/db";
 import { ROAST_LABELS, PROCESS_LABELS, TEMPERATURE_LABELS } from "@/lib/constants";
 import StarRating from "./StarRating";
 
-const TEMPERATURE_ICONS: Record<string, typeof Snowflake> = {
-  frio: Snowflake,
-  tibio: Thermometer,
-  caliente: Flame,
+const TEMPERATURE_STYLES: Record<string, { icon: typeof Snowflake; color: string }> = {
+  frio: { icon: Snowflake, color: "#5A8FB8" },
+  tibio: { icon: Thermometer, color: "#C98A3D" },
+  caliente: { icon: Flame, color: "#C1432E" },
 };
 
 const ATTRIBUTES = [
@@ -53,13 +53,38 @@ export default function ReviewCard({
             </p>
           )}
           {r.temperature_preference && (
-            <p className="flex items-center gap-1 font-mono text-[11px] text-parchment-dim mt-1">
+            <p className="flex items-center gap-1 font-mono text-[11px] mt-1">
               {(() => {
-                const Icon = TEMPERATURE_ICONS[r.temperature_preference];
-                return Icon ? <Icon size={11} /> : null;
+                const t = TEMPERATURE_STYLES[r.temperature_preference];
+                if (!t) return null;
+                const Icon = t.icon;
+                return (
+                  <>
+                    <Icon size={11} style={{ color: t.color }} />
+                    <span style={{ color: t.color }}>
+                      {TEMPERATURE_LABELS[r.temperature_preference] ?? r.temperature_preference}
+                    </span>
+                  </>
+                );
               })()}
-              {TEMPERATURE_LABELS[r.temperature_preference] ?? r.temperature_preference}
             </p>
+          )}
+          {r.consumption_type === "casa" && (
+            <p className="flex items-center gap-1 font-mono text-[11px] text-parchment-dim mt-1">
+              <Home size={11} />
+              En casa
+            </p>
+          )}
+          {r.consumption_type === "lugar" && r.place_name && (
+            <a
+              href={`https://www.google.com/maps/search/?api=1&query=${r.place_lat},${r.place_lng}&query_place_id=${r.place_id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 font-mono text-[11px] text-parchment-dim hover:text-crema transition-colors mt-1"
+            >
+              <MapPin size={11} />
+              {r.place_name}
+            </a>
           )}
         </div>
         <div className="text-right shrink-0">

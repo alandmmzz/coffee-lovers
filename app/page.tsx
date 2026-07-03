@@ -8,6 +8,7 @@ import ReviewFormFields, {
   type ReviewFormState,
   type ReviewScores,
 } from "./components/ReviewFormFields";
+import type { PlaceValue } from "./components/PlaceAutocomplete";
 import type { Coffee } from "@/lib/db";
 
 const initialScores: ReviewScores = {
@@ -27,11 +28,13 @@ const initialForm: ReviewFormState = {
   has_milk: false,
   milk_type: "",
   temperature: "",
+  consumption_type: "",
 };
 
 export default function Home() {
   const { data: session, status: sessionStatus } = useSession();
   const [coffee, setCoffee] = useState<Coffee | null>(null);
+  const [place, setPlace] = useState<PlaceValue | null>(null);
   const [form, setForm] = useState<ReviewFormState>(initialForm);
   const [scores, setScores] = useState<ReviewScores>(initialScores);
   const [overall, setOverall] = useState(0);
@@ -69,6 +72,12 @@ export default function Home() {
             has_milk: form.has_milk,
             milk_type: form.has_milk ? form.milk_type.trim() || null : null,
             temperature_preference: form.temperature || null,
+            consumption_type: form.consumption_type || null,
+            place_id: place?.place_id ?? null,
+            place_name: place?.name ?? null,
+            place_address: place?.address ?? null,
+            place_lat: place?.lat ?? null,
+            place_lng: place?.lng ?? null,
           }),
         });
         const data = await res.json();
@@ -87,6 +96,7 @@ export default function Home() {
 
     setStatus("sent");
     setCoffee(null);
+    setPlace(null);
     setForm(initialForm);
     setScores(initialScores);
     setOverall(0);
@@ -184,6 +194,8 @@ export default function Home() {
           <ReviewFormFields
             coffee={coffee}
             setCoffee={setCoffee}
+            place={place}
+            setPlace={setPlace}
             form={form}
             setForm={setForm}
             scores={scores}

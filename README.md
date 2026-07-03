@@ -22,10 +22,11 @@ muestra el archivo completo de la comunidad y `/profile` muestra solo las tuyas.
      [`db/migrations/005_users_table.sql`](./db/migrations/005_users_table.sql),
      [`db/migrations/006_push_subscriptions.sql`](./db/migrations/006_push_subscriptions.sql),
      [`db/migrations/007_roast_level_optional.sql`](./db/migrations/007_roast_level_optional.sql),
-     [`db/migrations/008_temperature_preference.sql`](./db/migrations/008_temperature_preference.sql)
-     y [`db/migrations/009_groups.sql`](./db/migrations/009_groups.sql) (esta
-     última crea un grupo "Café original" con todo tu historial previo, y
-     agrega como miembros a todos los que ya habían participado).
+     [`db/migrations/008_temperature_preference.sql`](./db/migrations/008_temperature_preference.sql),
+     [`db/migrations/009_groups.sql`](./db/migrations/009_groups.sql) (esta
+     crea un grupo "Café original" con todo tu historial previo, y
+     agrega como miembros a todos los que ya habían participado)
+     y [`db/migrations/010_place_visited.sql`](./db/migrations/010_place_visited.sql).
    - Opcional: corré [`db/seeds/dore.sql`](./db/seeds/dore.sql) para precargar
      el catálogo de cafés de Doré (marca, línea, finca, variedad, proceso y
      notas del tostador de cada uno).
@@ -249,7 +250,32 @@ las toca — arma un grupo llamado "Café original" y agrega como miembros a
 todos los que ya habían dejado alguna review, para que sigan viéndose entre
 ellos como antes de que existieran los grupos.
 
+## Lugar de compra (OpenStreetMap, sin costo)
+
+En la sección "Lugar" del form podés elegir si tomaste el café **ahí mismo**
+o **en tu casa**. Si elegís "ahí", aparece un mapa de OpenStreetMap donde
+podés buscar un lugar por nombre (usando Nominatim, el buscador propio de
+OpenStreetMap) o tocar directamente el mapa para marcarlo. Los lugares
+elegidos quedan guardados y se muestran en el perfil de cada persona como
+"Lugares visitados", con link directo a Google Maps para verlos.
+
+**No hace falta ninguna API key ni cuenta de facturación** — a diferencia
+de Google Maps Platform, OpenStreetMap y Nominatim son gratuitos y abiertos.
+Solo hay que correr la migración:
+```
+db/migrations/010_place_visited.sql
+```
+
+Un detalle a tener en cuenta: Nominatim pide que no se lo use para volúmenes
+altos de búsquedas (su política sugiere no pasar 1 request por segundo). Para
+el uso de esta app (algunas búsquedas por review cargada) está lejos de ser
+un problema, pero si en algún momento la app crece mucho, convendría mover
+las búsquedas a través de una API route propia en vez de llamarlas directo
+desde el navegador.
+
 ## Estructura
+
+
 
 - `app/page.tsx` — formulario principal (pide login si no hay sesión)
 - `app/groups/page.tsx` — listado de mis grupos
@@ -290,5 +316,6 @@ ellos como antes de que existieran los grupos.
 - `lib/push.ts` — envío de notificaciones push a conexiones compartidas (mismo grupo)
 - `lib/constants.ts` — etiquetas compartidas (tueste, proceso, temperatura)
 - `lib/formatRelativeTime.ts` — formateo de fechas relativas ("hace 2 horas")
+- `app/components/PlaceAutocomplete.tsx` — mapa de OpenStreetMap + búsqueda por Nominatim
 - `db/schema.sql` — script para crear las tablas desde cero
 - `db/migrations/` — migraciones incrementales, correr en orden si ya tenías datos

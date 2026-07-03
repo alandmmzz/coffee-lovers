@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { redirect, notFound } from "next/navigation";
-import { ArrowLeft, Coffee, MapPin, Flame, Droplets, Sprout, Milk, Snowflake, Thermometer, Wallet, Wind, Citrus, Candy, Layers, Leaf, Clock, Scale } from "lucide-react";
+import { ArrowLeft, Coffee, MapPin, Flame, Droplets, Sprout, Milk, Snowflake, Thermometer, Wallet, Wind, Citrus, Candy, Layers, Leaf, Clock, Scale, Home } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import sql from "@/lib/db";
 import type { CoffeeReview } from "@/lib/db";
@@ -10,10 +10,10 @@ import StarRating from "../../../../components/StarRating";
 
 export const dynamic = "force-dynamic";
 
-const TEMPERATURE_ICONS: Record<string, typeof Snowflake> = {
-  frio: Snowflake,
-  tibio: Thermometer,
-  caliente: Flame,
+const TEMPERATURE_STYLES: Record<string, { icon: typeof Snowflake; color: string }> = {
+  frio: { icon: Snowflake, color: "#5A8FB8" },
+  tibio: { icon: Thermometer, color: "#C98A3D" },
+  caliente: { icon: Flame, color: "#C1432E" },
 };
 
 const ATTRIBUTES = [
@@ -155,19 +155,45 @@ export default async function GroupActivityDetailPage({
               <p className="font-body text-sm text-cream">{r.milk_type || "Sí"}</p>
             </div>
           )}
-          {r.temperature_preference && (
+          {r.temperature_preference && TEMPERATURE_STYLES[r.temperature_preference] && (
             <div className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-4">
               <p className="flex items-center gap-1.5 font-mono text-[10px] text-parchment-dim uppercase mb-1.5">
                 {(() => {
-                  const Icon = TEMPERATURE_ICONS[r.temperature_preference];
-                  return Icon ? <Icon size={12} /> : null;
+                  const Icon = TEMPERATURE_STYLES[r.temperature_preference].icon;
+                  return <Icon size={12} style={{ color: TEMPERATURE_STYLES[r.temperature_preference].color }} />;
                 })()}
                 Temperatura
               </p>
-              <p className="font-body text-sm text-cream">
+              <p
+                className="font-body text-sm"
+                style={{ color: TEMPERATURE_STYLES[r.temperature_preference].color }}
+              >
                 {TEMPERATURE_LABELS[r.temperature_preference] ?? r.temperature_preference}
               </p>
             </div>
+          )}
+          {r.consumption_type === "casa" && (
+            <div className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-4">
+              <p className="flex items-center gap-1.5 font-mono text-[10px] text-parchment-dim uppercase mb-1.5">
+                <Home size={12} />
+                Dónde
+              </p>
+              <p className="font-body text-sm text-cream">En casa</p>
+            </div>
+          )}
+          {r.consumption_type === "lugar" && r.place_name && (
+            <a
+              href={`https://www.google.com/maps/search/?api=1&query=${r.place_lat},${r.place_lng}&query_place_id=${r.place_id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-4 hover:border-crema transition-colors"
+            >
+              <p className="flex items-center gap-1.5 font-mono text-[10px] text-parchment-dim uppercase mb-1.5">
+                <MapPin size={12} />
+                Dónde
+              </p>
+              <p className="font-body text-sm text-cream truncate">{r.place_name}</p>
+            </a>
           )}
         </div>
 
