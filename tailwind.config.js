@@ -13,6 +13,12 @@ module.exports = {
         crema: "#D4A857",
         greenbean: "#7C8B5E",
         cream: "#F2E9DC",
+        muted: "#9C9384",
+        violet: "#8B7BA8",
+        citrus: "#B8A542",
+        rose: "#C77B92",
+        terracotta: "#B8663F",
+        teal: "#5A8A8C",
       },
       fontFamily: {
         display: ["var(--font-fraunces)", "serif"],

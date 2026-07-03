@@ -52,14 +52,14 @@ export default async function MemberProfilePage({
       select r.*, c.brand, c.line, c.origin, c.farm, c.variety, c.process, c.tasting_notes
       from coffee_reviews r
       join coffees c on c.id = r.coffee_id
-      where r.group_id = ${params.groupId} and r.user_email = ${targetEmail}
+      where r.user_email = ${targetEmail}
       order by r.created_at desc
     `) as unknown as CoffeeReview[];
 
     dailyCounts = (await sql`
       select to_char(created_at, 'YYYY-MM-DD') as date, count(*)::int as count
       from coffee_reviews
-      where group_id = ${params.groupId} and user_email = ${targetEmail}
+      where user_email = ${targetEmail}
         and created_at >= now() - interval '371 days'
       group by date
     `) as unknown as { date: string; count: number }[];
@@ -119,7 +119,7 @@ export default async function MemberProfilePage({
         {error && <p className="text-cascara-light text-sm mb-8">{error}</p>}
 
         {!error && reviews.length === 0 && (
-          <p className="font-body text-parchment-dim">Todavía no cató nada en este grupo.</p>
+          <p className="font-body text-parchment-dim">Todavía no cató nada.</p>
         )}
 
         {!error && reviews.length > 0 && (
@@ -129,7 +129,7 @@ export default async function MemberProfilePage({
                 <CoffeeIcon size={14} className="text-parchment-dim mb-2" />
                 <p className="font-mono text-xl text-crema leading-none">{reviews.length}</p>
                 <p className="font-mono text-[10px] text-parchment-dim uppercase mt-1.5">
-                  Café{reviews.length === 1 ? "" : "s"} en este grupo
+                  Café{reviews.length === 1 ? "" : "s"} catado{reviews.length === 1 ? "" : "s"}
                 </p>
               </div>
 
@@ -177,7 +177,7 @@ export default async function MemberProfilePage({
               <ActivityHeatmap counts={dailyCounts} />
             </div>
 
-            <h2 className="font-display text-lg text-cream mb-4">Reviews en este grupo</h2>
+            <h2 className="font-display text-lg text-cream mb-4">Todas sus reviews</h2>
             <ul className="space-y-4">
               {reviews.map((r) => (
                 <ReviewCard key={r.id} review={r} showTaster={false} />

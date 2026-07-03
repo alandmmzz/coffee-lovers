@@ -18,21 +18,24 @@ create table if not exists group_members (
 
 create index if not exists idx_group_members_user_email on group_members (user_email);
 
-alter table coffee_reviews add column if not exists group_id uuid references groups(id);
-
--- Crear un grupo "Café original" con todas las reviews que ya existían antes
--- de esta migración, y sumar como miembros a todos los que ya habían
--- participado (así nadie pierde acceso a su propio historial).
+-- Las reviews NO pertenecen a un grupo: siguen siendo de quien las cargó,
+-- sin importar cuándo. Un grupo es solo un círculo de visibilidad — al
+-- compartir grupo con alguien, ves TODO su historial, incluso reviews de
+-- antes de que existiera el grupo.
+--
+-- Para que nadie pierda la visibilidad que ya tenía (antes de esto,
+-- cualquier usuario logueado veía a todos), creamos un grupo "Café
+-- original" con todos los que ya habían dejado alguna review.
 do $$
 declare
   legacy_group_id uuid;
 begin
-  if exists (select 1 from coffee_reviews where group_id is null) then
+  if exists (select 1 from coffee_reviews where user_email is not null)
+     and not exists (select 1 from groups where name = 'Café original' and created_by = 'sistema')
+  then
     insert into groups (name, invite_code, created_by)
     values ('Café original', 'legacy-' || substr(md5(random()::text), 1, 8), 'sistema')
     returning id into legacy_group_id;
-
-    update coffee_reviews set group_id = legacy_group_id where group_id is null;
 
     insert into group_members (group_id, user_email)
     select distinct legacy_group_id, user_email
@@ -41,5 +44,3 @@ begin
     on conflict do nothing;
   end if;
 end $$;
-
-alter table coffee_reviews alter column group_id set not null;

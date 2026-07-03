@@ -218,8 +218,11 @@ incluso con la app cerrada.
 
 ## Grupos (privacidad)
 
-La actividad, los insights y el archivo de reviews **ya no son globales**:
-viven dentro de un grupo, y solo sus miembros pueden verlos.
+Un grupo **no es un contenedor de reviews** — es un círculo de visibilidad.
+Las reviews siguen siendo simplemente de quien las carga, sin importar
+cuándo. Lo que un grupo controla es *quién puede ver a quién*: al compartir
+un grupo con alguien, ves **todo** su historial (pasado, presente y
+futuro), no solo lo que cargó después de que el grupo existiera.
 
 - Cualquiera puede **crear un grupo** (`/groups/new`): nombre y, opcional,
   una foto (por ahora se pega un link a una imagen, no hay subida de
@@ -229,27 +232,26 @@ viven dentro de un grupo, y solo sus miembros pueden verlos.
   queda adentro.
 - **Cualquier miembro** puede editar el nombre y la foto del grupo, no
   solo quien lo creó.
-- Al catar un café, si sos miembro de más de un grupo, elegís en cuál
-  cargar la review. Si sos de uno solo, se usa automáticamente. Si no sos
-  de ninguno, el form te manda a crear uno primero.
+- **Cargar una review no tiene nada que ver con los grupos**: el form es
+  el mismo de siempre, sin elegir nada. Los grupos solo deciden quién
+  puede ver esa review después.
 - Dentro de un grupo podés ver el **perfil de cualquier otro miembro**
-  (`/groups/[id]/members/[email]`) — pero solo sus datos dentro de ese
-  grupo puntual, no lo que haya cargado en otros grupos.
-- `/profile` sigue mostrando **tus propias reviews en todos tus grupos**
-  juntas (nunca fue un problema de privacidad, ya que solo mostraba tus
-  propios datos) — ahora cada tarjeta indica de qué grupo es, ya que
-  pueden mezclarse.
-- Las notificaciones push también quedaron acotadas: al cargar una review,
-  solo avisa a los demás miembros de **ese** grupo.
+  (`/groups/[id]/members/[email]`) con **todo** su historial — incluidas
+  reviews de antes de que se creara el grupo o de que se unieran.
+- `/groups/[id]/activity`, `/insights` y `/reviews` muestran la actividad
+  combinada de todos los miembros actuales del grupo (todo lo que cada uno
+  haya catado alguna vez, no solo desde que están en el grupo).
+- Las notificaciones push avisan a cualquiera que comparta **algún** grupo
+  con quien cargó la review (sin importar cuál).
 
-**Reviews de antes de esta feature:** la migración `009_groups.sql` las
-mete a todas en un grupo llamado "Café original", y agrega como miembros a
-todos los que ya habían dejado alguna review — así nadie pierde su
-historial ni queda afuera.
+**Reviews de antes de esta feature:** la migración `009_groups.sql` no
+las toca — arma un grupo llamado "Café original" y agrega como miembros a
+todos los que ya habían dejado alguna review, para que sigan viéndose entre
+ellos como antes de que existieran los grupos.
 
 ## Estructura
 
-- `app/page.tsx` — formulario principal (pide login y grupo antes de mostrar el form)
+- `app/page.tsx` — formulario principal (pide login si no hay sesión)
 - `app/groups/page.tsx` — listado de mis grupos
 - `app/groups/new/page.tsx` — crear un grupo
 - `app/groups/[groupId]/page.tsx` — home del grupo: header editable, miembros
@@ -285,7 +287,7 @@ historial ni queda afuera.
 - `app/components/ReviewCard.tsx` — tarjeta de review, reutilizada en varias páginas
 - `lib/auth.ts` — configuración de NextAuth (providers, callbacks, registro de logins)
 - `lib/db.ts` — cliente de conexión a Neon y tipos
-- `lib/push.ts` — envío de notificaciones push acotado a un grupo
+- `lib/push.ts` — envío de notificaciones push a conexiones compartidas (mismo grupo)
 - `lib/constants.ts` — etiquetas compartidas (tueste, proceso, temperatura)
 - `lib/formatRelativeTime.ts` — formateo de fechas relativas ("hace 2 horas")
 - `db/schema.sql` — script para crear las tablas desde cero

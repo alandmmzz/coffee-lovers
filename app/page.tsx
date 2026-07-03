@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useSession, signIn } from "next-auth/react";
-import { CheckCircle2, Users } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import ReviewFormFields, {
   type ReviewFormState,
   type ReviewScores,
 } from "./components/ReviewFormFields";
-import type { Coffee, Group } from "@/lib/db";
+import type { Coffee } from "@/lib/db";
 
 const initialScores: ReviewScores = {
   aroma: 0,
@@ -31,8 +31,6 @@ const initialForm: ReviewFormState = {
 
 export default function Home() {
   const { data: session, status: sessionStatus } = useSession();
-  const [groups, setGroups] = useState<Group[] | null>(null);
-  const [groupId, setGroupId] = useState<string>("");
   const [coffee, setCoffee] = useState<Coffee | null>(null);
   const [form, setForm] = useState<ReviewFormState>(initialForm);
   const [scores, setScores] = useState<ReviewScores>(initialScores);
@@ -40,20 +38,7 @@ export default function Home() {
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
 
-  useEffect(() => {
-    if (sessionStatus !== "authenticated") return;
-    fetch("/api/groups")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.ok) {
-          setGroups(data.groups);
-          if (data.groups.length === 1) setGroupId(data.groups[0].id);
-        }
-      });
-  }, [sessionStatus]);
-
   const canSubmit =
-    groupId &&
     coffee !== null &&
     form.brew_method &&
     Object.values(scores).every((v) => v > 0) &&
@@ -62,7 +47,7 @@ export default function Home() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!canSubmit) {
-      setErrorMsg("Faltan campos por completar: elegí un grupo, un café, el método y todas las escalas de sabor.");
+      setErrorMsg("Faltan campos por completar: elegí un café, el método y todas las escalas de sabor.");
       setStatus("error");
       return;
     }
@@ -75,7 +60,6 @@ export default function Home() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            group_id: groupId,
             coffee_id: coffee!.id,
             brew_method: form.brew_method,
             ...scores,
@@ -108,7 +92,7 @@ export default function Home() {
     setOverall(0);
   }
 
-  if (sessionStatus === "loading" || (sessionStatus === "authenticated" && groups === null)) {
+  if (sessionStatus === "loading") {
     return (
       <main className="min-h-screen flex items-center justify-center px-6">
         <p className="font-mono text-xs text-parchment-dim uppercase tracking-widest">
@@ -150,32 +134,6 @@ export default function Home() {
     );
   }
 
-  if (groups && groups.length === 0) {
-    return (
-      <main className="min-h-screen flex items-center justify-center px-6">
-        <div className="max-w-sm text-center">
-          <Users size={28} className="text-crema mx-auto mb-4" />
-          <p className="font-mono text-xs tracking-[0.2em] text-crema uppercase mb-4">
-            Coffee Lovers
-          </p>
-          <h1 className="font-display text-3xl text-cream mb-3">
-            Necesitás un grupo para catar
-          </h1>
-          <p className="font-body text-parchment-dim text-sm mb-8">
-            Las reviews viven dentro de grupos privados. Creá uno, o pedile el
-            link de invitación a alguien que ya tenga uno.
-          </p>
-          <Link
-            href="/groups/new"
-            className="inline-block px-6 py-3 bg-cascara hover:bg-cascara-light text-cream font-body text-sm rounded-sm transition-colors"
-          >
-            Crear un grupo
-          </Link>
-        </div>
-      </main>
-    );
-  }
-
   if (status === "sent") {
     return (
       <main className="min-h-screen flex items-center justify-center px-6">
@@ -194,11 +152,8 @@ export default function Home() {
             Cargar otro café
           </button>
           <div className="mt-4">
-            <Link
-              href={`/groups/${groupId}/activity`}
-              className="text-parchment-dim text-sm underline underline-offset-4"
-            >
-              Ver actividad del grupo
+            <Link href="/groups" className="text-parchment-dim text-sm underline underline-offset-4">
+              Ver mis grupos
             </Link>
           </div>
         </div>
@@ -226,27 +181,6 @@ export default function Home() {
         </header>
 
         <form onSubmit={handleSubmit} className="space-y-8">
-          {groups && groups.length > 1 && (
-            <section className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-5 sm:p-6">
-              <label className="field-label">Grupo</label>
-              <select
-                required
-                value={groupId}
-                onChange={(e) => setGroupId(e.target.value)}
-                className="input-field"
-              >
-                <option value="" disabled>
-                  Elegí un grupo
-                </option>
-                {groups.map((g) => (
-                  <option key={g.id} value={g.id}>
-                    {g.name}
-                  </option>
-                ))}
-              </select>
-            </section>
-          )}
-
           <ReviewFormFields
             coffee={coffee}
             setCoffee={setCoffee}

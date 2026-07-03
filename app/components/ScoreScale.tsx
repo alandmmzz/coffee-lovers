@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Info } from "lucide-react";
+import { Info, type LucideIcon } from "lucide-react";
 
 export default function ScoreScale({
   label,
@@ -9,12 +9,16 @@ export default function ScoreScale({
   value,
   onChange,
   max = 5,
+  color = "#D4A857",
+  icon: Icon,
 }: {
   label: string;
   description?: string;
   value: number;
   onChange: (v: number) => void;
   max?: number;
+  color?: string;
+  icon?: LucideIcon;
 }) {
   const [showInfo, setShowInfo] = useState(false);
 
@@ -22,6 +26,7 @@ export default function ScoreScale({
     <div className="py-2.5 border-b border-parchment-dim/20">
       <div className="flex items-center justify-between gap-4">
         <span className="flex items-center gap-1.5 font-body text-sm text-parchment">
+          {Icon && <Icon size={14} style={{ color }} />}
           {label}
           {description && (
             <button
@@ -49,8 +54,8 @@ export default function ScoreScale({
               <svg
                 viewBox="0 0 24 24"
                 className="w-5 h-5"
-                fill={n <= value ? "#D4A857" : "none"}
-                stroke={n <= value ? "#D4A857" : "#8A7A63"}
+                fill={n <= value ? color : "none"}
+                stroke={n <= value ? color : "#8A7A63"}
                 strokeWidth="1.5"
               >
                 <circle cx="12" cy="12" r="9" />

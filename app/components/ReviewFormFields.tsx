@@ -1,6 +1,6 @@
 "use client";
 
-import { Snowflake, Thermometer, Flame } from "lucide-react";
+import { Snowflake, Thermometer, Flame, Wind, Citrus, Candy, Layers, Leaf, Clock, Scale } from "lucide-react";
 import ScoreScale from "./ScoreScale";
 import StarRating from "./StarRating";
 import CoffeeSelector from "./CoffeeSelector";
@@ -200,42 +200,56 @@ export default function ReviewFormFields({
             description="El olor del café antes de probarlo, en seco y recién molido."
             value={scores.aroma}
             onChange={(v) => setScores({ ...scores, aroma: v })}
+            icon={Wind}
+            color="#8B7BA8"
           />
           <ScoreScale
             label="Acidez"
             description="La viveza que sentís en la lengua, parecida a un cítrico o una manzana verde. No es 'agrio': es una sensación refrescante y chispeante."
             value={scores.acidity}
             onChange={(v) => setScores({ ...scores, acidity: v })}
+            icon={Citrus}
+            color="#B8A542"
           />
           <ScoreScale
             label="Dulzor"
             description="El dulzor natural del grano, sin agregar azúcar. Puede recordar a caramelo, miel o fruta madura."
             value={scores.sweetness}
             onChange={(v) => setScores({ ...scores, sweetness: v })}
+            icon={Candy}
+            color="#C77B92"
           />
           <ScoreScale
             label="Cuerpo"
             description="Qué tan denso se siente en la boca: liviano como agua o pesado como leche entera."
             value={scores.body}
             onChange={(v) => setScores({ ...scores, body: v })}
+            icon={Layers}
+            color="#B8663F"
           />
           <ScoreScale
             label="Amargor"
             description="La sensación amarga natural del café. En su justa medida le da carácter; en exceso, resulta desagradable."
             value={scores.bitterness}
             onChange={(v) => setScores({ ...scores, bitterness: v })}
+            icon={Leaf}
+            color="#7C8B5E"
           />
           <ScoreScale
             label="Retrogusto"
             description="El sabor que se queda en la boca después de tragar el trago, y cuánto dura."
             value={scores.aftertaste}
             onChange={(v) => setScores({ ...scores, aftertaste: v })}
+            icon={Clock}
+            color="#5A8A8C"
           />
           <ScoreScale
             label="Balance general"
             description="Qué tan bien conviven todos los sabores entre sí, sin que ninguno se imponga de más sobre el resto."
             value={scores.balance}
             onChange={(v) => setScores({ ...scores, balance: v })}
+            icon={Scale}
+            color="#D4A857"
           />
         </div>
       </section>

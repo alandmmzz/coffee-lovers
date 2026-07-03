@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { redirect, notFound } from "next/navigation";
-import { ArrowLeft, Coffee, MapPin, Flame, Droplets, Sprout, Milk, Snowflake, Thermometer, Wallet } from "lucide-react";
+import { ArrowLeft, Coffee, MapPin, Flame, Droplets, Sprout, Milk, Snowflake, Thermometer, Wallet, Wind, Citrus, Candy, Layers, Leaf, Clock, Scale } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import sql from "@/lib/db";
 import type { CoffeeReview } from "@/lib/db";
@@ -16,14 +16,14 @@ const TEMPERATURE_ICONS: Record<string, typeof Snowflake> = {
   caliente: Flame,
 };
 
-const ATTRIBUTES: [string, keyof CoffeeReview][] = [
-  ["Aroma", "aroma"],
-  ["Acidez", "acidity"],
-  ["Dulzor", "sweetness"],
-  ["Cuerpo", "body"],
-  ["Amargor", "bitterness"],
-  ["Retrogusto", "aftertaste"],
-  ["Balance", "balance"],
+const ATTRIBUTES = [
+  { label: "Aroma", key: "aroma" as const, icon: Wind, color: "#8B7BA8" },
+  { label: "Acidez", key: "acidity" as const, icon: Citrus, color: "#B8A542" },
+  { label: "Dulzor", key: "sweetness" as const, icon: Candy, color: "#C77B92" },
+  { label: "Cuerpo", key: "body" as const, icon: Layers, color: "#B8663F" },
+  { label: "Amargor", key: "bitterness" as const, icon: Leaf, color: "#7C8B5E" },
+  { label: "Retrogusto", key: "aftertaste" as const, icon: Clock, color: "#5A8A8C" },
+  { label: "Balance", key: "balance" as const, icon: Scale, color: "#D4A857" },
 ];
 
 export default async function GroupActivityDetailPage({
@@ -49,10 +49,20 @@ export default async function GroupActivityDetailPage({
       select r.*, c.brand, c.line, c.origin, c.farm, c.variety, c.process, c.tasting_notes
       from coffee_reviews r
       join coffees c on c.id = r.coffee_id
-      where r.id = ${params.id} and r.group_id = ${params.groupId}
+      where r.id = ${params.id}
       limit 1
     `) as unknown as CoffeeReview[];
     review = rows[0] ?? null;
+
+    // La review es visible en este grupo solo si su autor es miembro
+    if (review?.user_email) {
+      const authorMembership = await sql`
+        select 1 from group_members where group_id = ${params.groupId} and user_email = ${review.user_email}
+      `;
+      if (authorMembership.length === 0) {
+        review = null;
+      }
+    }
   } catch {
     review = null;
   }
@@ -164,22 +174,26 @@ export default async function GroupActivityDetailPage({
         <section className="mb-8">
           <h2 className="font-display text-lg text-cream mb-4">Atributos sensoriales</h2>
           <div className="space-y-2">
-            {ATTRIBUTES.map(([label, key]) => (
+            {ATTRIBUTES.map(({ label, key, icon: Icon, color }) => (
               <div key={key} className="flex items-center justify-between">
-                <span className="font-body text-sm text-parchment">{label}</span>
+                <span className="flex items-center gap-2 font-body text-sm text-parchment">
+                  <Icon size={14} style={{ color }} />
+                  {label}
+                </span>
                 <div className="flex items-center gap-2">
                   <div className="flex gap-1">
                     {Array.from({ length: 5 }).map((_, i) => (
                       <div
                         key={i}
-                        className={`w-2 h-2 rounded-full ${
-                          i < (r[key] as number) ? "bg-crema" : "bg-parchment-dim/20"
-                        }`}
+                        className="w-2 h-2 rounded-full"
+                        style={{
+                          backgroundColor: i < r[key] ? color : "rgba(221, 208, 182, 0.15)",
+                        }}
                       />
                     ))}
                   </div>
-                  <span className="font-mono text-xs text-parchment-dim w-6 text-right">
-                    {r[key] as number}/5
+                  <span className="font-mono text-xs w-6 text-right" style={{ color }}>
+                    {r[key]}/5
                   </span>
                 </div>
               </div>
@@ -212,7 +226,7 @@ export default async function GroupActivityDetailPage({
         {r.notes && (
           <section className="mb-8">
             <h2 className="font-display text-lg text-cream mb-3">Notas de cata</h2>
-            <p className="font-body text-sm text-parchment-dim italic bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-4">
+            <p className="font-body text-sm text-muted italic bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-4">
               “{r.notes}”
             </p>
           </section>

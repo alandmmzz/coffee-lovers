@@ -24,11 +24,9 @@ export default async function ProfilePage() {
 
   try {
     reviews = (await sql`
-      select r.*, c.brand, c.line, c.origin, c.farm, c.variety, c.process, c.tasting_notes,
-             g.name as group_name
+      select r.*, c.brand, c.line, c.origin, c.farm, c.variety, c.process, c.tasting_notes
       from coffee_reviews r
       join coffees c on c.id = r.coffee_id
-      join groups g on g.id = r.group_id
       where r.user_email = ${session.user.email}
       order by r.created_at desc
     `) as unknown as CoffeeReview[];

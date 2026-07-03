@@ -51,7 +51,6 @@ create table if not exists coffee_reviews (
   created_at timestamptz not null default now(),
   taster_name text not null,
   coffee_id uuid not null references coffees(id),
-  group_id uuid not null references groups(id),
   roast_level text,
   brew_method text not null,
   aroma smallint not null check (aroma between 1 and 5),

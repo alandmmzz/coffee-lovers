@@ -35,7 +35,9 @@ export default async function GroupActivityPage({ params }: { params: { groupId:
       select r.*, c.brand, c.line, c.origin, c.farm, c.variety, c.process, c.tasting_notes
       from coffee_reviews r
       join coffees c on c.id = r.coffee_id
-      where r.group_id = ${params.groupId}
+      where r.user_email in (
+        select user_email from group_members where group_id = ${params.groupId}
+      )
       order by r.created_at desc
       limit 100
     `) as unknown as CoffeeReview[];
