@@ -183,7 +183,7 @@ export default async function GroupActivityDetailPage({
           )}
           {r.consumption_type === "lugar" && r.place_name && (
             <a
-              href={`https://www.google.com/maps/search/?api=1&query=${r.place_lat},${r.place_lng}&query_place_id=${r.place_id}`}
+              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.place_name)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-4 hover:border-crema transition-colors"

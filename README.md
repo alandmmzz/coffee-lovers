@@ -250,32 +250,33 @@ las toca — arma un grupo llamado "Café original" y agrega como miembros a
 todos los que ya habían dejado alguna review, para que sigan viéndose entre
 ellos como antes de que existieran los grupos.
 
-## Lugar de compra (OpenStreetMap, sin costo)
+## Lugar de compra
 
 En la sección "Lugar" del form podés elegir si tomaste el café **ahí mismo**
-o **en tu casa**. Si elegís "ahí", aparece un mapa de OpenStreetMap donde
-podés buscar un lugar por nombre (usando Nominatim, el buscador propio de
-OpenStreetMap) o tocar directamente el mapa para marcarlo. Los lugares
-elegidos quedan guardados y se muestran en el perfil de cada persona como
-"Lugares visitados", con link directo a Google Maps para verlos.
+o **en tu casa**. Si elegís "ahí", escribís el nombre del lugar a mano (texto
+libre, sin buscador ni mapa). Se guarda y se muestra en las reviews y en el
+perfil de cada persona como "Lugares visitados", cada uno con un link que
+abre una búsqueda de ese nombre en Google Maps.
 
-**No hace falta ninguna API key ni cuenta de facturación** — a diferencia
-de Google Maps Platform, OpenStreetMap y Nominatim son gratuitos y abiertos.
+**Cero configuración, cero costo, cero cosas que se puedan romper** — no
+hay API de por medio, es solo texto y un link de búsqueda armado con el
+propio nombre que escribiste. (Antes probamos con Google Places y con
+OpenStreetMap/Leaflet, pero terminamos optando por esto: es lo único que
+no depende de un servicio externo para funcionar.)
+
 Solo hay que correr la migración:
 ```
 db/migrations/010_place_visited.sql
 ```
 
-Un detalle a tener en cuenta: Nominatim pide que no se lo use para volúmenes
-altos de búsquedas (su política sugiere no pasar 1 request por segundo). Para
-el uso de esta app (algunas búsquedas por review cargada) está lejos de ser
-un problema, pero si en algún momento la app crece mucho, convendría mover
-las búsquedas a través de una API route propia en vez de llamarlas directo
-desde el navegador.
+Si en algún momento corriste una versión anterior de esa migración (la que
+incluía coordenadas y place_id, de cuando probamos con mapas), podés limpiar
+esas columnas que quedaron sin uso corriendo, opcionalmente:
+```
+db/migrations/011_cleanup_place_columns.sql
+```
 
 ## Estructura
-
-
 
 - `app/page.tsx` — formulario principal (pide login si no hay sesión)
 - `app/groups/page.tsx` — listado de mis grupos
@@ -316,6 +317,6 @@ desde el navegador.
 - `lib/push.ts` — envío de notificaciones push a conexiones compartidas (mismo grupo)
 - `lib/constants.ts` — etiquetas compartidas (tueste, proceso, temperatura)
 - `lib/formatRelativeTime.ts` — formateo de fechas relativas ("hace 2 horas")
-- `app/components/PlaceAutocomplete.tsx` — mapa de OpenStreetMap + búsqueda por Nominatim
+- 
 - `db/schema.sql` — script para crear las tablas desde cero
 - `db/migrations/` — migraciones incrementales, correr en orden si ya tenías datos

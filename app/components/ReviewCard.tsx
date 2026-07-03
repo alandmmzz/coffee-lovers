@@ -77,7 +77,7 @@ export default function ReviewCard({
           )}
           {r.consumption_type === "lugar" && r.place_name && (
             <a
-              href={`https://www.google.com/maps/search/?api=1&query=${r.place_lat},${r.place_lng}&query_place_id=${r.place_id}`}
+              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.place_name)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1 font-mono text-[11px] text-parchment-dim hover:text-crema transition-colors mt-1"

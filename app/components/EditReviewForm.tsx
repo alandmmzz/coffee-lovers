@@ -8,7 +8,6 @@ import ReviewFormFields, {
   type ReviewFormState,
   type ReviewScores,
 } from "./ReviewFormFields";
-import type { PlaceValue } from "./PlaceAutocomplete";
 import type { Coffee, CoffeeReview } from "@/lib/db";
 
 export default function EditReviewForm({ review }: { review: CoffeeReview }) {
@@ -25,18 +24,6 @@ export default function EditReviewForm({ review }: { review: CoffeeReview }) {
     tasting_notes: review.tasting_notes ?? null,
   });
 
-  const [place, setPlace] = useState<PlaceValue | null>(
-    review.place_id
-      ? {
-          place_id: review.place_id,
-          name: review.place_name ?? "",
-          address: review.place_address ?? "",
-          lat: review.place_lat ?? 0,
-          lng: review.place_lng ?? 0,
-        }
-      : null
-  );
-
   const [form, setForm] = useState<ReviewFormState>({
     brew_method: review.brew_method,
     price: review.price != null ? String(review.price) : "",
@@ -45,6 +32,7 @@ export default function EditReviewForm({ review }: { review: CoffeeReview }) {
     milk_type: review.milk_type ?? "",
     temperature: review.temperature_preference ?? "",
     consumption_type: review.consumption_type ?? "",
+    place_name: review.place_name ?? "",
   });
 
   const [scores, setScores] = useState<ReviewScores>({
@@ -93,11 +81,8 @@ export default function EditReviewForm({ review }: { review: CoffeeReview }) {
           milk_type: form.has_milk ? form.milk_type.trim() || null : null,
           temperature_preference: form.temperature || null,
           consumption_type: form.consumption_type || null,
-          place_id: place?.place_id ?? null,
-          place_name: place?.name ?? null,
-          place_address: place?.address ?? null,
-          place_lat: place?.lat ?? null,
-          place_lng: place?.lng ?? null,
+          place_name:
+            form.consumption_type === "lugar" ? form.place_name.trim() || null : null,
         }),
       });
       const data = await res.json();
@@ -144,8 +129,6 @@ export default function EditReviewForm({ review }: { review: CoffeeReview }) {
       <ReviewFormFields
         coffee={coffee}
         setCoffee={setCoffee}
-        place={place}
-        setPlace={setPlace}
         form={form}
         setForm={setForm}
         scores={scores}

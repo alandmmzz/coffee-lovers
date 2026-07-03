@@ -53,11 +53,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
         milk_type = ${body.has_milk ? body.milk_type ?? null : null},
         temperature_preference = ${body.temperature_preference ?? null},
         consumption_type = ${body.consumption_type ?? null},
-        place_id = ${body.place_id ?? null},
-        place_name = ${body.place_name ?? null},
-        place_address = ${body.place_address ?? null},
-        place_lat = ${body.place_lat ?? null},
-        place_lng = ${body.place_lng ?? null}
+        place_name = ${body.place_name ?? null}
       where id = ${params.id} and user_email = ${session.user.email}
       returning id
     `;

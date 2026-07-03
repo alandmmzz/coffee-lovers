@@ -90,22 +90,13 @@ export default async function MemberProfilePage({
   const withMilk = reviews.filter((r) => r.has_milk);
   const milkPercent = reviews.length > 0 ? Math.round((withMilk.length / reviews.length) * 100) : 0;
 
-  const placesMap = new Map<
-    string,
-    { place_id: string; name: string; address: string | null; lat: number | null; lng: number | null; count: number }
-  >();
+  const placesMap = new Map<string, { name: string; count: number }>();
   for (const r of reviews) {
-    if (!r.place_id) continue;
-    const entry = placesMap.get(r.place_id) ?? {
-      place_id: r.place_id,
-      name: r.place_name ?? r.place_id,
-      address: r.place_address,
-      lat: r.place_lat,
-      lng: r.place_lng,
-      count: 0,
-    };
+    if (r.consumption_type !== "lugar" || !r.place_name) continue;
+    const key = r.place_name.trim().toLowerCase();
+    const entry = placesMap.get(key) ?? { name: r.place_name.trim(), count: 0 };
     entry.count += 1;
-    placesMap.set(r.place_id, entry);
+    placesMap.set(key, entry);
   }
   const places = [...placesMap.values()].sort((a, b) => b.count - a.count);
 
@@ -204,8 +195,8 @@ export default async function MemberProfilePage({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {places.map((p) => (
                     <a
-                      key={p.place_id}
-                      href={`https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}&query_place_id=${p.place_id}`}
+                      key={p.name}
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-start gap-3 bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-4 hover:border-crema transition-colors"
@@ -213,11 +204,6 @@ export default async function MemberProfilePage({
                       <MapPin size={16} className="text-crema shrink-0 mt-0.5" />
                       <div className="min-w-0">
                         <p className="font-body text-sm text-cream truncate">{p.name}</p>
-                        {p.address && (
-                          <p className="font-mono text-[11px] text-parchment-dim truncate mt-0.5">
-                            {p.address}
-                          </p>
-                        )}
                         <p className="font-mono text-[10px] text-parchment-dim mt-1">
                           {p.count} café{p.count === 1 ? "" : "s"} ahí
                         </p>

@@ -4,7 +4,6 @@ import { Snowflake, Thermometer, Flame, Wind, Citrus, Candy, Layers, Leaf, Clock
 import ScoreScale from "./ScoreScale";
 import StarRating from "./StarRating";
 import CoffeeSelector from "./CoffeeSelector";
-import PlaceAutocomplete, { type PlaceValue } from "./PlaceAutocomplete";
 import type { Coffee } from "@/lib/db";
 
 export const BREW_METHODS = [
@@ -36,6 +35,7 @@ export type ReviewFormState = {
   milk_type: string;
   temperature: string;
   consumption_type: string;
+  place_name: string;
 };
 
 const TEMPERATURE_OPTIONS = [
@@ -56,8 +56,6 @@ export function Field({ label, children }: { label: string; children: React.Reac
 export default function ReviewFormFields({
   coffee,
   setCoffee,
-  place,
-  setPlace,
   form,
   setForm,
   scores,
@@ -67,8 +65,6 @@ export default function ReviewFormFields({
 }: {
   coffee: Coffee | null;
   setCoffee: (c: Coffee) => void;
-  place: PlaceValue | null;
-  setPlace: (p: PlaceValue | null) => void;
   form: ReviewFormState;
   setForm: (f: ReviewFormState) => void;
   scores: ReviewScores;
@@ -226,10 +222,9 @@ export default function ReviewFormFields({
           </button>
           <button
             type="button"
-            onClick={() => {
-              setForm({ ...form, consumption_type: "casa" });
-              setPlace(null);
-            }}
+            onClick={() =>
+              setForm({ ...form, consumption_type: "casa", place_name: "" })
+            }
             aria-pressed={form.consumption_type === "casa"}
             className={`flex items-center justify-center gap-2 py-3 rounded-sm border transition-colors ${
               form.consumption_type === "casa"
@@ -243,13 +238,14 @@ export default function ReviewFormFields({
         </div>
 
         {form.consumption_type === "lugar" && (
-          <div>
-            <label className="field-label">Buscar el lugar</label>
-            <PlaceAutocomplete value={place} onChange={setPlace} />
-            {place && (
-              <p className="font-mono text-[11px] text-parchment-dim mt-2">{place.address}</p>
-            )}
-          </div>
+          <Field label="Nombre del lugar">
+            <input
+              value={form.place_name}
+              onChange={(e) => setForm({ ...form, place_name: e.target.value })}
+              className="input-field"
+              placeholder="Ej: Doré Palermo, La esquina de casa..."
+            />
+          </Field>
         )}
       </section>
 

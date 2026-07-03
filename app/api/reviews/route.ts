@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
         (taster_name, coffee_id, roast_level, brew_method,
          aroma, acidity, sweetness, body, bitterness, aftertaste, balance,
          overall_rating, price, notes, has_milk, milk_type, temperature_preference,
-         consumption_type, place_id, place_name, place_address, place_lat, place_lng,
+         consumption_type, place_name,
          user_email, user_name, user_image)
       values
         (${session.user.name ?? session.user.email}, ${body.coffee_id}, ${body.roast_level ?? null},
@@ -49,8 +49,7 @@ export async function POST(req: NextRequest) {
          ${body.bitterness}, ${body.aftertaste}, ${body.balance}, ${body.overall_rating},
          ${body.price ?? null}, ${body.notes ?? null}, ${body.has_milk ?? false}, ${body.milk_type ?? null},
          ${body.temperature_preference ?? null},
-         ${body.consumption_type ?? null}, ${body.place_id ?? null}, ${body.place_name ?? null},
-         ${body.place_address ?? null}, ${body.place_lat ?? null}, ${body.place_lng ?? null},
+         ${body.consumption_type ?? null}, ${body.place_name ?? null},
          ${session.user.email}, ${session.user.name ?? null}, ${session.user.image ?? null})
     `;
 
