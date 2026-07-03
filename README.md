@@ -276,6 +276,24 @@ esas columnas que quedaron sin uso corriendo, opcionalmente:
 db/migrations/011_cleanup_place_columns.sql
 ```
 
+## Preparar tu café (calculadora)
+
+`/brew` es una sección aparte, sin login ni base de datos de por medio —
+pura calculadora. Elegís el método (por ahora solo **Prensa francesa**
+está activa, el resto dice "Pronto") y ajustás dos controles:
+
+- **Intensidad** (Suave → Fuerte): cambia la proporción café/agua (de 1:17
+  a 1:12) y el tiempo de reposo (3 a 5 minutos).
+- **Cantidad de tazas**: asumiendo 200ml por taza, calcula el agua total.
+
+Con eso, muestra cuántos gramos de café moler, cuánta agua, a qué
+temperatura (94°C, fijo — es lo recomendado para prensa francesa) y
+cuánto tiempo dejarlo reposar, más una guía paso a paso.
+
+Para agregar otro método (V60, Espresso, etc.), armá un componente nuevo
+tipo `FrenchPressCalculator.tsx` con las fórmulas de ese método, y
+activalo en `METHODS` dentro de `app/brew/page.tsx`.
+
 ## Estructura
 
 - `app/page.tsx` — formulario principal (pide login si no hay sesión)
@@ -318,5 +336,7 @@ db/migrations/011_cleanup_place_columns.sql
 - `lib/constants.ts` — etiquetas compartidas (tueste, proceso, temperatura)
 - `lib/formatRelativeTime.ts` — formateo de fechas relativas ("hace 2 horas")
 - 
+- `app/brew/page.tsx` — selector de método de preparación
+- `app/components/FrenchPressCalculator.tsx` — calculadora de prensa francesa
 - `db/schema.sql` — script para crear las tablas desde cero
 - `db/migrations/` — migraciones incrementales, correr en orden si ya tenías datos
