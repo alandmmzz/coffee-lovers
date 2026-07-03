@@ -36,15 +36,14 @@ export default function Home() {
   const [coffee, setCoffee] = useState<Coffee | null>(null);
   const [form, setForm] = useState<ReviewFormState>(initialForm);
   const [scores, setScores] = useState<ReviewScores>(initialScores);
-  const [overall, setOverall] = useState(0);
+  const [overall, setOverall] = useState(1);
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
 
   const canSubmit =
     coffee !== null &&
     form.brew_method &&
-    Object.values(scores).every((v) => v > 0) &&
-    overall > 0;
+    Object.values(scores).every((v) => v > 0);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -94,7 +93,7 @@ export default function Home() {
     setCoffee(null);
     setForm(initialForm);
     setScores(initialScores);
-    setOverall(0);
+    setOverall(1);
   }
 
   if (sessionStatus === "loading") {

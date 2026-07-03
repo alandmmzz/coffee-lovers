@@ -299,12 +299,14 @@ recomendada.
 
 Los tamaños de prensa los saqué de mi conocimiento general, no navegando
 sitios de venta en el momento (mi acceso a internet acá está limitado a
-unos pocos dominios técnicos) — por eso siempre queda la opción de poner
-una medida a mano si la tuya no está en la lista.
+unos pocos dominios técnicos).
 
-Para agregar otro método (V60, Espresso, etc.), armá un componente nuevo
-tipo `FrenchPressCalculator.tsx` con las fórmulas de ese método, y
-activalo en `METHODS` dentro de `app/brew/page.tsx`.
+**Inventario de prensas:** en vez de elegir una sola prensa, ahora ponés
+cuántas tenés de cada tamaño (podés tener, por ejemplo, una de 350ml y
+otra de 600ml a la vez). El cálculo reparte el agua total entre todas tus
+prensas disponibles y te dice exactamente cuánta agua y cuánto café va en
+**cada una**. Si entre todas no alcanza para la cantidad de tazas pedida,
+te arma "tandas" (usa todas tus prensas juntas, y si hace falta, repite).
 
 ## Estructura
 

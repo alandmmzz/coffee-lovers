@@ -331,13 +331,11 @@ export default function ReviewFormFields({
             onChange={(e) => setOverall(Number(e.target.value))}
             className="flex-1 accent-cascara"
           />
-          <span className="font-mono text-2xl text-crema w-12 text-right">{overall || "–"}</span>
+          <span className="font-mono text-2xl text-crema w-12 text-right">{overall}</span>
         </div>
-        {overall > 0 && (
-          <div className="mt-3">
-            <StarRating rating={overall} size={22} />
-          </div>
-        )}
+        <div className="mt-3">
+          <StarRating rating={overall} size={22} />
+        </div>
         <p className="font-mono text-[11px] text-parchment-dim mt-2">de 1 a 10</p>
       </section>
 

@@ -53,8 +53,7 @@ export default function EditReviewForm({ review }: { review: CoffeeReview }) {
   const canSubmit =
     coffee !== null &&
     form.brew_method &&
-    Object.values(scores).every((v) => v > 0) &&
-    overall > 0;
+    Object.values(scores).every((v) => v > 0);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
