@@ -21,12 +21,27 @@ const PRESS_SIZES = [
   { label: "1500 ml", ml: 1500 },
 ];
 
-const CUP_SIZE_ML = 200;
+// Tamaños de taza domésticos "oficiales" (no el de cafetera eléctrica,
+// que es más chico). En Latinoamérica la taza de mesa ronda 200-250ml.
+const CUP_SIZES = [
+  { label: "Chica", ml: 150 },
+  { label: "Media", ml: 200 },
+  { label: "Grande", ml: 250 },
+];
+
+const MEASURE_MODES = [
+  { id: "prensa", label: "Por prensa" },
+  { id: "tazas", label: "Por tazas" },
+] as const;
+
 const WATER_TEMP_C = 94;
 
 export default function FrenchPressCalculator() {
   const [intensity, setIntensity] = useState(2); // índice 0-4, arranca en "Medio"
+  const [measureMode, setMeasureMode] = useState<"prensa" | "tazas">("prensa");
   const [cups, setCups] = useState(4);
+  const [cupSize, setCupSize] = useState<number>(CUP_SIZES[1].ml); // arranca en "Media"
+  const [numPresses, setNumPresses] = useState(1);
   const [alreadyGround, setAlreadyGround] = useState<boolean | null>(null);
   const [pressSize, setPressSize] = useState<number>(1000);
   const [customSize, setCustomSize] = useState("");
@@ -35,13 +50,22 @@ export default function FrenchPressCalculator() {
   const level = INTENSITY_LEVELS[intensity];
   const effectivePressSize = customSize ? Number(customSize) || 0 : pressSize;
 
-  const totalWaterMl = cups * CUP_SIZE_ML;
+  // "Por prensa": el usuario dice cuántas prensas llenas quiere, así que
+  // cada tanda es la prensa completa y no hace falta estimar tazas.
+  // "Por tazas": el usuario dice cuántas tazas quiere, y de ahí derivamos
+  // cuántas tandas de prensa hacen falta.
+  const totalWaterMl =
+    measureMode === "prensa" ? effectivePressSize * numPresses : cups * cupSize;
   const totalCoffeeG = Math.round(totalWaterMl / level.ratio);
   const minutes = Math.floor(level.minutes);
   const seconds = level.minutes % 1 === 0.5 ? 30 : 0;
 
   const batches =
-    effectivePressSize > 0 ? Math.max(1, Math.ceil(totalWaterMl / effectivePressSize)) : 1;
+    measureMode === "prensa"
+      ? numPresses
+      : effectivePressSize > 0
+      ? Math.max(1, Math.ceil(totalWaterMl / effectivePressSize))
+      : 1;
   const perBatchWaterMl = Math.round(totalWaterMl / batches);
   const perBatchCoffeeG = Math.round(perBatchWaterMl / level.ratio);
 
@@ -68,32 +92,99 @@ export default function FrenchPressCalculator() {
         </div>
       </div>
 
-      {/* Tazas — contador simple en vez de slider */}
-      <div className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-4">
-        <label className="field-label mb-3">Cantidad de tazas</label>
-        <div className="flex items-center justify-between">
-          <button
-            type="button"
-            onClick={() => setCups((c) => Math.max(1, c - 1))}
-            aria-label="Restar una taza"
-            className="w-9 h-9 flex items-center justify-center rounded-sm border border-parchment-dim/25 text-parchment hover:border-crema transition-colors"
-          >
-            <Minus size={16} />
-          </button>
-          <span className="font-mono text-3xl text-cream">{cups}</span>
-          <button
-            type="button"
-            onClick={() => setCups((c) => Math.min(20, c + 1))}
-            aria-label="Sumar una taza"
-            className="w-9 h-9 flex items-center justify-center rounded-sm border border-parchment-dim/25 text-parchment hover:border-crema transition-colors"
-          >
-            <Plus size={16} />
-          </button>
+      {/* Modo de medición */}
+      <div>
+        <label className="field-label mb-2">¿Cómo querés calcularlo?</label>
+        <div className="grid grid-cols-2 gap-2">
+          {MEASURE_MODES.map((m) => (
+            <button
+              key={m.id}
+              type="button"
+              onClick={() => setMeasureMode(m.id)}
+              aria-pressed={measureMode === m.id}
+              className={`py-3 rounded-sm border font-mono text-xs transition-colors ${
+                measureMode === m.id
+                  ? "border-crema bg-crema/10 text-crema"
+                  : "border-parchment-dim/20 text-parchment-dim hover:border-parchment-dim/40"
+              }`}
+            >
+              {m.label}
+            </button>
+          ))}
         </div>
-        <p className="font-mono text-[10px] text-parchment-dim mt-3 text-center">
-          Asumiendo tazas de {CUP_SIZE_ML} ml cada una
-        </p>
       </div>
+
+      {measureMode === "prensa" ? (
+        /* Por prensa — decís cuántas prensas llenas querés, sin adivinar tazas */
+        <div className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-4">
+          <label className="field-label mb-3">Cantidad de prensas</label>
+          <div className="flex items-center justify-between">
+            <button
+              type="button"
+              onClick={() => setNumPresses((n) => Math.max(1, n - 1))}
+              aria-label="Restar una prensa"
+              className="w-9 h-9 flex items-center justify-center rounded-sm border border-parchment-dim/25 text-parchment hover:border-crema transition-colors"
+            >
+              <Minus size={16} />
+            </button>
+            <span className="font-mono text-3xl text-cream">{numPresses}</span>
+            <button
+              type="button"
+              onClick={() => setNumPresses((n) => Math.min(10, n + 1))}
+              aria-label="Sumar una prensa"
+              className="w-9 h-9 flex items-center justify-center rounded-sm border border-parchment-dim/25 text-parchment hover:border-crema transition-colors"
+            >
+              <Plus size={16} />
+            </button>
+          </div>
+          <p className="font-mono text-[10px] text-parchment-dim mt-3 text-center">
+            Cada prensa se llena hasta el tope elegido abajo
+          </p>
+        </div>
+      ) : (
+        /* Por tazas — tazas de mesa (200-250ml), no las de cafetera eléctrica */
+        <div className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-4">
+          <label className="field-label mb-3">Cantidad de tazas</label>
+          <div className="flex items-center justify-between">
+            <button
+              type="button"
+              onClick={() => setCups((c) => Math.max(1, c - 1))}
+              aria-label="Restar una taza"
+              className="w-9 h-9 flex items-center justify-center rounded-sm border border-parchment-dim/25 text-parchment hover:border-crema transition-colors"
+            >
+              <Minus size={16} />
+            </button>
+            <span className="font-mono text-3xl text-cream">{cups}</span>
+            <button
+              type="button"
+              onClick={() => setCups((c) => Math.min(20, c + 1))}
+              aria-label="Sumar una taza"
+              className="w-9 h-9 flex items-center justify-center rounded-sm border border-parchment-dim/25 text-parchment hover:border-crema transition-colors"
+            >
+              <Plus size={16} />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2 mt-4">
+            {CUP_SIZES.map((c) => (
+              <button
+                key={c.ml}
+                type="button"
+                onClick={() => setCupSize(c.ml)}
+                aria-pressed={cupSize === c.ml}
+                className={`py-2 rounded-sm border font-mono text-xs transition-colors ${
+                  cupSize === c.ml
+                    ? "border-crema bg-crema/10 text-crema"
+                    : "border-parchment-dim/20 text-parchment-dim hover:border-parchment-dim/40"
+                }`}
+              >
+                {c.label}
+                <span className="block text-[9px] opacity-70">{c.ml} ml</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* ¿Ya está molido? */}
       <div>
@@ -161,8 +252,9 @@ export default function FrenchPressCalculator() {
         />
       </div>
 
-      {/* Aviso de tandas si la prensa no alcanza */}
-      {batches > 1 && (
+      {/* Aviso de tandas: en modo tazas, avisa si la prensa no alcanza. En
+          modo prensa, confirma cuántas veces se va a llenar (ya elegido). */}
+      {measureMode === "tazas" && batches > 1 && (
         <div className="flex items-start gap-3 bg-crema/10 border border-crema/30 rounded-sm p-4">
           <Layers size={18} className="text-crema shrink-0 mt-0.5" />
           <div>
@@ -172,6 +264,21 @@ export default function FrenchPressCalculator() {
             </p>
             <p className="font-mono text-[11px] text-parchment-dim mt-1">
               Por tanda: {perBatchCoffeeG}g de café y {perBatchWaterMl}ml de agua.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {measureMode === "prensa" && numPresses > 1 && (
+        <div className="flex items-start gap-3 bg-crema/10 border border-crema/30 rounded-sm p-4">
+          <Layers size={18} className="text-crema shrink-0 mt-0.5" />
+          <div>
+            <p className="font-body text-sm text-crema">
+              Vas a llenar la prensa de {effectivePressSize}ml{" "}
+              <strong>{numPresses} veces</strong>.
+            </p>
+            <p className="font-mono text-[11px] text-parchment-dim mt-1">
+              Por prensa: {perBatchCoffeeG}g de café y {perBatchWaterMl}ml de agua.
             </p>
           </div>
         </div>
@@ -272,7 +379,10 @@ export default function FrenchPressCalculator() {
           </li>
           <li>Bajá el émbolo lento y parejo, y serví enseguida para que no se pase.</li>
           {batches > 1 && (
-            <li>Repetí esto {batches} veces hasta juntar las {cups} tazas.</li>
+            <li>
+              Repetí esto {batches} veces
+              {measureMode === "tazas" ? ` hasta juntar las ${cups} tazas.` : "."}
+            </li>
           )}
         </ol>
       </div>
