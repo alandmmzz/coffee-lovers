@@ -280,15 +280,27 @@ db/migrations/011_cleanup_place_columns.sql
 
 `/brew` es una sección aparte, sin login ni base de datos de por medio —
 pura calculadora. Elegís el método (por ahora solo **Prensa francesa**
-está activa, el resto dice "Pronto") y ajustás dos controles:
+está activa, el resto dice "Pronto") y ajustás:
 
 - **Intensidad** (Suave → Fuerte): cambia la proporción café/agua (de 1:17
   a 1:12) y el tiempo de reposo (3 a 5 minutos).
-- **Cantidad de tazas**: asumiendo 200ml por taza, calcula el agua total.
+- **Cantidad de tazas**: contador simple (+/-), asumiendo 200ml por taza.
+- **¿Ya está molido?**: si decís que sí, el paso a paso se salta la parte
+  de moler y te dice directamente cuánto usar de tu café ya molido.
+- **Tamaño de tu prensa**: los tamaños comerciales más comunes (350, 600,
+  800, 1000, 1500 ml) más un campo para poner una medida distinta. Si
+  pediste más tazas de las que entran en una sola tanda, te avisa cuántas
+  tandas necesitás y te da la receta por tanda, no el total imposible de
+  meter de una.
 
-Con eso, muestra cuántos gramos de café moler, cuánta agua, a qué
-temperatura (94°C, fijo — es lo recomendado para prensa francesa) y
-cuánto tiempo dejarlo reposar, más una guía paso a paso.
+También hay un botón de info (ícono "i") al lado de la temperatura que
+explica qué pasa si el agua está más caliente o más fría que la
+recomendada.
+
+Los tamaños de prensa los saqué de mi conocimiento general, no navegando
+sitios de venta en el momento (mi acceso a internet acá está limitado a
+unos pocos dominios técnicos) — por eso siempre queda la opción de poner
+una medida a mano si la tuya no está en la lista.
 
 Para agregar otro método (V60, Espresso, etc.), armá un componente nuevo
 tipo `FrenchPressCalculator.tsx` con las fórmulas de ese método, y

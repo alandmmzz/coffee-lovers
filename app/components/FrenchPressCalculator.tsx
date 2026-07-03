@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Coffee, Droplets, Thermometer, Clock } from "lucide-react";
+import { Coffee, Droplets, Thermometer, Clock, Minus, Plus, Info, CheckCircle2, HelpCircle, Layers } from "lucide-react";
 
 const INTENSITY_LEVELS = [
   { label: "Suave", ratio: 17, minutes: 3 },
@@ -11,18 +11,39 @@ const INTENSITY_LEVELS = [
   { label: "Fuerte", ratio: 12, minutes: 5 },
 ];
 
+// Tamaños comerciales más comunes de prensa francesa. Si la tuya no está
+// en la lista, usá "Otra medida" y escribí los ml exactos.
+const PRESS_SIZES = [
+  { label: "350 ml", ml: 350 },
+  { label: "600 ml", ml: 600 },
+  { label: "800 ml", ml: 800 },
+  { label: "1000 ml", ml: 1000 },
+  { label: "1500 ml", ml: 1500 },
+];
+
 const CUP_SIZE_ML = 200;
 const WATER_TEMP_C = 94;
 
 export default function FrenchPressCalculator() {
   const [intensity, setIntensity] = useState(2); // índice 0-4, arranca en "Medio"
   const [cups, setCups] = useState(4);
+  const [alreadyGround, setAlreadyGround] = useState<boolean | null>(null);
+  const [pressSize, setPressSize] = useState<number>(1000);
+  const [customSize, setCustomSize] = useState("");
+  const [showTempInfo, setShowTempInfo] = useState(false);
 
   const level = INTENSITY_LEVELS[intensity];
-  const waterMl = cups * CUP_SIZE_ML;
-  const coffeeG = Math.round(waterMl / level.ratio);
+  const effectivePressSize = customSize ? Number(customSize) || 0 : pressSize;
+
+  const totalWaterMl = cups * CUP_SIZE_ML;
+  const totalCoffeeG = Math.round(totalWaterMl / level.ratio);
   const minutes = Math.floor(level.minutes);
   const seconds = level.minutes % 1 === 0.5 ? 30 : 0;
+
+  const batches =
+    effectivePressSize > 0 ? Math.max(1, Math.ceil(totalWaterMl / effectivePressSize)) : 1;
+  const perBatchWaterMl = Math.round(totalWaterMl / batches);
+  const perBatchCoffeeG = Math.round(perBatchWaterMl / level.ratio);
 
   return (
     <div className="space-y-8">
@@ -47,42 +68,147 @@ export default function FrenchPressCalculator() {
         </div>
       </div>
 
-      {/* Tazas */}
-      <div>
-        <div className="flex items-center justify-between mb-2">
-          <label className="field-label mb-0">Cantidad de tazas</label>
-          <span className="font-mono text-sm text-crema">{cups}</span>
+      {/* Tazas — contador simple en vez de slider */}
+      <div className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-4">
+        <label className="field-label mb-3">Cantidad de tazas</label>
+        <div className="flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => setCups((c) => Math.max(1, c - 1))}
+            aria-label="Restar una taza"
+            className="w-9 h-9 flex items-center justify-center rounded-sm border border-parchment-dim/25 text-parchment hover:border-crema transition-colors"
+          >
+            <Minus size={16} />
+          </button>
+          <span className="font-mono text-3xl text-cream">{cups}</span>
+          <button
+            type="button"
+            onClick={() => setCups((c) => Math.min(20, c + 1))}
+            aria-label="Sumar una taza"
+            className="w-9 h-9 flex items-center justify-center rounded-sm border border-parchment-dim/25 text-parchment hover:border-crema transition-colors"
+          >
+            <Plus size={16} />
+          </button>
         </div>
-        <input
-          type="range"
-          min={1}
-          max={12}
-          step={1}
-          value={cups}
-          onChange={(e) => setCups(Number(e.target.value))}
-          className="w-full accent-cascara"
-        />
-        <p className="font-mono text-[10px] text-parchment-dim mt-1">
+        <p className="font-mono text-[10px] text-parchment-dim mt-3 text-center">
           Asumiendo tazas de {CUP_SIZE_ML} ml cada una
         </p>
       </div>
+
+      {/* ¿Ya está molido? */}
+      <div>
+        <label className="field-label mb-2">¿Tu café ya está molido para prensa?</label>
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            onClick={() => setAlreadyGround(true)}
+            aria-pressed={alreadyGround === true}
+            className={`flex items-center justify-center gap-2 py-3 rounded-sm border transition-colors ${
+              alreadyGround === true
+                ? "border-crema bg-crema/10 text-crema"
+                : "border-parchment-dim/20 text-parchment-dim hover:border-parchment-dim/40"
+            }`}
+          >
+            <CheckCircle2 size={16} />
+            <span className="font-mono text-xs">Sí, ya está molido</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setAlreadyGround(false)}
+            aria-pressed={alreadyGround === false}
+            className={`flex items-center justify-center gap-2 py-3 rounded-sm border transition-colors ${
+              alreadyGround === false
+                ? "border-crema bg-crema/10 text-crema"
+                : "border-parchment-dim/20 text-parchment-dim hover:border-parchment-dim/40"
+            }`}
+          >
+            <HelpCircle size={16} />
+            <span className="font-mono text-xs">No, tengo que molerlo</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Tamaño de la prensa */}
+      <div>
+        <label className="field-label mb-2">Tamaño de tu prensa francesa</label>
+        <div className="grid grid-cols-3 gap-2 mb-2">
+          {PRESS_SIZES.map((p) => (
+            <button
+              key={p.ml}
+              type="button"
+              onClick={() => {
+                setPressSize(p.ml);
+                setCustomSize("");
+              }}
+              aria-pressed={!customSize && pressSize === p.ml}
+              className={`py-2.5 rounded-sm border font-mono text-xs transition-colors ${
+                !customSize && pressSize === p.ml
+                  ? "border-crema bg-crema/10 text-crema"
+                  : "border-parchment-dim/20 text-parchment-dim hover:border-parchment-dim/40"
+              }`}
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
+        <input
+          type="number"
+          min={1}
+          value={customSize}
+          onChange={(e) => setCustomSize(e.target.value)}
+          className="input-field"
+          placeholder="Otra medida en ml (ej: 450)"
+        />
+      </div>
+
+      {/* Aviso de tandas si la prensa no alcanza */}
+      {batches > 1 && (
+        <div className="flex items-start gap-3 bg-crema/10 border border-crema/30 rounded-sm p-4">
+          <Layers size={18} className="text-crema shrink-0 mt-0.5" />
+          <div>
+            <p className="font-body text-sm text-crema">
+              Con una prensa de {effectivePressSize}ml vas a necesitar{" "}
+              <strong>{batches} tandas</strong> para llegar a {cups} tazas.
+            </p>
+            <p className="font-mono text-[11px] text-parchment-dim mt-1">
+              Por tanda: {perBatchCoffeeG}g de café y {perBatchWaterMl}ml de agua.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Resultado */}
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-4">
           <Coffee size={16} className="text-crema mb-2" />
-          <p className="font-mono text-2xl text-cream leading-none">{coffeeG}g</p>
+          <p className="font-mono text-2xl text-cream leading-none">
+            {batches > 1 ? perBatchCoffeeG : totalCoffeeG}g
+          </p>
           <p className="font-mono text-[10px] text-parchment-dim uppercase mt-1.5">
-            Café molido
+            Café molido{batches > 1 ? " (por tanda)" : ""}
           </p>
         </div>
         <div className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-4">
           <Droplets size={16} className="text-crema mb-2" />
-          <p className="font-mono text-2xl text-cream leading-none">{waterMl}ml</p>
-          <p className="font-mono text-[10px] text-parchment-dim uppercase mt-1.5">Agua</p>
+          <p className="font-mono text-2xl text-cream leading-none">
+            {batches > 1 ? perBatchWaterMl : totalWaterMl}ml
+          </p>
+          <p className="font-mono text-[10px] text-parchment-dim uppercase mt-1.5">
+            Agua{batches > 1 ? " (por tanda)" : ""}
+          </p>
         </div>
         <div className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-4">
-          <Thermometer size={16} className="text-crema mb-2" />
+          <div className="flex items-center gap-1.5 mb-2">
+            <Thermometer size={16} className="text-crema" />
+            <button
+              type="button"
+              onClick={() => setShowTempInfo((s) => !s)}
+              aria-label="Qué pasa si cambio la temperatura"
+              className="text-parchment-dim/60 hover:text-crema transition-colors"
+            >
+              <Info size={12} />
+            </button>
+          </div>
           <p className="font-mono text-2xl text-cream leading-none">{WATER_TEMP_C}°C</p>
           <p className="font-mono text-[10px] text-parchment-dim uppercase mt-1.5">
             Temperatura del agua
@@ -99,18 +225,40 @@ export default function FrenchPressCalculator() {
         </div>
       </div>
 
+      {showTempInfo && (
+        <div className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-4 -mt-4">
+          <p className="font-body text-xs text-parchment-dim leading-relaxed">
+            <strong className="text-crema">Más caliente</strong> (agua recién hervida, ~100°C):
+            extrae más rápido y saca sabores amargos y ásperos de más.{" "}
+            <strong className="text-crema">Más fría</strong> (por debajo de 90°C): extrae de
+            menos, el café queda plano, más ácido y con poco cuerpo. Por eso {WATER_TEMP_C}°C
+            (agua hervida que reposó unos 30 segundos) es el punto justo para prensa francesa.
+          </p>
+        </div>
+      )}
+
       {/* Pasos */}
       <div className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-5">
         <h3 className="font-display text-lg text-cream mb-3">Cómo prepararlo</h3>
         <ol className="space-y-2 font-body text-sm text-parchment list-decimal list-inside">
-          <li>
-            Molé <strong className="text-crema">{coffeeG}g</strong> de café en molienda
-            gruesa (como sal gruesa o azúcar mascabo).
-          </li>
+          {alreadyGround ? (
+            <li>
+              Usá <strong className="text-crema">{batches > 1 ? perBatchCoffeeG : totalCoffeeG}g</strong>{" "}
+              de tu café ya molido.
+            </li>
+          ) : (
+            <li>
+              Molé <strong className="text-crema">{batches > 1 ? perBatchCoffeeG : totalCoffeeG}g</strong>{" "}
+              de café en molienda gruesa (como sal gruesa o azúcar mascabo).
+            </li>
+          )}
           <li>Ponelo en la prensa francesa vacía.</li>
           <li>
-            Calentá el agua a punto de hervor, dejala reposar unos 30 segundos, y
-            volcá los <strong className="text-crema">{waterMl}ml</strong> sobre el café.
+            Calentá el agua a punto de hervor, dejala reposar unos 30 segundos, y volcá{" "}
+            <strong className="text-crema">
+              {batches > 1 ? perBatchWaterMl : totalWaterMl}ml
+            </strong>{" "}
+            sobre el café.
           </li>
           <li>Revolvé suave una vez, para que todo el café se moje parejo.</li>
           <li>Poné la tapa, sin bajar el émbolo todavía.</li>
@@ -123,6 +271,9 @@ export default function FrenchPressCalculator() {
             .
           </li>
           <li>Bajá el émbolo lento y parejo, y serví enseguida para que no se pase.</li>
+          {batches > 1 && (
+            <li>Repetí esto {batches} veces hasta juntar las {cups} tazas.</li>
+          )}
         </ol>
       </div>
     </div>
