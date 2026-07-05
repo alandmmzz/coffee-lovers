@@ -51,8 +51,7 @@ export default function CoffeeSelector({
     `${c.brand} ${c.line}`.toLowerCase().includes(query.toLowerCase())
   );
 
-  async function handleCreate(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleCreate() {
     if (!newBrand.trim() || !newLine.trim()) {
       setError("Marca y línea/tipo son obligatorios.");
       return;
@@ -178,7 +177,15 @@ export default function CoffeeSelector({
               </button>
             </>
           ) : (
-            <form onSubmit={handleCreate} className="p-4 space-y-3">
+            <div
+              className="p-4 space-y-3"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleCreate();
+                }
+              }}
+            >
               <p className="font-mono text-[11px] text-parchment-dim uppercase tracking-wide">
                 Nuevo café
               </p>
@@ -252,7 +259,8 @@ export default function CoffeeSelector({
 
               <div className="flex gap-2 pt-1">
                 <button
-                  type="submit"
+                  type="button"
+                  onClick={handleCreate}
                   disabled={saving}
                   className="flex-1 py-2 bg-cascara hover:bg-cascara-light disabled:opacity-60 text-cream text-sm rounded-sm transition-colors"
                 >
@@ -266,7 +274,7 @@ export default function CoffeeSelector({
                   Cancelar
                 </button>
               </div>
-            </form>
+            </div>
           )}
         </div>
       )}
