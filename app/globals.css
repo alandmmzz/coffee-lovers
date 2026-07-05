@@ -64,7 +64,7 @@ body {
   border-radius: 2px;
   padding: 0.65rem 0.75rem;
   font-family: var(--font-inter), sans-serif;
-  font-size: 0.9rem;
+  font-size: 16px; /* nunca bajar de 16px: por debajo, iOS/Android hacen zoom automático al enfocar */
   color: #F2E9DC;
 }
 

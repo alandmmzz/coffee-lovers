@@ -37,16 +37,18 @@ export async function POST(req: NextRequest) {
 
   try {
     const rows = await sql`
-      insert into coffees (brand, line, origin, farm, variety, process)
+      insert into coffees (brand, line, origin, farm, variety, process, tasting_notes)
       values (
         ${body.brand.trim()}, ${body.line.trim()}, ${body.origin ?? null},
-        ${body.farm ?? null}, ${body.variety ?? null}, ${body.process ?? null}
+        ${body.farm ?? null}, ${body.variety ?? null}, ${body.process ?? null},
+        ${body.tasting_notes ?? null}
       )
       on conflict (brand, line) do update set
         origin = coalesce(excluded.origin, coffees.origin),
         farm = coalesce(excluded.farm, coffees.farm),
         variety = coalesce(excluded.variety, coffees.variety),
-        process = coalesce(excluded.process, coffees.process)
+        process = coalesce(excluded.process, coffees.process),
+        tasting_notes = coalesce(excluded.tasting_notes, coffees.tasting_notes)
       returning *
     `;
     return NextResponse.json({ ok: true, coffee: rows[0] });

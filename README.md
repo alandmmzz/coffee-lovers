@@ -308,6 +308,36 @@ prensas disponibles y te dice exactamente cuánta agua y cuánto café va en
 **cada una**. Si entre todas no alcanza para la cantidad de tazas pedida,
 te arma "tandas" (usa todas tus prensas juntas, y si hace falta, repite).
 
+## Selector de café (pantalla completa, dos pasos)
+
+El selector de café en el formulario ya no es un dropdown chiquito — al
+tocarlo se abre una pantalla completa (`app/components/CoffeeSelector.tsx`)
+con dos pasos:
+
+1. **Marca**: tarjetas con logo (si la marca tiene uno cargado) o un
+   ícono genérico, filtrables con el buscador de arriba.
+2. **Línea**: al tocar una marca, lista de sus líneas/tipos.
+
+En cualquiera de los dos pasos hay un botón para **agregar un café nuevo**
+(si venís de una marca, ya te la precarga). El formulario de creación
+ahora también tiene un campo de **Notas** opcional.
+
+De paso arreglamos algo que rompía bastante en mobile: los inputs tenían
+el texto en 14.4px, y **por debajo de 16px, iOS/Android hacen zoom
+automático al enfocar un campo** — molestísimo en un buscador. Subimos
+`.input-field` a 16px fijo en `app/globals.css`.
+
+## Panel de admin: catálogo de cafés
+
+`/admin/coffees` (protegido por `ADMIN_EMAIL`, igual que `/admin/users`)
+tiene dos secciones:
+
+- **Logos de marca**: un input por marca para pegar el link de una imagen.
+  Se guarda en la tabla `brand_logos` y se usa en el selector de café.
+- **Cafés**: lista completa, cada uno linkea a `/admin/coffees/[id]` para
+  editar cualquier campo (marca, línea, origen, finca, variedad, proceso,
+  notas).
+
 ## Estructura
 
 - `app/page.tsx` — formulario principal (pide login si no hay sesión)
@@ -322,6 +352,10 @@ te arma "tandas" (usa todas tus prensas juntas, y si hace falta, repite).
 - `app/groups/join/[code]/page.tsx` — pantalla de invitación
 - `app/reviews/[id]/edit/page.tsx` — edición de una review (solo el dueño, sin importar el grupo)
 - `app/profile/page.tsx` — tus propias reviews en todos tus grupos, insights y calendario
+- `app/admin/coffees/page.tsx` — logos de marca + listado editable de cafés
+- `app/admin/coffees/[id]/page.tsx` — edición de un café puntual
+- `app/components/BrandLogoRow.tsx` — fila para editar el logo de una marca
+- `app/components/EditCoffeeForm.tsx` — formulario de edición de un café
 - `app/admin/users/page.tsx` — lista de usuarios registrados (protegida por `ADMIN_EMAIL`)
 - `app/api/groups/route.ts` — listar mis grupos / crear uno
 - `app/api/groups/[id]/route.ts` — editar nombre/foto de un grupo

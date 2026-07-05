@@ -13,6 +13,12 @@ const sql = neon(process.env.DATABASE_URL as string, {
 
 export default sql;
 
+export type BrandLogo = {
+  brand: string;
+  logo_url: string | null;
+  updated_at?: string;
+};
+
 export type Coffee = {
   id: string;
   created_at?: string;

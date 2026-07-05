@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { Users } from "lucide-react";
@@ -61,6 +62,9 @@ export default async function AdminUsersPage() {
             <Users size={28} />
             Usuarios registrados
           </h1>
+          <Link href="/admin/coffees" className="text-parchment-dim text-sm underline underline-offset-4 mt-3 inline-block">
+            Ir al catálogo de cafés →
+          </Link>
           <p className="font-body text-parchment-dim text-sm mt-3">
             {users.length} persona{users.length === 1 ? "" : "s"} inició sesión alguna vez,
             haya dejado reviews o no.
