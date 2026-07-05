@@ -1,20 +1,20 @@
 "use client";
 
-import { Snowflake, Thermometer, Flame, Wind, Citrus, Candy, Layers, Leaf, Clock, Scale, MapPin, Home } from "lucide-react";
+import { Snowflake, Thermometer, Flame, Wind, Citrus, Candy, Layers, Leaf, Clock, Scale, MapPin, Home, Zap, Droplet, Coffee as CoffeeIcon, Package, MoreHorizontal } from "lucide-react";
 import ScoreScale from "./ScoreScale";
 import StarRating from "./StarRating";
 import CoffeeSelector from "./CoffeeSelector";
 import type { Coffee } from "@/lib/db";
 
 export const BREW_METHODS = [
-  "Espresso",
-  "V60 / Filtrado",
-  "Prensa francesa",
-  "Moka",
-  "Aeropress",
-  "Cold brew",
-  "Cápsula",
-  "Otro",
+  { label: "Espresso", icon: Zap },
+  { label: "V60 / Filtrado", icon: Droplet },
+  { label: "Prensa francesa", icon: CoffeeIcon },
+  { label: "Moka", icon: Flame },
+  { label: "Aeropress", icon: Wind },
+  { label: "Cold brew", icon: Snowflake },
+  { label: "Cápsula", icon: Package },
+  { label: "Otro", icon: MoreHorizontal },
 ];
 
 export type ReviewScores = {
@@ -96,23 +96,32 @@ export default function ReviewFormFields({
           <h2 className="font-display text-xl text-cream">Método</h2>
         </div>
         <div className="space-y-5">
-          <Field label="Método de preparación">
-            <select
-              required
-              value={form.brew_method}
-              onChange={(e) => setForm({ ...form, brew_method: e.target.value })}
-              className="input-field"
-            >
-              <option value="" disabled>
-                Elegí un método
-              </option>
-              {BREW_METHODS.map((m) => (
-                <option key={m} value={m}>
-                  {m}
-                </option>
-              ))}
-            </select>
-          </Field>
+          <div>
+            <label className="field-label mb-2">Método de preparación</label>
+            <div className="grid grid-cols-4 gap-2">
+              {BREW_METHODS.map(({ label, icon: Icon }) => {
+                const selected = form.brew_method === label;
+                return (
+                  <button
+                    key={label}
+                    type="button"
+                    onClick={() => setForm({ ...form, brew_method: label })}
+                    aria-pressed={selected}
+                    className={`flex flex-col items-center gap-1.5 py-3 rounded-sm border transition-colors ${
+                      selected
+                        ? "border-crema bg-crema/10 text-crema"
+                        : "border-parchment-dim/20 text-parchment-dim hover:border-parchment-dim/40"
+                    }`}
+                  >
+                    <Icon size={18} />
+                    <span className="font-mono text-[10px] text-center leading-tight">
+                      {label}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
           <div>
             <label className="flex items-center gap-2.5 cursor-pointer select-none">
@@ -175,7 +184,9 @@ export default function ReviewFormFields({
                   setForm({ ...form, temperature: selected ? "" : value })
                 }
                 aria-pressed={selected}
-                className="flex flex-col items-center gap-1.5 py-3 rounded-sm border transition-colors"
+                className={`flex flex-col items-center gap-1.5 py-3 rounded-sm border transition-colors ${
+                  selected ? "" : "border-parchment-dim/20 hover:border-parchment-dim/40"
+                }`}
                 style={
                   selected
                     ? { borderColor: color, backgroundColor: `${color}1A`, color }
@@ -233,7 +244,7 @@ export default function ReviewFormFields({
             }`}
           >
             <Home size={16} />
-            <span className="font-mono text-xs">Lo preparé en casa</span>
+            <span className="font-mono text-xs">Lo preparé yo</span>
           </button>
         </div>
 
