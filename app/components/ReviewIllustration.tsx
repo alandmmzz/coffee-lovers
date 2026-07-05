@@ -55,11 +55,20 @@ export default function ReviewIllustration({
         }`}
         style={{ width: BAG_PLACEMENT.width, top: BAG_PLACEMENT.top, left: BAG_PLACEMENT.left }}
       >
-        <div className="relative w-full h-full">
+        <div className="relative w-full h-full" style={{ perspective: "55px" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/images/pouch.png" alt="" className="w-full h-full object-contain drop-shadow-xl" />
           {coffee?.brand_logo_url && (
-            <div className="absolute top-[30%] left-1/2 -translate-x-1/2 w-[28%] aspect-square rounded-full overflow-hidden bg-white shadow-md flex items-center justify-center">
+            <div
+              className="absolute aspect-square rounded-full overflow-hidden bg-white shadow-md flex items-center justify-center"
+              style={{
+                width: "20%",
+                top: "52%",
+                left: "48%",
+                transform: "rotateY(12deg)",
+                transformStyle: "preserve-3d",
+              }}
+            >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={coffee.brand_logo_url}
