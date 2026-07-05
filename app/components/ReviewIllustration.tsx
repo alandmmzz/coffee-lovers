@@ -1,6 +1,5 @@
 "use client";
 
-import { Coffee as CoffeeIcon } from "lucide-react";
 import type { Coffee } from "@/lib/db";
 
 const METHOD_IMAGES: Record<string, string> = {
@@ -27,11 +26,15 @@ export default function ReviewIllustration({
   const cupState: "empty" | "black" | "milk" = !showMethod ? "empty" : hasMilk ? "milk" : "black";
 
   return (
-    <div className="max-w-[360px] mx-auto">
-      <div className="bg-parchment rounded-lg border-2 border-crema/40 shadow-2xl p-5">
-        <div className="grid grid-cols-3 gap-2 items-end">
+    <div className="max-w-[440px] mx-auto">
+      <div className="bg-parchment rounded-lg border-2 border-crema/40 shadow-2xl p-6">
+        <div className="flex items-end justify-center">
           {/* Bolsa de café */}
-          <div className={`transition-opacity duration-500 ${showBag ? "opacity-100" : "opacity-0"}`}>
+          <div
+            className={`relative z-0 w-[34%] -mr-4 transition-opacity duration-500 ${
+              showBag ? "opacity-100" : "opacity-0"
+            }`}
+          >
             <div className="relative aspect-square">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/images/pouch.png" alt="" className="w-full h-full object-contain" />
@@ -46,15 +49,10 @@ export default function ReviewIllustration({
                 </div>
               )}
             </div>
-            {coffee && (
-              <p className="text-center font-mono text-[9px] text-ink/70 mt-1 truncate">
-                {coffee.brand}
-              </p>
-            )}
           </div>
 
-          {/* Taza: vacía / negra / con leche */}
-          <div className="relative aspect-square">
+          {/* Taza: vacía / negra / con leche, adelante */}
+          <div className="relative z-10 w-[46%] aspect-square drop-shadow-xl">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/images/empty-cup.png"
@@ -79,21 +77,18 @@ export default function ReviewIllustration({
           </div>
 
           {/* Método de preparación */}
-          <div className={`transition-opacity duration-500 ${showMethod ? "opacity-100" : "opacity-0"}`}>
-            <div className="aspect-square">
-              {showMethod && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={METHOD_IMAGES[brewMethod]}
-                  alt=""
-                  className="w-full h-full object-contain"
-                />
-              )}
-            </div>
+          <div
+            className={`relative z-0 w-[34%] -ml-4 aspect-square transition-opacity duration-500 ${
+              showMethod ? "opacity-100" : "opacity-0"
+            }`}
+          >
             {showMethod && (
-              <p className="text-center font-mono text-[9px] text-ink/70 mt-1 truncate">
-                {brewMethod}
-              </p>
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={METHOD_IMAGES[brewMethod]}
+                alt=""
+                className="w-full h-full object-contain"
+              />
             )}
           </div>
         </div>
