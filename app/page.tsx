@@ -8,6 +8,7 @@ import ReviewFormFields, {
   type ReviewFormState,
   type ReviewScores,
 } from "./components/ReviewFormFields";
+import ReviewIllustration from "./components/ReviewIllustration";
 import type { Coffee } from "@/lib/db";
 
 const initialScores: ReviewScores = {
@@ -167,49 +168,57 @@ export default function Home() {
 
   return (
     <main className="min-h-screen px-4 py-12 sm:py-16">
-      <div className="max-w-xl mx-auto">
-        <header className="mb-10">
-          <p className="font-mono text-xs tracking-[0.2em] text-crema uppercase mb-3">
-            Coffee Lovers · Ficha de catación
-          </p>
-          <h1 className="font-display text-4xl sm:text-5xl text-cream leading-[1.05] mb-3">
-            Registrá lo que probaste
-          </h1>
-          <p className="font-body text-parchment-dim text-sm max-w-md">
-            Completá cada sección en orden, tal como se cata un café: primero
-            identificás el grano, después el tueste y por último el sabor.
-          </p>
-          <p className="font-mono text-[11px] text-parchment-dim/80 mt-3">
-            Catando como {session?.user?.name} ({session?.user?.email})
-          </p>
-        </header>
-
-        <form onSubmit={handleSubmit} className="space-y-8">
-          <ReviewFormFields
-            coffee={coffee}
-            setCoffee={setCoffee}
-            form={form}
-            setForm={setForm}
-            scores={scores}
-            setScores={setScores}
-            overall={overall}
-            setOverall={setOverall}
-          />
-
-          {status === "error" && (
-            <p className="text-cascara-light text-sm font-body" role="alert">
-              {errorMsg}
+      <div className="max-w-4xl mx-auto lg:flex lg:items-start lg:gap-12">
+        <div className="max-w-xl">
+          <header className="mb-10">
+            <p className="font-mono text-xs tracking-[0.2em] text-crema uppercase mb-3">
+              Coffee Lovers · Ficha de catación
             </p>
-          )}
+            <h1 className="font-display text-4xl sm:text-5xl text-cream leading-[1.05] mb-3">
+              Registrá lo que probaste
+            </h1>
+            <p className="font-body text-parchment-dim text-sm max-w-md">
+              Completá cada sección en orden, tal como se cata un café: primero
+              identificás el grano, después el tueste y por último el sabor.
+            </p>
+            <p className="font-mono text-[11px] text-parchment-dim/80 mt-3">
+              Catando como {session?.user?.name} ({session?.user?.email})
+            </p>
+          </header>
 
-          <button
-            type="submit"
-            disabled={status === "sending"}
-            className="w-full py-4 bg-cascara hover:bg-cascara-light disabled:opacity-60 text-cream font-body text-sm tracking-wide rounded-sm transition-colors"
-          >
-            {status === "sending" ? "Guardando..." : "Guardar review"}
-          </button>
-        </form>
+          <form onSubmit={handleSubmit} className="space-y-8">
+            <ReviewFormFields
+              coffee={coffee}
+              setCoffee={setCoffee}
+              form={form}
+              setForm={setForm}
+              scores={scores}
+              setScores={setScores}
+              overall={overall}
+              setOverall={setOverall}
+            />
+
+            {status === "error" && (
+              <p className="text-cascara-light text-sm font-body" role="alert">
+                {errorMsg}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              disabled={status === "sending"}
+              className="w-full py-4 bg-cascara hover:bg-cascara-light disabled:opacity-60 text-cream font-body text-sm tracking-wide rounded-sm transition-colors"
+            >
+              {status === "sending" ? "Guardando..." : "Guardar review"}
+            </button>
+          </form>
+        </div>
+
+        <div className="hidden lg:block flex-1 self-stretch">
+          <div className="sticky top-24">
+            <ReviewIllustration coffee={coffee} hasMilk={form.has_milk} brewMethod={form.brew_method} />
+          </div>
+        </div>
       </div>
     </main>
   );

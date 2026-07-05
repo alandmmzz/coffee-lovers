@@ -29,6 +29,7 @@ export type Coffee = {
   variety: string | null;
   process: string | null;
   tasting_notes: string | null;
+  brand_logo_url?: string | null;
 };
 
 export type Group = {

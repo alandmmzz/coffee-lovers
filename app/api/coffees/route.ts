@@ -6,7 +6,10 @@ import sql from '@/lib/db';
 export async function GET() {
   try {
     const coffees = await sql`
-      select * from coffees order by brand asc, line asc
+      select c.*, bl.logo_url as brand_logo_url
+      from coffees c
+      left join brand_logos bl on bl.brand = c.brand
+      order by c.brand asc, c.line asc
     `;
     return NextResponse.json({ ok: true, coffees });
   } catch (err: any) {

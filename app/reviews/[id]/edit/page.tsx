@@ -39,15 +39,17 @@ export default async function EditReviewPage({ params }: { params: { id: string 
 
   return (
     <main className="min-h-screen px-4 py-12 sm:py-16">
-      <div className="max-w-xl mx-auto">
-        <header className="mb-10">
-          <p className="font-mono text-xs tracking-[0.2em] text-crema uppercase mb-3">
-            Coffee Lovers · Editar
-          </p>
-          <h1 className="font-display text-4xl sm:text-5xl text-cream leading-[1.05]">
-            {review.brand} — {review.line}
-          </h1>
-        </header>
+      <div className="max-w-4xl mx-auto">
+        <div className="max-w-xl mb-10">
+          <header>
+            <p className="font-mono text-xs tracking-[0.2em] text-crema uppercase mb-3">
+              Coffee Lovers · Editar
+            </p>
+            <h1 className="font-display text-4xl sm:text-5xl text-cream leading-[1.05]">
+              {review.brand} — {review.line}
+            </h1>
+          </header>
+        </div>
 
         <EditReviewForm review={review} />
       </div>
