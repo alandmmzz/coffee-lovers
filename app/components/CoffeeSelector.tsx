@@ -228,14 +228,14 @@ export default function CoffeeSelector({
             </div>
 
             {step !== "create" && (
-              <div className="flex items-center gap-2 px-4 py-3">
+              <div className="flex items-center gap-2 px-4 py-3 border-b-2 border-transparent focus-within:border-crema/50 transition-colors">
                 <Search size={16} className="text-parchment-dim shrink-0" />
                 <input
                   autoFocus
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder={step === "brands" ? "Buscar marca..." : "Buscar línea..."}
-                  className="w-full bg-transparent text-cream placeholder:text-parchment-dim/50 outline-none"
+                  className="w-full bg-transparent text-cream placeholder:text-parchment-dim/50 outline-none focus:outline-none"
                   style={{ fontSize: 16 }}
                 />
               </div>
