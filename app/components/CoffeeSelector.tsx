@@ -62,6 +62,15 @@ export default function CoffeeSelector({
     }
   }, [open]);
 
+  useEffect(() => {
+    if (!open) return;
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [open]);
+
   const brands = useMemo(() => {
     const set = new Map<string, number>();
     for (const c of coffees) {
@@ -172,7 +181,13 @@ export default function CoffeeSelector({
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-50 bg-ink flex flex-col">
+        <div
+          className="fixed inset-0 z-50 flex flex-col sm:items-center sm:justify-center sm:bg-black/60 sm:backdrop-blur-sm sm:p-6"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) close();
+          }}
+        >
+        <div className="flex flex-col w-full h-full bg-ink sm:h-auto sm:max-h-[85vh] sm:max-w-lg sm:rounded-sm sm:border sm:border-parchment-dim/25 sm:shadow-2xl overflow-hidden">
           {/* Header fijo arriba, con volver/cerrar y buscador */}
           <div className="shrink-0 border-b border-parchment-dim/15 bg-ink">
             <div className="flex items-center gap-2 px-4 pt-4">
@@ -431,6 +446,7 @@ export default function CoffeeSelector({
               </div>
             )}
           </div>
+        </div>
         </div>
       )}
     </>
