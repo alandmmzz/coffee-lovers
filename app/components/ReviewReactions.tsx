@@ -3,7 +3,7 @@
 import { useState, useRef, type ReactNode } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, SmilePlus } from "lucide-react";
 import { useReactionState } from "@/lib/useReactionState";
 import ReactionSheet, { type ReactionDetail } from "./ReactionSheet";
 
@@ -39,16 +39,7 @@ export default function ReviewReactions({
   const [justSelected, setJustSelected] = useState(false);
   const pressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pressVisualTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const movedRef = useRef(false);
-
-  function handleMouseEnter() {
-    if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
-    setShowPicker(true);
-  }
-  function handleMouseLeave() {
-    hideTimerRef.current = setTimeout(() => setShowPicker(false), 250);
-  }
 
   function startPress() {
     movedRef.current = false;
@@ -72,6 +63,11 @@ export default function ReviewReactions({
     if (pressVisualTimerRef.current) clearTimeout(pressVisualTimerRef.current);
   }
 
+  function selectReaction(emoji: string) {
+    react(emoji);
+    setShowPicker(false);
+  }
+
   const isOwn = !!session?.user?.email && session.user.email === reviewUserEmail;
 
   return (
@@ -79,8 +75,6 @@ export default function ReviewReactions({
       className={`relative bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-5 transition-transform duration-150 no-callout ${
         pressed ? "scale-[0.97]" : ""
       } ${justSelected ? "press-bounce" : ""}`}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
       onTouchStart={startPress}
       onTouchEnd={cancelPress}
       onTouchMove={cancelPress}
@@ -88,14 +82,50 @@ export default function ReviewReactions({
       {children}
 
       <div className="flex items-center justify-between gap-2 flex-wrap mt-3 pt-3 border-t border-parchment-dim/15">
-        <button
-          type="button"
-          onClick={onToggleComments}
-          className="flex items-center gap-1.5 font-mono text-xs text-parchment-dim hover:text-crema transition-colors"
-        >
-          <MessageCircle size={13} />
-          Comentar
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={onToggleComments}
+            className="flex items-center gap-1.5 font-mono text-xs text-parchment-dim hover:text-crema transition-colors"
+          >
+            <MessageCircle size={13} />
+            Comentar
+          </button>
+
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setShowPicker((v) => !v)}
+              aria-label="Reaccionar"
+              className="flex items-center gap-1.5 font-mono text-xs text-parchment-dim hover:text-crema transition-colors"
+            >
+              <SmilePlus size={13} />
+              Reaccionar
+            </button>
+
+            {showPicker && (
+              <>
+                {/* Backdrop invisible para cerrar al tocar afuera */}
+                <div className="fixed inset-0 z-10" onClick={() => setShowPicker(false)} />
+                <div className="pop-in absolute bottom-full left-0 mb-2 flex gap-1 bg-ink-soft border border-parchment-dim/25 rounded-full px-2.5 py-1.5 shadow-2xl z-20">
+                  {REACTION_EMOJIS.map((emoji) => (
+                    <button
+                      key={emoji}
+                      type="button"
+                      onClick={() => selectReaction(emoji)}
+                      aria-label={`Reaccionar con ${emoji}`}
+                      className={`text-lg hover:scale-125 transition-transform ${
+                        myReaction === emoji ? "scale-125" : ""
+                      }`}
+                    >
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
 
         <div className="flex items-center gap-1.5 flex-wrap">
           {reactions.map((r) => (
@@ -118,28 +148,7 @@ export default function ReviewReactions({
         </div>
       </div>
 
-      {/* Desktop: picker chico al hacer hover */}
-      {showPicker && (
-        <div
-          className="pop-in absolute bottom-full right-5 mb-2 hidden sm:flex gap-1 bg-ink-soft border border-parchment-dim/25 rounded-full px-2.5 py-1.5 shadow-2xl z-20"
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-        >
-          {REACTION_EMOJIS.map((emoji) => (
-            <button
-              key={emoji}
-              type="button"
-              onClick={() => react(emoji)}
-              aria-label={`Reaccionar con ${emoji}`}
-              className="text-lg hover:scale-125 transition-transform"
-            >
-              {emoji}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {/* Mobile: modal grande al mantener pulsado */}
+      {/* Mobile: modal grande al mantener pulsado (nombres, editar/eliminar) */}
       <ReactionSheet
         open={showSheet}
         onClose={() => setShowSheet(false)}
