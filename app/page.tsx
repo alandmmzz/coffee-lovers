@@ -148,9 +148,32 @@ export default function Home() {
   if (status === "sent") {
     return (
       <main className="min-h-screen flex items-center justify-center px-6 py-16">
-        <div className="max-w-md w-full text-center">
+        <div className="max-w-3xl w-full flex flex-col md:flex-row items-center gap-8 md:gap-14">
+          <div className="text-center md:text-left order-2 md:order-1">
+            <CheckCircle2 size={32} className="text-crema mx-auto md:mx-0 mb-4" />
+            <p className="font-mono text-xs tracking-[0.2em] text-crema uppercase mb-4">
+              Ficha guardada
+            </p>
+            <h1 className="font-display text-3xl text-cream mb-4">
+              Gracias, {session?.user?.name?.split(" ")[0]}. Tu catación quedó registrada.
+            </h1>
+            <button
+              onClick={() => {
+                setStatus("idle");
+                setLastSubmitted(null);
+              }}
+              className="mt-4 px-6 py-3 bg-cascara hover:bg-cascara-light text-cream font-body text-sm rounded-sm transition-colors"
+            >
+              Cargar otro café
+            </button>
+            <div className="mt-4">
+              <Link href="/groups" className="text-parchment-dim text-sm underline underline-offset-4">
+                Ver mis grupos
+              </Link>
+            </div>
+          </div>
           {lastSubmitted && (
-            <div className="mb-10 max-w-[190px] mx-auto">
+            <div className="w-full max-w-[220px] md:max-w-[240px] shrink-0 order-1 md:order-2">
               <ReviewIllustration
                 coffee={lastSubmitted.coffee}
                 hasMilk={lastSubmitted.hasMilk}
@@ -158,27 +181,6 @@ export default function Home() {
               />
             </div>
           )}
-          <CheckCircle2 size={32} className="text-crema mx-auto mb-4" />
-          <p className="font-mono text-xs tracking-[0.2em] text-crema uppercase mb-4">
-            Ficha guardada
-          </p>
-          <h1 className="font-display text-3xl text-cream mb-4">
-            Gracias, {session?.user?.name?.split(" ")[0]}. Tu catación quedó registrada.
-          </h1>
-          <button
-            onClick={() => {
-              setStatus("idle");
-              setLastSubmitted(null);
-            }}
-            className="mt-4 px-6 py-3 bg-cascara hover:bg-cascara-light text-cream font-body text-sm rounded-sm transition-colors"
-          >
-            Cargar otro café
-          </button>
-          <div className="mt-4">
-            <Link href="/groups" className="text-parchment-dim text-sm underline underline-offset-4">
-              Ver mis grupos
-            </Link>
-          </div>
         </div>
       </main>
     );
