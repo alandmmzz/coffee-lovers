@@ -233,25 +233,32 @@ export default async function FeedPage() {
               ))}
             </div>
 
-            {/* Feed combinado, con línea de timeline a la izquierda */}
+            {/* Feed combinado: timeline con línea+puntos en desktop,
+                ancho completo con separadores horizontales en mobile */}
             {items.length === 0 ? (
               <p className="font-body text-parchment-dim">
                 Todavía no hay actividad en tus grupos.
               </p>
             ) : (
               <div className="relative">
-                <div className="absolute left-[15px] top-2 bottom-2 w-px bg-parchment-dim/15" />
-                <div className="space-y-10">
+                <div className="hidden sm:block absolute left-[15px] top-2 bottom-2 w-px bg-parchment-dim/15" />
+                <div className="divide-y divide-parchment-dim/10 sm:divide-y-0 sm:space-y-10 -mx-4 sm:mx-0">
                   {items.map((item) =>
                     item.type === "review" ? (
-                      <div key={`review-${item.review.id}`} className="relative pl-8">
-                        <span className="absolute left-[11px] top-2 w-2 h-2 rounded-full bg-crema" />
+                      <div
+                        key={`review-${item.review.id}`}
+                        className="relative px-4 py-6 sm:p-0 sm:pl-8"
+                      >
+                        <span className="hidden sm:block absolute left-[11px] top-2 w-2 h-2 rounded-full bg-crema" />
                         <ReviewCard review={item.review} />
                       </div>
                     ) : (
-                      <div key={`comment-${item.comment.id}`} className="relative pl-8">
-                        <span className="absolute left-[11px] top-2 w-2 h-2 rounded-full bg-parchment-dim/40" />
-                        <div className="bg-parchment/[0.03] border border-parchment-dim/10 rounded-sm p-4">
+                      <div
+                        key={`comment-${item.comment.id}`}
+                        className="relative px-4 py-6 sm:p-0 sm:pl-8"
+                      >
+                        <span className="hidden sm:block absolute left-[11px] top-2 w-2 h-2 rounded-full bg-parchment-dim/40" />
+                        <div className="sm:bg-parchment/[0.03] sm:border sm:border-parchment-dim/10 rounded-sm sm:p-4">
                           <CommentReactionBar
                             commentId={item.comment.id}
                             commentUserEmail={item.comment.user_email}

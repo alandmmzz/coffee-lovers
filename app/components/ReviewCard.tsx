@@ -82,7 +82,7 @@ export default function ReviewCard({
         <div className="flex flex-col-reverse sm:flex-row gap-5">
           {/* Info — izquierda */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-4">
+            <div className="flex items-center justify-between gap-4">
               <h2 className="font-display text-xl text-cream">
                 {r.brand} — {r.line}
               </h2>
