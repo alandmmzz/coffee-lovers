@@ -77,7 +77,7 @@ export type CoffeeReview = {
   // Llega cuando la consulta también hace JOIN con `brand_logos`
   brand_logo_url?: string | null;
   // Se agregan aparte, no vienen del JOIN de la consulta principal
-  reactions?: { emoji: string; count: number }[];
+  reactions?: { emoji: string; count: number; names: string[] }[];
   myReaction?: string | null;
   comments?: ReviewComment[];
 };
@@ -90,7 +90,7 @@ export type ReviewComment = {
   user_image: string | null;
   body: string;
   created_at: string;
-  reactions?: { emoji: string; count: number }[];
+  reactions?: { emoji: string; count: number; names: string[] }[];
   myReaction?: string | null;
 };
 

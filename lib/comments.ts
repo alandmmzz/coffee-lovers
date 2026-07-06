@@ -25,21 +25,23 @@ export async function attachComments(
   if (commentIds.length > 0) {
     try {
       const counts = (await sql`
-        select comment_id, emoji, count(*)::int as count
-        from comment_reactions
-        where comment_id = any(${commentIds}::uuid[])
-        group by comment_id, emoji
-      `) as unknown as { comment_id: string; emoji: string; count: number }[];
+        select cr.comment_id, cr.emoji, count(*)::int as count,
+               array_agg(coalesce(u.name, cr.user_email)) as names
+        from comment_reactions cr
+        left join users u on u.email = cr.user_email
+        where cr.comment_id = any(${commentIds}::uuid[])
+        group by cr.comment_id, cr.emoji
+      `) as unknown as { comment_id: string; emoji: string; count: number; names: string[] }[];
 
       const mine = (await sql`
         select comment_id, emoji from comment_reactions
         where comment_id = any(${commentIds}::uuid[]) and user_email = ${myEmail}
       `) as unknown as { comment_id: string; emoji: string }[];
 
-      const reactionsByComment = new Map<string, { emoji: string; count: number }[]>();
+      const reactionsByComment = new Map<string, { emoji: string; count: number; names: string[] }[]>();
       for (const row of counts) {
         const list = reactionsByComment.get(row.comment_id) ?? [];
-        list.push({ emoji: row.emoji, count: row.count });
+        list.push({ emoji: row.emoji, count: row.count, names: row.names });
         reactionsByComment.set(row.comment_id, list);
       }
       const mineByComment = new Map(mine.map((m) => [m.comment_id, m.emoji]));

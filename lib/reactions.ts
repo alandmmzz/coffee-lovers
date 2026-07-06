@@ -8,15 +8,17 @@ export async function attachReactions(
   const ids = reviews.map((r) => r.id).filter((id): id is string => !!id);
   if (ids.length === 0) return reviews;
 
-  let counts: { review_id: string; emoji: string; count: number }[] = [];
+  let counts: { review_id: string; emoji: string; count: number; names: string[] }[] = [];
   let mine: { review_id: string; emoji: string }[] = [];
 
   try {
     counts = (await sql`
-      select review_id, emoji, count(*)::int as count
-      from review_reactions
-      where review_id = any(${ids}::uuid[])
-      group by review_id, emoji
+      select rr.review_id, rr.emoji, count(*)::int as count,
+             array_agg(coalesce(u.name, rr.user_email)) as names
+      from review_reactions rr
+      left join users u on u.email = rr.user_email
+      where rr.review_id = any(${ids}::uuid[])
+      group by rr.review_id, rr.emoji
     `) as unknown as typeof counts;
 
     mine = (await sql`
@@ -28,10 +30,10 @@ export async function attachReactions(
     return reviews;
   }
 
-  const byReview = new Map<string, { emoji: string; count: number }[]>();
+  const byReview = new Map<string, { emoji: string; count: number; names: string[] }[]>();
   for (const row of counts) {
     const list = byReview.get(row.review_id) ?? [];
-    list.push({ emoji: row.emoji, count: row.count });
+    list.push({ emoji: row.emoji, count: row.count, names: row.names });
     byReview.set(row.review_id, list);
   }
   const mineByReview = new Map(mine.map((m) => [m.review_id, m.emoji]));

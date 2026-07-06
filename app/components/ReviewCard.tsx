@@ -73,6 +73,7 @@ export default function ReviewCard({
 
       <ReviewReactions
         reviewId={r.id ?? ""}
+        reviewUserEmail={r.user_email}
         initialReactions={r.reactions ?? []}
         initialMyReaction={r.myReaction ?? null}
         commentCount={comments.length}

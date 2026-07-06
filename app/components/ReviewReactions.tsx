@@ -1,14 +1,17 @@
 "use client";
 
 import { useState, useRef, type ReactNode } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { MessageCircle } from "lucide-react";
+import { useReactionState } from "@/lib/useReactionState";
+import ReactionSheet, { type ReactionDetail } from "./ReactionSheet";
 
 const REACTION_EMOJIS = ["👍🏻", "👎🏻", "😂", "👀", "👄"];
 
-type ReactionCount = { emoji: string; count: number };
-
 export default function ReviewReactions({
   reviewId,
+  reviewUserEmail,
   initialReactions,
   initialMyReaction,
   commentCount,
@@ -16,55 +19,46 @@ export default function ReviewReactions({
   children,
 }: {
   reviewId: string;
-  initialReactions: ReactionCount[];
+  reviewUserEmail?: string | null;
+  initialReactions: ReactionDetail[];
   initialMyReaction: string | null;
   commentCount: number;
   onToggleComments: () => void;
   children: ReactNode;
 }) {
-  const [reactions, setReactions] = useState<ReactionCount[]>(initialReactions);
-  const [myReaction, setMyReaction] = useState<string | null>(initialMyReaction);
+  const { data: session } = useSession();
+  const router = useRouter();
+  const { reactions, myReaction, react } = useReactionState(
+    `/api/reviews/${reviewId}/reactions`,
+    initialReactions,
+    initialMyReaction
+  );
   const [showPicker, setShowPicker] = useState(false);
-  const [sending, setSending] = useState(false);
+  const [showSheet, setShowSheet] = useState(false);
   const pressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  async function react(emoji: string) {
-    if (sending) return;
-    setSending(true);
-    setShowPicker(false);
-    try {
-      const res = await fetch(`/api/reviews/${reviewId}/reactions`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ emoji }),
-      });
-      const data = await res.json();
-      if (data.ok) {
-        setReactions(data.reactions);
-        setMyReaction(data.myReaction);
-      }
-    } finally {
-      setSending(false);
-    }
-  }
+  const movedRef = useRef(false);
 
   function handleMouseEnter() {
     if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
     setShowPicker(true);
   }
   function handleMouseLeave() {
-    // Pequeño margen antes de ocultar: si el mouse pasa por el huequito
-    // entre la tarjeta y el picker (movimiento diagonal, etc.), no se cierra.
     hideTimerRef.current = setTimeout(() => setShowPicker(false), 250);
   }
 
   function startPress() {
-    pressTimerRef.current = setTimeout(() => setShowPicker(true), 450);
+    movedRef.current = false;
+    pressTimerRef.current = setTimeout(() => {
+      if (!movedRef.current) setShowSheet(true);
+    }, 450);
   }
   function cancelPress() {
+    movedRef.current = true;
     if (pressTimerRef.current) clearTimeout(pressTimerRef.current);
   }
+
+  const isOwn = !!session?.user?.email && session.user.email === reviewUserEmail;
 
   return (
     <div
@@ -108,9 +102,10 @@ export default function ReviewReactions({
         </div>
       </div>
 
+      {/* Desktop: picker chico al hacer hover */}
       {showPicker && (
         <div
-          className="pop-in absolute bottom-full right-5 mb-2 flex gap-1 bg-ink-soft border border-parchment-dim/25 rounded-full px-2.5 py-1.5 shadow-2xl z-20"
+          className="pop-in absolute bottom-full right-5 mb-2 hidden sm:flex gap-1 bg-ink-soft border border-parchment-dim/25 rounded-full px-2.5 py-1.5 shadow-2xl z-20"
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
@@ -127,6 +122,17 @@ export default function ReviewReactions({
           ))}
         </div>
       )}
+
+      {/* Mobile: modal grande al mantener pulsado */}
+      <ReactionSheet
+        open={showSheet}
+        onClose={() => setShowSheet(false)}
+        reactions={reactions}
+        myReaction={myReaction}
+        onReact={react}
+        isOwn={isOwn}
+        onEdit={isOwn ? () => router.push(`/reviews/${reviewId}/edit`) : undefined}
+      />
     </div>
   );
 }

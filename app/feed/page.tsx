@@ -29,7 +29,7 @@ type FeedComment = {
   review_brand: string;
   review_line: string;
   link_group_id: string | null;
-  reactions: { emoji: string; count: number }[];
+  reactions: { emoji: string; count: number; names: string[] }[];
   myReaction: string | null;
 };
 
@@ -122,20 +122,22 @@ export default async function FeedPage() {
       const commentIds = comments.map((c) => c.id);
       if (commentIds.length > 0) {
         const counts = (await sql`
-          select comment_id, emoji, count(*)::int as count
-          from comment_reactions
-          where comment_id = any(${commentIds}::uuid[])
-          group by comment_id, emoji
-        `) as unknown as { comment_id: string; emoji: string; count: number }[];
+          select cr.comment_id, cr.emoji, count(*)::int as count,
+                 array_agg(coalesce(u.name, cr.user_email)) as names
+          from comment_reactions cr
+          left join users u on u.email = cr.user_email
+          where cr.comment_id = any(${commentIds}::uuid[])
+          group by cr.comment_id, cr.emoji
+        `) as unknown as { comment_id: string; emoji: string; count: number; names: string[] }[];
         const mine = (await sql`
           select comment_id, emoji from comment_reactions
           where comment_id = any(${commentIds}::uuid[]) and user_email = ${myEmail}
         `) as unknown as { comment_id: string; emoji: string }[];
 
-        const reactionsByComment = new Map<string, { emoji: string; count: number }[]>();
+        const reactionsByComment = new Map<string, { emoji: string; count: number; names: string[] }[]>();
         for (const row of counts) {
           const list = reactionsByComment.get(row.comment_id) ?? [];
-          list.push({ emoji: row.emoji, count: row.count });
+          list.push({ emoji: row.emoji, count: row.count, names: row.names });
           reactionsByComment.set(row.comment_id, list);
         }
         const mineByComment = new Map(mine.map((m) => [m.comment_id, m.emoji]));
@@ -250,55 +252,55 @@ export default async function FeedPage() {
                       <div key={`comment-${item.comment.id}`} className="relative pl-8">
                         <span className="absolute left-[11px] top-2 w-2 h-2 rounded-full bg-parchment-dim/40" />
                         <div className="bg-parchment/[0.03] border border-parchment-dim/10 rounded-sm p-4">
-                          <div className="flex items-start gap-3">
-                            <div className="w-7 h-7 rounded-full overflow-hidden bg-cascara/20 flex items-center justify-center shrink-0">
-                              {item.comment.user_image ? (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img
-                                  src={item.comment.user_image}
-                                  alt=""
-                                  className="w-full h-full object-cover"
-                                />
-                              ) : (
-                                <MessageCircle size={12} className="text-cream" />
-                              )}
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <p className="font-body text-sm text-parchment">
-                                <span className="text-cream font-medium">
-                                  {item.comment.user_name ?? item.comment.user_email}
-                                </span>{" "}
-                                comentó en la{" "}
-                                {item.comment.link_group_id ? (
-                                  <Link
-                                    href={`/groups/${item.comment.link_group_id}/activity/${item.comment.review_id}`}
-                                    className="text-crema hover:underline underline-offset-2"
-                                  >
-                                    review de {item.comment.review_taster_name} sobre{" "}
-                                    {item.comment.review_brand} — {item.comment.review_line}
-                                  </Link>
+                          <CommentReactionBar
+                            commentId={item.comment.id}
+                            commentUserEmail={item.comment.user_email}
+                            initialReactions={item.comment.reactions}
+                            initialMyReaction={item.comment.myReaction}
+                          >
+                            <div className="flex items-start gap-3">
+                              <div className="w-7 h-7 rounded-full overflow-hidden bg-cascara/20 flex items-center justify-center shrink-0">
+                                {item.comment.user_image ? (
+                                  // eslint-disable-next-line @next/next/no-img-element
+                                  <img
+                                    src={item.comment.user_image}
+                                    alt=""
+                                    className="w-full h-full object-cover"
+                                  />
                                 ) : (
-                                  <>
-                                    review de {item.comment.review_taster_name} sobre{" "}
-                                    {item.comment.review_brand} — {item.comment.review_line}
-                                  </>
+                                  <MessageCircle size={12} className="text-cream" />
                                 )}
-                              </p>
-                              <p className="font-body text-sm text-muted italic mt-1">
-                                “{item.comment.body}”
-                              </p>
-                              <div className="flex items-center justify-between mt-2">
-                                <p className="font-mono text-[11px] text-parchment-dim">
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="font-body text-sm text-parchment">
+                                  <span className="text-cream font-medium">
+                                    {item.comment.user_name ?? item.comment.user_email}
+                                  </span>{" "}
+                                  comentó en la{" "}
+                                  {item.comment.link_group_id ? (
+                                    <Link
+                                      href={`/groups/${item.comment.link_group_id}/activity/${item.comment.review_id}`}
+                                      className="text-crema hover:underline underline-offset-2"
+                                    >
+                                      review de {item.comment.review_taster_name} sobre{" "}
+                                      {item.comment.review_brand} — {item.comment.review_line}
+                                    </Link>
+                                  ) : (
+                                    <>
+                                      review de {item.comment.review_taster_name} sobre{" "}
+                                      {item.comment.review_brand} — {item.comment.review_line}
+                                    </>
+                                  )}
+                                </p>
+                                <p className="font-body text-sm text-muted italic mt-1">
+                                  “{item.comment.body}”
+                                </p>
+                                <p className="font-mono text-[11px] text-parchment-dim mt-2">
                                   {new Date(item.comment.created_at).toLocaleString("es-AR")}
                                 </p>
-                                <CommentReactionBar
-                                  commentId={item.comment.id}
-                                  initialReactions={item.comment.reactions}
-                                  initialMyReaction={item.comment.myReaction}
-                                />
                               </div>
                             </div>
-                          </div>
+                          </CommentReactionBar>
                         </div>
                       </div>
                     )

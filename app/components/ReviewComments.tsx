@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useSession } from "next-auth/react";
-import { Trash2, Send } from "lucide-react";
+import { Send } from "lucide-react";
 import type { ReviewComment } from "@/lib/db";
 import CommentReactionBar from "./CommentReactionBar";
 
@@ -17,7 +16,6 @@ export default function ReviewComments({
   open: boolean;
   onCommentsChange: (comments: ReviewComment[]) => void;
 }) {
-  const { data: session } = useSession();
   const [comments, setComments] = useState<ReviewComment[]>(initialComments);
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
@@ -99,30 +97,22 @@ export default function ReviewComments({
               </span>
             )}
           </div>
-          <div className="relative flex-1 min-w-0 bg-parchment/[0.05] rounded-sm px-3 py-2">
-            <div className="flex items-baseline justify-between gap-2">
-              <span className="font-mono text-[11px] text-parchment">
-                {c.user_name ?? c.user_email}
-              </span>
-              <div className="flex items-center gap-2">
-                <CommentReactionBar
-                  commentId={c.id}
-                  initialReactions={c.reactions ?? []}
-                  initialMyReaction={c.myReaction ?? null}
-                />
-                {session?.user?.email === c.user_email && (
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(c.id)}
-                    aria-label="Borrar comentario"
-                    className="text-parchment-dim/50 hover:text-cascara-light transition-colors"
-                  >
-                    <Trash2 size={11} />
-                  </button>
-                )}
+
+          <div className="flex-1 min-w-0">
+            <CommentReactionBar
+              commentId={c.id}
+              commentUserEmail={c.user_email}
+              initialReactions={c.reactions ?? []}
+              initialMyReaction={c.myReaction ?? null}
+              onDelete={() => handleDelete(c.id)}
+            >
+              <div className="bg-parchment/[0.05] rounded-sm px-3 py-2">
+                <span className="font-mono text-[11px] text-parchment">
+                  {c.user_name ?? c.user_email}
+                </span>
+                <p className="font-body text-sm text-parchment mt-0.5 break-words">{c.body}</p>
               </div>
-            </div>
-            <p className="font-body text-sm text-parchment mt-0.5 break-words">{c.body}</p>
+            </CommentReactionBar>
           </div>
         </div>
       ))}

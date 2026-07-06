@@ -82,10 +82,12 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     }
 
     const counts = await sql`
-      select emoji, count(*)::int as count
-      from review_reactions
-      where review_id = ${params.id}
-      group by emoji
+      select rr.emoji, count(*)::int as count,
+             array_agg(coalesce(u.name, rr.user_email)) as names
+      from review_reactions rr
+      left join users u on u.email = rr.user_email
+      where rr.review_id = ${params.id}
+      group by rr.emoji
     `;
 
     return NextResponse.json({ ok: true, reactions: counts, myReaction });
