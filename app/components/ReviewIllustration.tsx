@@ -28,7 +28,7 @@ const METHOD_PLACEMENT: Record<string, Placement> = {
   "Cold brew": { width: "90%", top: "-3%", left: "39%" },
   Aeropress: { width: "75%", top: "7%", left: "54%" },
   Cápsula: { width: "85%", top: "11%", left: "55%", transform: "rotateX(25deg)" },
-  Otro: { width: "85%", top: "-8%", left: "42%" },
+  Otro: { width: "128%", top: "-18%", left: "36%", transform: "rotate(4deg) rotateY(180deg)" },
 };
 
 const BAG_PLACEMENT: Placement = { width: "119%", top: "-35%", left: "-34%" };
