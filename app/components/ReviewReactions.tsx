@@ -38,6 +38,7 @@ export default function ReviewReactions({
   const [pressed, setPressed] = useState(false);
   const [justSelected, setJustSelected] = useState(false);
   const pressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pressVisualTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const movedRef = useRef(false);
 
@@ -51,7 +52,10 @@ export default function ReviewReactions({
 
   function startPress() {
     movedRef.current = false;
-    setPressed(true);
+    // Recien mostramos el squish si el toque dura mas que un roce de scroll
+    pressVisualTimerRef.current = setTimeout(() => {
+      if (!movedRef.current) setPressed(true);
+    }, 150);
     pressTimerRef.current = setTimeout(() => {
       setPressed(false);
       if (!movedRef.current) {
@@ -65,6 +69,7 @@ export default function ReviewReactions({
     movedRef.current = true;
     setPressed(false);
     if (pressTimerRef.current) clearTimeout(pressTimerRef.current);
+    if (pressVisualTimerRef.current) clearTimeout(pressVisualTimerRef.current);
   }
 
   const isOwn = !!session?.user?.email && session.user.email === reviewUserEmail;
