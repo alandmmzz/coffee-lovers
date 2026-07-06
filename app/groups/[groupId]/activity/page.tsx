@@ -29,9 +29,11 @@ export default async function GroupActivityPage({ params }: { params: { groupId:
 
   try {
     reviews = (await sql`
-      select r.*, c.brand, c.line, c.origin, c.farm, c.variety, c.process, c.tasting_notes
+      select r.*, c.brand, c.line, c.origin, c.farm, c.variety, c.process, c.tasting_notes,
+             bl.logo_url as brand_logo_url
       from coffee_reviews r
       join coffees c on c.id = r.coffee_id
+      left join brand_logos bl on bl.brand = c.brand
       where r.user_email in (
         select user_email from group_members where group_id = ${params.groupId}
       )
@@ -58,11 +60,16 @@ export default async function GroupActivityPage({ params }: { params: { groupId:
           <p className="font-body text-parchment-dim">Todavía no hay actividad en este grupo.</p>
         )}
 
-        <ul className="space-y-4">
+        <div className="space-y-10">
           {reviews.map((r) => (
-            <ReviewCard key={r.id} review={r} />
+            <div key={r.id}>
+              <p className="font-mono text-[11px] text-parchment-dim mb-2">
+                {r.created_at ? new Date(r.created_at).toLocaleString("es-AR") : ""}
+              </p>
+              <ReviewCard review={r} />
+            </div>
           ))}
-        </ul>
+        </div>
       </div>
     </main>
   );

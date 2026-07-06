@@ -40,11 +40,12 @@ export default function ReviewCard({
         variety: r.variety ?? null,
         process: r.process ?? null,
         tasting_notes: r.tasting_notes ?? null,
+        brand_logo_url: r.brand_logo_url ?? null,
       }
     : null;
 
   return (
-    <li className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-5">
+    <div className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-5">
       <div className="flex flex-col-reverse sm:flex-row gap-5">
         {/* Info — izquierda */}
         <div className="flex-1 min-w-0">
@@ -151,14 +152,13 @@ export default function ReviewCard({
             </p>
           )}
 
-          <p className="font-mono text-[10px] text-parchment-dim/70 mt-3">
-            {r.created_at ? new Date(r.created_at).toLocaleString("es-AR") : ""}
-            {r.price ? ` · $${r.price}` : ""}
-          </p>
+          {r.price ? (
+            <p className="font-mono text-[10px] text-parchment-dim/70 mt-3">${r.price}</p>
+          ) : null}
         </div>
 
         {/* Ilustración — derecha */}
-        <div className="w-full max-w-[150px] mx-auto sm:mx-0 sm:w-32 shrink-0">
+        <div className="w-full max-w-[150px] mx-auto sm:mx-0 sm:w-32 shrink-0 opacity-75">
           <ReviewIllustration
             coffee={coffeeForIllustration}
             hasMilk={r.has_milk}
@@ -166,6 +166,6 @@ export default function ReviewCard({
           />
         </div>
       </div>
-    </li>
+    </div>
   );
 }

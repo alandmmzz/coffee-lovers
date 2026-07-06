@@ -49,9 +49,11 @@ export default async function MemberProfilePage({
 
   try {
     reviews = (await sql`
-      select r.*, c.brand, c.line, c.origin, c.farm, c.variety, c.process, c.tasting_notes
+      select r.*, c.brand, c.line, c.origin, c.farm, c.variety, c.process, c.tasting_notes,
+             bl.logo_url as brand_logo_url
       from coffee_reviews r
       join coffees c on c.id = r.coffee_id
+      left join brand_logos bl on bl.brand = c.brand
       where r.user_email = ${targetEmail}
       order by r.created_at desc
     `) as unknown as CoffeeReview[];
@@ -215,11 +217,16 @@ export default async function MemberProfilePage({
             )}
 
             <h2 className="font-display text-lg text-cream mb-4">Todas sus reviews</h2>
-            <ul className="space-y-4">
+            <div className="space-y-10">
               {reviews.map((r) => (
-                <ReviewCard key={r.id} review={r} showTaster={false} />
+                <div key={r.id}>
+                  <p className="font-mono text-[11px] text-parchment-dim mb-2">
+                    {r.created_at ? new Date(r.created_at).toLocaleString("es-AR") : ""}
+                  </p>
+                  <ReviewCard review={r} showTaster={false} />
+                </div>
               ))}
-            </ul>
+            </div>
           </>
         )}
       </div>
