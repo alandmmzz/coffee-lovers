@@ -6,6 +6,7 @@ import { authOptions } from "@/lib/auth";
 import sql from "@/lib/db";
 import type { CoffeeReview } from "@/lib/db";
 import ReviewCard from "../components/ReviewCard";
+import { attachReactions } from "@/lib/reactions";
 import ActivityHeatmap from "../components/ActivityHeatmap";
 import { formatRelativeTime } from "@/lib/formatRelativeTime";
 
@@ -32,6 +33,7 @@ export default async function ProfilePage() {
       where r.user_email = ${session.user.email}
       order by r.created_at desc
     `) as unknown as CoffeeReview[];
+    reviews = await attachReactions(reviews, session.user.email);
 
     const rows = (await sql`
       select to_char(created_at, 'YYYY-MM-DD') as date, count(*)::int as count
@@ -232,8 +234,11 @@ export default async function ProfilePage() {
             <div className="space-y-10">
               {reviews.map((r) => (
                 <div key={r.id}>
-                  <p className="font-mono text-[11px] text-parchment-dim mb-2">
-                    {r.created_at ? new Date(r.created_at).toLocaleString("es-AR") : ""}
+                  <p className="mb-2 flex items-baseline gap-2">
+                    <span className="font-mono text-xs text-parchment">{r.taster_name}</span>
+                    <span className="font-mono text-[11px] text-parchment-dim/70">
+                      {r.created_at ? new Date(r.created_at).toLocaleString("es-AR") : ""}
+                    </span>
                   </p>
                   <ReviewCard review={r} showTaster={false} editable />
                 </div>

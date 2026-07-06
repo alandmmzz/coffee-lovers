@@ -4,6 +4,7 @@ import type { CoffeeReview, Coffee } from "@/lib/db";
 import { ROAST_LABELS, PROCESS_LABELS, TEMPERATURE_LABELS } from "@/lib/constants";
 import StarRating from "./StarRating";
 import ReviewIllustration from "./ReviewIllustration";
+import ReviewReactions from "./ReviewReactions";
 
 const TEMPERATURE_STYLES: Record<string, { icon: typeof Snowflake; color: string }> = {
   frio: { icon: Snowflake, color: "#5A8FB8" },
@@ -45,7 +46,11 @@ export default function ReviewCard({
     : null;
 
   return (
-    <div className="bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-5">
+    <ReviewReactions
+      reviewId={r.id ?? ""}
+      initialReactions={r.reactions ?? []}
+      initialMyReaction={r.myReaction ?? null}
+    >
       <div className="flex flex-col-reverse sm:flex-row gap-5">
         {/* Info — izquierda */}
         <div className="flex-1 min-w-0">
@@ -166,6 +171,6 @@ export default function ReviewCard({
           />
         </div>
       </div>
-    </div>
+    </ReviewReactions>
   );
 }
