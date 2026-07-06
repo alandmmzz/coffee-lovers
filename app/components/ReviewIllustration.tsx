@@ -20,13 +20,13 @@ type Placement = {
 };
 
 const METHOD_PLACEMENT: Record<string, Placement> = {
-  "V60 / Filtrado": { width: "66%", top: "15%", left: "54%" },
-  "Prensa francesa": { width: "90%", top: "-7%", left: "44%" },
+  Espresso: { width: "190%", top: "-67%", left: "15%" },
+  "V60 / Filtrado": { width: "78%", top: "6%", left: "40%" },
+  "Prensa francesa": { width: "104%", top: "-16%", left: "36%" },
   Moka: { width: "122%", top: "-25%", left: "19%" },
-  "Cold brew": { width: "69%", top: "7%", left: "53%" },
+  "Cold brew": { width: "90%", top: "-3%", left: "39%" },
   Aeropress: { width: "75%", top: "7%", left: "54%" },
   Cápsula: { width: "85%", top: "11%", left: "55%", transform: "rotateX(25deg)" },
-  Espresso: { width: "130%", top: "-30%", left: "35%" },
 };
 
 const BAG_PLACEMENT: Placement = { width: "119%", top: "-35%", left: "-34%" };
@@ -56,8 +56,7 @@ export default function ReviewIllustration({
   brewMethod: string;
 }) {
   const showBag = !!coffee;
-  const methodPlacement = METHOD_PLACEMENT[brewMethod];
-  const showMethod = !!brewMethod && !!METHOD_IMAGES[brewMethod] && !!methodPlacement;
+  const showMethod = !!brewMethod && !!METHOD_IMAGES[brewMethod] && !!METHOD_PLACEMENT[brewMethod];
   const cupState: "empty" | "black" | "milk" = !showMethod ? "empty" : hasMilk ? "milk" : "black";
 
   return (
@@ -100,29 +99,33 @@ export default function ReviewIllustration({
         </div>
       </div>
 
-      {/* Método de preparación */}
-      {showMethod && (
+      {/* Método de preparación — las 7 imágenes están siempre montadas, cada
+          una ya en su tamaño/posición final; solo se cruza la opacidad, así
+          nunca hay un salto de tamaño al cambiar de método. */}
+      {Object.entries(METHOD_PLACEMENT).map(([method, placement]) => (
         <div
-          className="absolute aspect-square transition-opacity duration-500 opacity-100"
+          key={method}
+          className="absolute aspect-square transition-opacity duration-500"
           style={{
-            width: methodPlacement.width,
-            top: methodPlacement.top,
-            left: methodPlacement.left,
-            transform: methodPlacement.transform,
+            width: placement.width,
+            top: placement.top,
+            left: placement.left,
+            transform: placement.transform,
+            opacity: brewMethod === method ? 1 : 0,
           }}
         >
           <div className="relative w-full h-full">
             <FloorGlow />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={METHOD_IMAGES[brewMethod]}
+              src={METHOD_IMAGES[method]}
               alt=""
               className="relative w-full h-full object-contain"
               style={{ filter: OBJECT_SHADOW }}
             />
           </div>
         </div>
-      )}
+      ))}
 
       {/* Taza — al frente, centro */}
       <div
