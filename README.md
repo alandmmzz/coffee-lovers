@@ -217,6 +217,26 @@ incluso con la app cerrada.
 - Si el navegador no soporta push, el botón de notificaciones directamente
   no aparece (en vez de mostrar un error).
 
+## Feed (actividad de todos tus grupos, un solo clic)
+
+`/feed` reemplazó a la vieja pantalla de "Grupos" en el menú. Tiene dos partes:
+
+- **Carrusel de grupos** arriba: tarjeta con foto, nombre y avatares de los
+  miembros de cada grupo tuyo. Tocar una te lleva a `/groups/[id]` (ahí
+  siguen viviendo el link de invitación, la lista completa de miembros,
+  y las pestañas Actividad/Insights de ESE grupo puntual).
+- **Feed combinado** abajo: todas las reviews de gente con la que compartís
+  **algún** grupo (no solo uno), en orden cronológico, con la tarjeta
+  completa (info + las 3 imágenes).
+
+La vieja ruta `/groups` (el listado simple que había antes) ahora
+redirige a `/feed`, para no romper links guardados.
+
+**Adentro de un grupo puntual**, unifiqué lo que antes eran dos pestañas
+casi idénticas (Actividad mostraba una lista compacta, Reviews mostraba
+las mismas reviews como tarjetas) en una sola: Actividad ahora muestra
+las tarjetas completas directamente. Quedó: **Actividad | Insights**.
+
 ## Grupos (privacidad)
 
 Un grupo **no es un contenedor de reviews** — es un círculo de visibilidad.
@@ -340,8 +360,9 @@ tiene dos secciones:
 
 ## Estructura
 
+- `app/feed/page.tsx` — carrusel de grupos + actividad combinada de todos
+- `app/groups/page.tsx` — redirect a `/feed` (ruta vieja, se mantiene por compatibilidad)
 - `app/page.tsx` — formulario principal (pide login si no hay sesión)
-- `app/groups/page.tsx` — listado de mis grupos
 - `app/groups/new/page.tsx` — crear un grupo
 - `app/groups/[groupId]/page.tsx` — home del grupo: header editable, miembros
 - `app/groups/[groupId]/activity/page.tsx` — feed cronológico del grupo
@@ -377,7 +398,7 @@ tiene dos secciones:
 - `app/components/AuthProvider.tsx` — wrapper del SessionProvider
 - `app/components/NotificationPrompt.tsx` — banner que pregunta por activar notificaciones la primera vez
 - `app/components/InstallPrompt.tsx` — banner que sugiere instalar la app, solo en mobile
-- `app/components/ReviewCard.tsx` — tarjeta de review, reutilizada en varias páginas
+- `app/components/ReviewCard.tsx` — tarjeta de review (info + las 3 imágenes), reutilizada en el Feed, Actividad de grupo y perfiles
 - `lib/auth.ts` — configuración de NextAuth (providers, callbacks, registro de logins)
 - `lib/db.ts` — cliente de conexión a Neon y tipos
 - `lib/push.ts` — envío de notificaciones push a conexiones compartidas (mismo grupo)

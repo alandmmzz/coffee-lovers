@@ -119,11 +119,11 @@ export default async function ProfilePage() {
               Nueva review
             </Link>
             <Link
-              href="/groups"
+              href="/feed"
               className="flex items-center gap-1.5 px-4 py-2.5 border border-parchment-dim/25 hover:border-crema text-parchment font-body text-sm rounded-sm transition-colors"
             >
               <ListFilter size={16} />
-              Ver mis grupos
+              Ver feed
             </Link>
           </div>
         </header>

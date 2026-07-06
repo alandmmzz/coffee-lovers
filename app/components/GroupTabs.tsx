@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowLeft, Activity, BarChart3, ListChecks } from "lucide-react";
+import { ArrowLeft, Activity, BarChart3 } from "lucide-react";
 
 export default function GroupTabs({ groupId, groupName }: { groupId: string; groupName?: string }) {
   const pathname = usePathname();
@@ -10,7 +10,6 @@ export default function GroupTabs({ groupId, groupName }: { groupId: string; gro
   const tabs = [
     { href: `/groups/${groupId}/activity`, label: "Actividad", icon: Activity },
     { href: `/groups/${groupId}/insights`, label: "Insights", icon: BarChart3 },
-    { href: `/groups/${groupId}/reviews`, label: "Reviews", icon: ListChecks },
   ];
 
   return (
@@ -22,7 +21,7 @@ export default function GroupTabs({ groupId, groupName }: { groupId: string; gro
         <ArrowLeft size={14} />
         {groupName ?? "Volver al grupo"}
       </Link>
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 gap-3">
         {tabs.map((tab) => {
           const active = pathname === tab.href;
           const Icon = tab.icon;

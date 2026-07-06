@@ -28,7 +28,7 @@ export default async function MemberProfilePage({
     select 1 from group_members where group_id = ${params.groupId} and user_email = ${session.user.email}
   `;
   if (viewerMembership.length === 0) {
-    redirect("/groups");
+    redirect("/feed");
   }
 
   const targetMembership = await sql`

@@ -25,7 +25,7 @@ export default async function GroupInsightsPage({ params }: { params: { groupId:
     select 1 from group_members where group_id = ${params.groupId} and user_email = ${session.user.email}
   `;
   if (membership.length === 0) {
-    redirect("/groups");
+    redirect("/feed");
   }
 
   const groups = (await sql`select * from groups where id = ${params.groupId}`) as unknown as Group[];

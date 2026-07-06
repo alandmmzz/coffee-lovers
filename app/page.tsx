@@ -167,8 +167,8 @@ export default function Home() {
               Cargar otro café
             </button>
             <div className="mt-4">
-              <Link href="/groups" className="text-parchment-dim text-sm underline underline-offset-4">
-                Ver mis grupos
+              <Link href="/feed" className="text-parchment-dim text-sm underline underline-offset-4">
+                Ver feed
               </Link>
             </div>
           </div>

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { redirect, notFound } from "next/navigation";
-import { Activity, BarChart3, ListChecks } from "lucide-react";
+import { Activity, BarChart3 } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import sql from "@/lib/db";
 import type { Group } from "@/lib/db";
@@ -26,7 +26,7 @@ export default async function GroupPage({ params }: { params: { groupId: string 
     select 1 from group_members where group_id = ${params.groupId} and user_email = ${session.user.email}
   `;
   if (membership.length === 0) {
-    redirect("/groups");
+    redirect("/feed");
   }
 
   const groups = (await sql`select * from groups where id = ${params.groupId}`) as unknown as Group[];
@@ -53,7 +53,7 @@ export default async function GroupPage({ params }: { params: { groupId: string 
       <div className="max-w-xl mx-auto">
         <GroupHeader group={group} />
 
-        <div className="grid grid-cols-3 gap-3 my-8">
+        <div className="grid grid-cols-2 gap-3 my-8">
           <Link
             href={`/groups/${group.id}/activity`}
             className="flex flex-col items-center gap-1.5 py-4 bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm hover:border-crema transition-colors"
@@ -67,13 +67,6 @@ export default async function GroupPage({ params }: { params: { groupId: string 
           >
             <BarChart3 size={18} className="text-crema" />
             <span className="font-mono text-xs text-parchment">Insights</span>
-          </Link>
-          <Link
-            href={`/groups/${group.id}/reviews`}
-            className="flex flex-col items-center gap-1.5 py-4 bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm hover:border-crema transition-colors"
-          >
-            <ListChecks size={18} className="text-crema" />
-            <span className="font-mono text-xs text-parchment">Reviews</span>
           </Link>
         </div>
 

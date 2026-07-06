@@ -40,11 +40,11 @@ export default function NewGroupPage() {
     <main className="min-h-screen px-4 py-12 sm:py-16">
       <div className="max-w-md mx-auto">
         <Link
-          href="/groups"
+          href="/feed"
           className="inline-flex items-center gap-1.5 text-parchment-dim text-sm hover:text-crema transition-colors mb-8"
         >
           <ArrowLeft size={16} />
-          Volver a mis grupos
+          Volver al feed
         </Link>
         <h1 className="font-display text-3xl text-cream mb-8">Crear grupo</h1>
         <form onSubmit={handleSubmit} className="space-y-5">
