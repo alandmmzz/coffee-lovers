@@ -7,6 +7,7 @@
 }
 
 body {
+  overflow-x: hidden;
   background-image:
     radial-gradient(circle at 15% 10%, rgba(212, 168, 87, 0.06), transparent 40%),
     radial-gradient(circle at 85% 90%, rgba(124, 139, 94, 0.05), transparent 45%);

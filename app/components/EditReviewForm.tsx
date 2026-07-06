@@ -172,7 +172,7 @@ export default function EditReviewForm({ review }: { review: CoffeeReview }) {
         </button>
       </form>
 
-      <div className="hidden lg:block flex-1 self-stretch overflow-x-hidden">
+      <div className="hidden lg:block flex-1 self-stretch">
         <div className="sticky top-1/2 -translate-y-1/2">
           <ReviewIllustration coffee={coffee} hasMilk={form.has_milk} brewMethod={form.brew_method} />
         </div>
