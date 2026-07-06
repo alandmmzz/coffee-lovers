@@ -217,6 +217,30 @@ incluso con la app cerrada.
 - Si el navegador no soporta push, el botón de notificaciones directamente
   no aparece (en vez de mostrar un error).
 
+## Reacciones, comentarios y notificaciones
+
+Cada review ahora tiene, además de toda la info:
+
+- **Reacciones** (👍🏻 👎🏻 😂 👀 👄): pasar el mouse por la tarjeta (desktop)
+  o mantenerla pulsada ~450ms (mobile) despliega los 5 emojis. Una persona
+  tiene una sola reacción activa por review — tocar otra la reemplaza,
+  tocar la misma la saca. Se guardan en `review_reactions`.
+- **Comentarios**: un contador ("Comentar" / "3 comentarios") despliega
+  la lista + un input para escribir. Podés borrar los tuyos. Se guardan en
+  `review_comments`.
+- Ambos respetan el mismo control de privacidad de siempre: solo podés
+  reaccionar/comentar en reviews de gente con la que compartís algún grupo.
+
+**Notificaciones**: cuando alguien reacciona o comenta tu review (y no sos
+vos mismo), se guarda una fila en la tabla `notifications` y te llega un
+push. Podés verlas todas en `/notifications` — hay una campanita en el
+header con un contador de no leídas (`app/components/NotificationBell.tsx`),
+que se marcan como leídas automáticamente al entrar a la página.
+
+**En el Feed**, los comentarios de gente con la que compartís grupo también
+aparecen mezclados cronológicamente con las reviews, como su propia
+entrada ("Fulano comentó en la review de Mengano sobre Doré — 06: '...'").
+
 ## Feed (actividad de todos tus grupos, un solo clic)
 
 `/feed` reemplazó a la vieja pantalla de "Grupos" en el menú. Tiene dos partes:
@@ -360,6 +384,17 @@ tiene dos secciones:
 
 ## Estructura
 
+- `app/notifications/page.tsx` — reacciones y comentarios que recibiste
+- `app/components/NotificationBell.tsx` — campanita con contador en el header
+- `app/components/ReviewReactions.tsx` — picker de emojis (hover/long-press) + badges
+- `app/components/ReviewComments.tsx` — contador, lista y form de comentarios
+- `app/api/notifications/unread-count/route.ts` — cantidad de no leídas
+- `app/api/notifications/mark-read/route.ts` — marcar todas como leídas
+- `app/api/reviews/[id]/reactions/route.ts` — reaccionar (toggle) + notificar
+- `app/api/reviews/[id]/comments/route.ts` — crear comentario + notificar
+- `app/api/reviews/[id]/comments/[commentId]/route.ts` — borrar comentario propio
+- `lib/reactions.ts` — agregar reacciones a una lista de reviews de una sola vez
+- `lib/comments.ts` — agregar comentarios a una lista de reviews de una sola vez
 - `app/feed/page.tsx` — carrusel de grupos + actividad combinada de todos
 - `app/groups/page.tsx` — redirect a `/feed` (ruta vieja, se mantiene por compatibilidad)
 - `app/page.tsx` — formulario principal (pide login si no hay sesión)

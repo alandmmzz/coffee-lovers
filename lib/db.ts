@@ -79,4 +79,31 @@ export type CoffeeReview = {
   // Se agregan aparte, no vienen del JOIN de la consulta principal
   reactions?: { emoji: string; count: number }[];
   myReaction?: string | null;
+  comments?: ReviewComment[];
+};
+
+export type ReviewComment = {
+  id: string;
+  review_id: string;
+  user_email: string;
+  user_name: string | null;
+  user_image: string | null;
+  body: string;
+  created_at: string;
+};
+
+export type Notification = {
+  id: string;
+  recipient_email: string;
+  actor_email: string;
+  actor_name: string | null;
+  actor_image: string | null;
+  type: 'reaction' | 'comment';
+  review_id: string | null;
+  emoji: string | null;
+  comment_body: string | null;
+  created_at: string;
+  read_at: string | null;
+  review_brand?: string;
+  review_line?: string;
 };

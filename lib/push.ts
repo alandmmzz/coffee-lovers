@@ -18,6 +18,47 @@ type PushPayload = {
 };
 
 /**
+ * Manda una notificación push a una sola persona puntual (por ejemplo, al
+ * autor de una review cuando alguien la comenta o reacciona).
+ */
+export async function sendPushToUser(targetEmail: string, payload: PushPayload) {
+  if (!configured) {
+    console.warn('VAPID keys no configuradas: no se van a enviar notificaciones push.');
+    return;
+  }
+
+  let subscriptions: { id: string; endpoint: string; p256dh: string; auth: string }[] = [];
+  try {
+    subscriptions = (await sql`
+      select id, endpoint, p256dh, auth from push_subscriptions where user_email = ${targetEmail}
+    `) as unknown as typeof subscriptions;
+  } catch (err) {
+    console.error('Error al leer suscripciones push de usuario:', err);
+    return;
+  }
+
+  await Promise.allSettled(
+    subscriptions.map(async (sub) => {
+      try {
+        await webpush.sendNotification(
+          {
+            endpoint: sub.endpoint,
+            keys: { p256dh: sub.p256dh, auth: sub.auth },
+          },
+          JSON.stringify(payload)
+        );
+      } catch (err: any) {
+        if (err?.statusCode === 404 || err?.statusCode === 410) {
+          await sql`delete from push_subscriptions where id = ${sub.id}`;
+        } else {
+          console.error('Error al enviar push a', sub.endpoint, err);
+        }
+      }
+    })
+  );
+}
+
+/**
  * Manda una notificación push a todos los que comparten al menos un grupo
  * con quien disparó la acción (por ejemplo, alguien que acaba de cargar una
  * review), excepto a esa misma persona. Si una suscripción ya no es válida

@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import { Plus, Users } from "lucide-react";
+import { Plus, Users, MessageCircle } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import sql from "@/lib/db";
 import type { CoffeeReview, Group } from "@/lib/db";
 import ReviewCard from "../components/ReviewCard";
 import { attachReactions } from "@/lib/reactions";
+import { attachComments } from "@/lib/comments";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +15,23 @@ type GroupWithMembers = Group & {
   member_count: number;
   avatars: (string | null)[];
 };
+
+type FeedComment = {
+  id: string;
+  body: string;
+  user_name: string | null;
+  user_email: string;
+  user_image: string | null;
+  created_at: string;
+  review_id: string;
+  review_taster_name: string;
+  review_brand: string;
+  review_line: string;
+};
+
+type FeedItem =
+  | { type: "review"; created_at: string; review: CoffeeReview }
+  | { type: "comment"; created_at: string; comment: FeedComment };
 
 export default async function FeedPage() {
   const session = await getServerSession(authOptions);
@@ -23,7 +41,7 @@ export default async function FeedPage() {
   const myEmail = session.user.email;
 
   let groups: GroupWithMembers[] = [];
-  let reviews: CoffeeReview[] = [];
+  let items: FeedItem[] = [];
   let error: string | null = null;
 
   try {
@@ -53,7 +71,7 @@ export default async function FeedPage() {
     );
 
     if (myGroups.length > 0) {
-      reviews = (await sql`
+      let reviews = (await sql`
         select r.*, c.brand, c.line, c.origin, c.farm, c.variety, c.process, c.tasting_notes,
                bl.logo_url as brand_logo_url
         from coffee_reviews r
@@ -69,6 +87,29 @@ export default async function FeedPage() {
         limit 100
       `) as unknown as CoffeeReview[];
       reviews = await attachReactions(reviews, myEmail);
+      reviews = await attachComments(reviews);
+
+      const comments = (await sql`
+        select rc.id, rc.body, rc.user_name, rc.user_email, rc.user_image, rc.created_at,
+               rc.review_id, r.taster_name as review_taster_name,
+               c.brand as review_brand, c.line as review_line
+        from review_comments rc
+        join coffee_reviews r on r.id = rc.review_id
+        join coffees c on c.id = r.coffee_id
+        where rc.user_email in (
+          select distinct gm2.user_email
+          from group_members gm1
+          join group_members gm2 on gm1.group_id = gm2.group_id
+          where gm1.user_email = ${myEmail}
+        )
+        order by rc.created_at desc
+        limit 50
+      `) as unknown as FeedComment[];
+
+      items = [
+        ...reviews.map((r): FeedItem => ({ type: "review", created_at: r.created_at!, review: r })),
+        ...comments.map((c): FeedItem => ({ type: "comment", created_at: c.created_at, comment: c })),
+      ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
     }
   } catch (err) {
     console.error("Error al cargar el feed:", err);
@@ -150,23 +191,50 @@ export default async function FeedPage() {
             </div>
 
             {/* Feed combinado */}
-            {reviews.length === 0 ? (
+            {items.length === 0 ? (
               <p className="font-body text-parchment-dim">
                 Todavía no hay actividad en tus grupos.
               </p>
             ) : (
               <div className="space-y-10">
-                {reviews.map((r) => (
-                  <div key={r.id}>
-                    <p className="mb-2 flex items-baseline gap-2">
-                      <span className="font-mono text-xs text-parchment">{r.taster_name}</span>
-                      <span className="font-mono text-[11px] text-parchment-dim/70">
-                        {r.created_at ? new Date(r.created_at).toLocaleString("es-AR") : ""}
-                      </span>
-                    </p>
-                    <ReviewCard review={r} />
-                  </div>
-                ))}
+                {items.map((item) =>
+                  item.type === "review" ? (
+                    <ReviewCard key={`review-${item.review.id}`} review={item.review} />
+                  ) : (
+                    <div
+                      key={`comment-${item.comment.id}`}
+                      className="flex items-start gap-3 bg-parchment/[0.03] border border-parchment-dim/10 rounded-sm p-4"
+                    >
+                      <div className="w-7 h-7 rounded-full overflow-hidden bg-cascara/20 flex items-center justify-center shrink-0">
+                        {item.comment.user_image ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={item.comment.user_image}
+                            alt=""
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <MessageCircle size={12} className="text-cream" />
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-body text-sm text-parchment">
+                          <span className="text-cream font-medium">
+                            {item.comment.user_name ?? item.comment.user_email}
+                          </span>{" "}
+                          comentó en la review de {item.comment.review_taster_name} sobre{" "}
+                          {item.comment.review_brand} — {item.comment.review_line}
+                        </p>
+                        <p className="font-body text-sm text-muted italic mt-1">
+                          “{item.comment.body}”
+                        </p>
+                        <p className="font-mono text-[11px] text-parchment-dim mt-1">
+                          {new Date(item.comment.created_at).toLocaleString("es-AR")}
+                        </p>
+                      </div>
+                    </div>
+                  )
+                )}
               </div>
             )}
           </>

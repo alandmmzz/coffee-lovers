@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import sql from '@/lib/db';
+import { sendPushToUser } from '@/lib/push';
 
 const ALLOWED_EMOJIS = ['👍🏻', '👎🏻', '😂', '👀', '👄'];
 
@@ -17,8 +18,13 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   }
 
   try {
-    const reviewRows = await sql`select user_email from coffee_reviews where id = ${params.id}`;
-    const review = reviewRows[0] as { user_email: string | null } | undefined;
+    const reviewRows = await sql`
+      select r.user_email, c.brand, c.line
+      from coffee_reviews r
+      join coffees c on c.id = r.coffee_id
+      where r.id = ${params.id}
+    `;
+    const review = reviewRows[0] as { user_email: string | null; brand: string; line: string } | undefined;
     if (!review) {
       return NextResponse.json({ ok: false, error: 'No existe esa review.' }, { status: 404 });
     }
@@ -56,6 +62,23 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
           created_at = now()
       `;
       myReaction = body.emoji;
+
+      // Avisar al autor de la review (salvo que se esté reaccionando a sí mismo)
+      if (review.user_email && review.user_email !== session.user.email) {
+        try {
+          await sql`
+            insert into notifications (recipient_email, actor_email, actor_name, actor_image, type, review_id, emoji)
+            values (${review.user_email}, ${session.user.email}, ${session.user.name ?? null}, ${session.user.image ?? null}, 'reaction', ${params.id}, ${body.emoji})
+          `;
+          await sendPushToUser(review.user_email, {
+            title: 'Nueva reacción',
+            body: `${session.user.name ?? 'Alguien'} reaccionó ${body.emoji} a tu review de ${review.brand} — ${review.line}`,
+            url: '/notifications',
+          });
+        } catch (err) {
+          console.error('Error al notificar reacción:', err);
+        }
+      }
     }
 
     const counts = await sql`

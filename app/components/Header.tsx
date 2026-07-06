@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Coffee, PlusCircle, Rss, Calculator } from "lucide-react";
 import UserMenu from "./UserMenu";
+import NotificationBell from "./NotificationBell";
 
 export default function Header() {
   return (
@@ -35,7 +36,10 @@ export default function Header() {
           </Link>
         </nav>
 
-        <UserMenu />
+        <div className="flex items-center gap-2 shrink-0">
+          <NotificationBell />
+          <UserMenu />
+        </div>
       </div>
     </header>
   );
