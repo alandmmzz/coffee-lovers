@@ -20,7 +20,6 @@ type Placement = {
 };
 
 const METHOD_PLACEMENT: Record<string, Placement> = {
-<<<<<<< HEAD
   "V60 / Filtrado": { width: "66%", top: "15%", left: "54%" },
   "Prensa francesa": { width: "90%", top: "-7%", left: "44%" },
   Moka: { width: "122%", top: "-25%", left: "19%" },
@@ -33,20 +32,6 @@ const METHOD_PLACEMENT: Record<string, Placement> = {
 const BAG_PLACEMENT: Placement = { width: "119%", top: "-35%", left: "-34%" };
 const CUP_WIDTH = "85%";
 const CUP_TOP = "55%";
-=======
-  "V60 / Filtrado": { width: "66%", top: "0%", left: "54%" },
-  "Prensa francesa": { width: "90%", top: "-22%", left: "44%" },
-  Moka: { width: "122%", top: "-40%", left: "19%" },
-  "Cold brew": { width: "69%", top: "-8%", left: "53%" },
-  Aeropress: { width: "75%", top: "-8%", left: "54%" },
-  Cápsula: { width: "85%", top: "-4%", left: "55%", transform: "rotateX(25deg)" },
-  Espresso: { width: "130%", top: "-45%", left: "35%" },
-};
-
-const BAG_PLACEMENT: Placement = { width: "119%", top: "-50%", left: "-34%" };
-const CUP_WIDTH = "85%";
-const CUP_TOP = "40%";
->>>>>>> 6709964aebd8288ac296d15d595d1d7341b00c58
 
 const OBJECT_SHADOW = "drop-shadow(0 8px 6px rgba(0,0,0,0.4))";
 

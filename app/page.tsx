@@ -168,11 +168,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen px-4 py-12 sm:py-16">
-<<<<<<< HEAD
       <div className="max-w-xl lg:max-w-4xl mx-auto lg:flex lg:items-start lg:gap-12">
-=======
-      <div className="max-w-4xl mx-auto lg:flex lg:items-start lg:gap-12">
->>>>>>> 6709964aebd8288ac296d15d595d1d7341b00c58
         <div className="max-w-xl">
           <header className="mb-10">
             <p className="font-mono text-xs tracking-[0.2em] text-crema uppercase mb-3">
@@ -218,11 +214,7 @@ export default function Home() {
           </form>
         </div>
 
-<<<<<<< HEAD
         <div className="hidden lg:block flex-1 self-stretch overflow-x-hidden">
-=======
-        <div className="hidden lg:block flex-1 self-stretch">
->>>>>>> 6709964aebd8288ac296d15d595d1d7341b00c58
           <div className="sticky top-1/2 -translate-y-1/2">
             <ReviewIllustration coffee={coffee} hasMilk={form.has_milk} brewMethod={form.brew_method} />
           </div>
