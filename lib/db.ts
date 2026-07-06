@@ -13,6 +13,12 @@ const sql = neon(process.env.DATABASE_URL as string, {
 
 export default sql;
 
+export type BrandLogo = {
+  brand: string;
+  logo_url: string | null;
+  updated_at?: string;
+};
+
 export type Coffee = {
   id: string;
   created_at?: string;
@@ -23,6 +29,7 @@ export type Coffee = {
   variety: string | null;
   process: string | null;
   tasting_notes: string | null;
+  brand_logo_url?: string | null;
 };
 
 export type Group = {
@@ -39,7 +46,6 @@ export type CoffeeReview = {
   created_at?: string;
   taster_name: string;
   coffee_id: string;
-  group_id: string;
   roast_level: string | null;
   brew_method: string;
   aroma: number;
@@ -55,6 +61,8 @@ export type CoffeeReview = {
   has_milk: boolean;
   milk_type: string | null;
   temperature_preference: string | null;
+  consumption_type: string | null;
+  place_name: string | null;
   user_email?: string | null;
   user_name?: string | null;
   user_image?: string | null;
@@ -66,5 +74,4 @@ export type CoffeeReview = {
   variety?: string | null;
   process?: string | null;
   tasting_notes?: string | null;
-  group_name?: string;
 };

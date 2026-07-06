@@ -1,4 +1,15 @@
-import { Star, StarHalf } from "lucide-react";
+import { Star } from "lucide-react";
+
+function HalfStar({ size }: { size: number }) {
+  return (
+    <div className="relative shrink-0" style={{ width: size, height: size }}>
+      <Star size={size} className="absolute inset-0 text-parchment-dim/40" />
+      <div className="absolute inset-0 overflow-hidden" style={{ width: "50%" }}>
+        <Star size={size} className="fill-crema text-crema" />
+      </div>
+    </div>
+  );
+}
 
 export default function StarRating({
   rating,
@@ -20,7 +31,7 @@ export default function StarRating({
         {Array.from({ length: full }).map((_, i) => (
           <Star key={`full-${i}`} size={size} className="fill-crema text-crema" />
         ))}
-        {hasHalf && <StarHalf size={size} className="fill-crema text-crema" />}
+        {hasHalf && <HalfStar size={size} />}
         {Array.from({ length: empty }).map((_, i) => (
           <Star key={`empty-${i}`} size={size} className="text-parchment-dim/40" />
         ))}

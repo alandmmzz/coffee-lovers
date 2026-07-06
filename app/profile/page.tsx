@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { PlusCircle, ListFilter, Star, Coffee, History, Award, Milk } from "lucide-react";
+import { PlusCircle, ListFilter, Star, Coffee, History, Award, Milk, MapPin } from "lucide-react";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
@@ -24,11 +24,9 @@ export default async function ProfilePage() {
 
   try {
     reviews = (await sql`
-      select r.*, c.brand, c.line, c.origin, c.farm, c.variety, c.process, c.tasting_notes,
-             g.name as group_name
+      select r.*, c.brand, c.line, c.origin, c.farm, c.variety, c.process, c.tasting_notes
       from coffee_reviews r
       join coffees c on c.id = r.coffee_id
-      join groups g on g.id = r.group_id
       where r.user_email = ${session.user.email}
       order by r.created_at desc
     `) as unknown as CoffeeReview[];
@@ -76,6 +74,16 @@ export default async function ProfilePage() {
     milkTypeCounts.set(r.milk_type, (milkTypeCounts.get(r.milk_type) ?? 0) + 1);
   }
   const topMilkType = [...milkTypeCounts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
+
+  const placesMap = new Map<string, { name: string; count: number }>();
+  for (const r of reviews) {
+    if (r.consumption_type !== "lugar" || !r.place_name) continue;
+    const key = r.place_name.trim().toLowerCase();
+    const entry = placesMap.get(key) ?? { name: r.place_name.trim(), count: 0 };
+    entry.count += 1;
+    placesMap.set(key, entry);
+  }
+  const places = [...placesMap.values()].sort((a, b) => b.count - a.count);
 
   return (
     <main className="min-h-screen px-4 py-12 sm:py-16">
@@ -190,6 +198,33 @@ export default async function ProfilePage() {
               <h2 className="font-display text-lg text-cream mb-4">Actividad del último año</h2>
               <ActivityHeatmap counts={dailyCounts} />
             </div>
+
+            {places.length > 0 && (
+              <div className="mb-10">
+                <h2 className="font-display text-lg text-cream mb-4">
+                  Lugares visitados ({places.length})
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {places.map((p) => (
+                    <a
+                      key={p.name}
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-start gap-3 bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-4 hover:border-crema transition-colors"
+                    >
+                      <MapPin size={16} className="text-crema shrink-0 mt-0.5" />
+                      <div className="min-w-0">
+                        <p className="font-body text-sm text-cream truncate">{p.name}</p>
+                        <p className="font-mono text-[10px] text-parchment-dim mt-1">
+                          {p.count} café{p.count === 1 ? "" : "s"} ahí
+                        </p>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <h2 className="font-display text-lg text-cream mb-4">Todas tus reviews</h2>
             <ul className="space-y-4">

@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth";
 import { redirect, notFound } from "next/navigation";
-import { Star, Coffee as CoffeeIcon, History, Award, Milk } from "lucide-react";
+import { Star, Coffee as CoffeeIcon, History, Award, Milk, MapPin } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import sql from "@/lib/db";
 import type { CoffeeReview } from "@/lib/db";
@@ -52,14 +52,14 @@ export default async function MemberProfilePage({
       select r.*, c.brand, c.line, c.origin, c.farm, c.variety, c.process, c.tasting_notes
       from coffee_reviews r
       join coffees c on c.id = r.coffee_id
-      where r.group_id = ${params.groupId} and r.user_email = ${targetEmail}
+      where r.user_email = ${targetEmail}
       order by r.created_at desc
     `) as unknown as CoffeeReview[];
 
     dailyCounts = (await sql`
       select to_char(created_at, 'YYYY-MM-DD') as date, count(*)::int as count
       from coffee_reviews
-      where group_id = ${params.groupId} and user_email = ${targetEmail}
+      where user_email = ${targetEmail}
         and created_at >= now() - interval '371 days'
       group by date
     `) as unknown as { date: string; count: number }[];
@@ -90,6 +90,16 @@ export default async function MemberProfilePage({
   const withMilk = reviews.filter((r) => r.has_milk);
   const milkPercent = reviews.length > 0 ? Math.round((withMilk.length / reviews.length) * 100) : 0;
 
+  const placesMap = new Map<string, { name: string; count: number }>();
+  for (const r of reviews) {
+    if (r.consumption_type !== "lugar" || !r.place_name) continue;
+    const key = r.place_name.trim().toLowerCase();
+    const entry = placesMap.get(key) ?? { name: r.place_name.trim(), count: 0 };
+    entry.count += 1;
+    placesMap.set(key, entry);
+  }
+  const places = [...placesMap.values()].sort((a, b) => b.count - a.count);
+
   return (
     <main className="min-h-screen px-4 py-12 sm:py-16">
       <div className="max-w-3xl mx-auto">
@@ -119,7 +129,7 @@ export default async function MemberProfilePage({
         {error && <p className="text-cascara-light text-sm mb-8">{error}</p>}
 
         {!error && reviews.length === 0 && (
-          <p className="font-body text-parchment-dim">Todavía no cató nada en este grupo.</p>
+          <p className="font-body text-parchment-dim">Todavía no cató nada.</p>
         )}
 
         {!error && reviews.length > 0 && (
@@ -129,7 +139,7 @@ export default async function MemberProfilePage({
                 <CoffeeIcon size={14} className="text-parchment-dim mb-2" />
                 <p className="font-mono text-xl text-crema leading-none">{reviews.length}</p>
                 <p className="font-mono text-[10px] text-parchment-dim uppercase mt-1.5">
-                  Café{reviews.length === 1 ? "" : "s"} en este grupo
+                  Café{reviews.length === 1 ? "" : "s"} catado{reviews.length === 1 ? "" : "s"}
                 </p>
               </div>
 
@@ -177,7 +187,34 @@ export default async function MemberProfilePage({
               <ActivityHeatmap counts={dailyCounts} />
             </div>
 
-            <h2 className="font-display text-lg text-cream mb-4">Reviews en este grupo</h2>
+            {places.length > 0 && (
+              <div className="mb-10">
+                <h2 className="font-display text-lg text-cream mb-4">
+                  Lugares visitados ({places.length})
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {places.map((p) => (
+                    <a
+                      key={p.name}
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-start gap-3 bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-4 hover:border-crema transition-colors"
+                    >
+                      <MapPin size={16} className="text-crema shrink-0 mt-0.5" />
+                      <div className="min-w-0">
+                        <p className="font-body text-sm text-cream truncate">{p.name}</p>
+                        <p className="font-mono text-[10px] text-parchment-dim mt-1">
+                          {p.count} café{p.count === 1 ? "" : "s"} ahí
+                        </p>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <h2 className="font-display text-lg text-cream mb-4">Todas sus reviews</h2>
             <ul className="space-y-4">
               {reviews.map((r) => (
                 <ReviewCard key={r.id} review={r} showTaster={false} />

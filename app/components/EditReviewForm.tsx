@@ -8,6 +8,7 @@ import ReviewFormFields, {
   type ReviewFormState,
   type ReviewScores,
 } from "./ReviewFormFields";
+import ReviewIllustration from "./ReviewIllustration";
 import type { Coffee, CoffeeReview } from "@/lib/db";
 
 export default function EditReviewForm({ review }: { review: CoffeeReview }) {
@@ -31,6 +32,8 @@ export default function EditReviewForm({ review }: { review: CoffeeReview }) {
     has_milk: review.has_milk,
     milk_type: review.milk_type ?? "",
     temperature: review.temperature_preference ?? "",
+    consumption_type: review.consumption_type ?? "",
+    place_name: review.place_name ?? "",
   });
 
   const [scores, setScores] = useState<ReviewScores>({
@@ -51,8 +54,7 @@ export default function EditReviewForm({ review }: { review: CoffeeReview }) {
   const canSubmit =
     coffee !== null &&
     form.brew_method &&
-    Object.values(scores).every((v) => v > 0) &&
-    overall > 0;
+    Object.values(scores).every((v) => v > 0);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -78,6 +80,9 @@ export default function EditReviewForm({ review }: { review: CoffeeReview }) {
           has_milk: form.has_milk,
           milk_type: form.has_milk ? form.milk_type.trim() || null : null,
           temperature_preference: form.temperature || null,
+          consumption_type: form.consumption_type || null,
+          place_name:
+            form.consumption_type === "lugar" ? form.place_name.trim() || null : null,
         }),
       });
       const data = await res.json();
@@ -120,50 +125,58 @@ export default function EditReviewForm({ review }: { review: CoffeeReview }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
-      <ReviewFormFields
-        coffee={coffee}
-        setCoffee={setCoffee}
-        form={form}
-        setForm={setForm}
-        scores={scores}
-        setScores={setScores}
-        overall={overall}
-        setOverall={setOverall}
-      />
+    <div className="lg:flex lg:items-start lg:gap-12">
+      <form onSubmit={handleSubmit} className="space-y-8 max-w-xl w-full">
+        <ReviewFormFields
+          coffee={coffee}
+          setCoffee={setCoffee}
+          form={form}
+          setForm={setForm}
+          scores={scores}
+          setScores={setScores}
+          overall={overall}
+          setOverall={setOverall}
+        />
 
-      {status === "error" && (
-        <p className="text-cascara-light text-sm font-body" role="alert">
-          {errorMsg}
-        </p>
-      )}
+        {status === "error" && (
+          <p className="text-cascara-light text-sm font-body" role="alert">
+            {errorMsg}
+          </p>
+        )}
 
-      <div className="flex gap-3">
+        <div className="flex gap-3">
+          <button
+            type="submit"
+            disabled={status === "sending"}
+            className="flex-1 py-4 bg-cascara hover:bg-cascara-light disabled:opacity-60 text-cream font-body text-sm tracking-wide rounded-sm transition-colors"
+          >
+            {status === "sending" ? "Guardando..." : "Guardar cambios"}
+          </button>
+          <Link
+            href="/profile"
+            className="flex items-center gap-1.5 px-5 py-4 border border-parchment-dim/25 hover:border-crema text-parchment font-body text-sm rounded-sm transition-colors"
+          >
+            <X size={16} />
+            Cancelar
+          </Link>
+        </div>
+
         <button
-          type="submit"
-          disabled={status === "sending"}
-          className="flex-1 py-4 bg-cascara hover:bg-cascara-light disabled:opacity-60 text-cream font-body text-sm tracking-wide rounded-sm transition-colors"
+          type="button"
+          onClick={handleDelete}
+          disabled={deleting}
+          className="w-full flex items-center justify-center gap-1.5 py-3 border border-cascara/30 hover:border-cascara text-cascara-light disabled:opacity-60 font-body text-sm rounded-sm transition-colors"
         >
-          {status === "sending" ? "Guardando..." : "Guardar cambios"}
+          <Trash2 size={15} />
+          {deleting ? "Eliminando..." : "Eliminar review"}
         </button>
-        <Link
-          href="/profile"
-          className="flex items-center gap-1.5 px-5 py-4 border border-parchment-dim/25 hover:border-crema text-parchment font-body text-sm rounded-sm transition-colors"
-        >
-          <X size={16} />
-          Cancelar
-        </Link>
-      </div>
+      </form>
 
-      <button
-        type="button"
-        onClick={handleDelete}
-        disabled={deleting}
-        className="w-full flex items-center justify-center gap-1.5 py-3 border border-cascara/30 hover:border-cascara text-cascara-light disabled:opacity-60 font-body text-sm rounded-sm transition-colors"
-      >
-        <Trash2 size={15} />
-        {deleting ? "Eliminando..." : "Eliminar review"}
-      </button>
-    </form>
+      <div className="hidden lg:block flex-1 self-stretch overflow-x-hidden">
+        <div className="sticky top-1/2 -translate-y-1/2">
+          <ReviewIllustration coffee={coffee} hasMilk={form.has_milk} brewMethod={form.brew_method} />
+        </div>
+      </div>
+    </div>
   );
 }

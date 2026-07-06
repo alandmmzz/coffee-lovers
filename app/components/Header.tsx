@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Coffee, PlusCircle, Users } from "lucide-react";
+import { Coffee, PlusCircle, Users, Calculator } from "lucide-react";
 import UserMenu from "./UserMenu";
 
 export default function Header() {
@@ -18,6 +18,13 @@ export default function Header() {
           >
             <PlusCircle size={16} />
             <span className="hidden sm:inline">Nueva review</span>
+          </Link>
+          <Link
+            href="/brew"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-sm text-parchment hover:bg-parchment/5 transition-colors"
+          >
+            <Calculator size={16} />
+            <span className="hidden sm:inline">Preparar</span>
           </Link>
           <Link
             href="/groups"

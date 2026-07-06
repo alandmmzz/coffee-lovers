@@ -45,7 +45,7 @@ export default async function GroupInsightsPage({ params }: { params: { groupId:
              count(r.id)::int as review_count
       from coffee_reviews r
       join coffees c on c.id = r.coffee_id
-      where r.group_id = ${params.groupId}
+      where r.user_email in (select user_email from group_members where group_id = ${params.groupId})
       group by c.id, c.brand, c.line
       order by avg_rating desc, review_count desc
       limit 5
@@ -57,7 +57,7 @@ export default async function GroupInsightsPage({ params }: { params: { groupId:
              round(avg(r.overall_rating)::numeric, 1) as avg_rating
       from coffee_reviews r
       join coffees c on c.id = r.coffee_id
-      where r.group_id = ${params.groupId}
+      where r.user_email in (select user_email from group_members where group_id = ${params.groupId})
       group by c.id, c.brand, c.line
       having count(distinct r.user_email) > 1
       order by taster_count desc, avg_rating desc
@@ -72,7 +72,7 @@ export default async function GroupInsightsPage({ params }: { params: { groupId:
         count(*)::int as review_count,
         round(avg(overall_rating)::numeric, 1) as avg_given
       from coffee_reviews
-      where group_id = ${params.groupId} and user_email is not null
+      where user_email in (select user_email from group_members where group_id = ${params.groupId})
       group by user_email
       order by review_count desc
       limit 10
@@ -85,14 +85,15 @@ export default async function GroupInsightsPage({ params }: { params: { groupId:
         round(avg(overall_rating) filter (where has_milk)::numeric, 1) as avg_with_milk,
         round(avg(overall_rating) filter (where not has_milk)::numeric, 1) as avg_without_milk
       from coffee_reviews
-      where group_id = ${params.groupId}
+      where user_email in (select user_email from group_members where group_id = ${params.groupId})
     `) as unknown as MilkStats[];
     milkStats = milkStatsRows[0] ?? null;
 
     milkTypes = (await sql`
       select milk_type, count(*)::int as count
       from coffee_reviews
-      where group_id = ${params.groupId} and has_milk and milk_type is not null and milk_type <> ''
+      where user_email in (select user_email from group_members where group_id = ${params.groupId})
+        and has_milk and milk_type is not null and milk_type <> ''
       group by milk_type
       order by count desc
       limit 5

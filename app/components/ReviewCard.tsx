@@ -1,14 +1,24 @@
 import Link from "next/link";
-import { Milk, Pencil, Snowflake, Thermometer, Flame } from "lucide-react";
+import { Milk, Pencil, Snowflake, Thermometer, Flame, Wind, Citrus, Candy, Layers, Leaf, Clock, Scale, MapPin, Home } from "lucide-react";
 import type { CoffeeReview } from "@/lib/db";
 import { ROAST_LABELS, PROCESS_LABELS, TEMPERATURE_LABELS } from "@/lib/constants";
 import StarRating from "./StarRating";
 
-const TEMPERATURE_ICONS: Record<string, typeof Snowflake> = {
-  frio: Snowflake,
-  tibio: Thermometer,
-  caliente: Flame,
+const TEMPERATURE_STYLES: Record<string, { icon: typeof Snowflake; color: string }> = {
+  frio: { icon: Snowflake, color: "#5A8FB8" },
+  tibio: { icon: Thermometer, color: "#C98A3D" },
+  caliente: { icon: Flame, color: "#C1432E" },
 };
+
+const ATTRIBUTES = [
+  { label: "Aroma", key: "aroma" as const, icon: Wind, color: "#8B7BA8" },
+  { label: "Acidez", key: "acidity" as const, icon: Citrus, color: "#B8A542" },
+  { label: "Dulzor", key: "sweetness" as const, icon: Candy, color: "#C77B92" },
+  { label: "Cuerpo", key: "body" as const, icon: Layers, color: "#B8663F" },
+  { label: "Amargor", key: "bitterness" as const, icon: Leaf, color: "#7C8B5E" },
+  { label: "Retrog.", key: "aftertaste" as const, icon: Clock, color: "#5A8A8C" },
+  { label: "Balance", key: "balance" as const, icon: Scale, color: "#D4A857" },
+];
 
 export default function ReviewCard({
   review: r,
@@ -26,11 +36,6 @@ export default function ReviewCard({
           <h2 className="font-display text-xl text-cream">
             {r.brand} — {r.line}
           </h2>
-          {r.group_name && (
-            <p className="font-mono text-[10px] text-crema/80 uppercase tracking-wide mt-0.5">
-              {r.group_name}
-            </p>
-          )}
           <p className="font-mono text-xs text-parchment-dim mt-1">
             {[
               r.origin,
@@ -48,13 +53,38 @@ export default function ReviewCard({
             </p>
           )}
           {r.temperature_preference && (
-            <p className="flex items-center gap-1 font-mono text-[11px] text-parchment-dim mt-1">
+            <p className="flex items-center gap-1 font-mono text-[11px] mt-1">
               {(() => {
-                const Icon = TEMPERATURE_ICONS[r.temperature_preference];
-                return Icon ? <Icon size={11} /> : null;
+                const t = TEMPERATURE_STYLES[r.temperature_preference];
+                if (!t) return null;
+                const Icon = t.icon;
+                return (
+                  <>
+                    <Icon size={11} style={{ color: t.color }} />
+                    <span style={{ color: t.color }}>
+                      {TEMPERATURE_LABELS[r.temperature_preference] ?? r.temperature_preference}
+                    </span>
+                  </>
+                );
               })()}
-              {TEMPERATURE_LABELS[r.temperature_preference] ?? r.temperature_preference}
             </p>
+          )}
+          {r.consumption_type === "casa" && (
+            <p className="flex items-center gap-1 font-mono text-[11px] text-parchment-dim mt-1">
+              <Home size={11} />
+              En casa
+            </p>
+          )}
+          {r.consumption_type === "lugar" && r.place_name && (
+            <a
+              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.place_name)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 font-mono text-[11px] text-parchment-dim hover:text-crema transition-colors mt-1"
+            >
+              <MapPin size={11} />
+              {r.place_name}
+            </a>
           )}
         </div>
         <div className="text-right shrink-0">
@@ -87,24 +117,19 @@ export default function ReviewCard({
       </div>
 
       <dl className="grid grid-cols-4 sm:grid-cols-7 gap-2 mb-3">
-        {[
-          ["Aroma", r.aroma],
-          ["Acidez", r.acidity],
-          ["Dulzor", r.sweetness],
-          ["Cuerpo", r.body],
-          ["Amargor", r.bitterness],
-          ["Retrog.", r.aftertaste],
-          ["Balance", r.balance],
-        ].map(([label, val]) => (
-          <div key={label as string} className="text-center">
-            <dt className="font-mono text-[10px] text-parchment-dim uppercase">{label}</dt>
-            <dd className="font-mono text-sm text-parchment">{val}/5</dd>
+        {ATTRIBUTES.map(({ label, key, icon: Icon, color }) => (
+          <div key={key} className="flex flex-col items-center gap-1 text-center">
+            <Icon size={14} style={{ color }} />
+            <dt className="font-mono text-[9px] text-parchment-dim uppercase">{label}</dt>
+            <dd className="font-mono text-sm" style={{ color }}>
+              {r[key]}/5
+            </dd>
           </div>
         ))}
       </dl>
 
       {r.notes && (
-        <p className="font-body text-sm text-parchment-dim italic border-t border-parchment-dim/15 pt-3">
+        <p className="font-body text-sm text-muted italic border-t border-parchment-dim/15 pt-3">
           “{r.notes}”
         </p>
       )}

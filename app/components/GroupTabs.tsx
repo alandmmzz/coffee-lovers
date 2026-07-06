@@ -2,15 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Activity, BarChart3, ListChecks } from "lucide-react";
 
 export default function GroupTabs({ groupId, groupName }: { groupId: string; groupName?: string }) {
   const pathname = usePathname();
 
   const tabs = [
-    { href: `/groups/${groupId}/activity`, label: "Actividad" },
-    { href: `/groups/${groupId}/insights`, label: "Insights" },
-    { href: `/groups/${groupId}/reviews`, label: "Reviews" },
+    { href: `/groups/${groupId}/activity`, label: "Actividad", icon: Activity },
+    { href: `/groups/${groupId}/insights`, label: "Insights", icon: BarChart3 },
+    { href: `/groups/${groupId}/reviews`, label: "Reviews", icon: ListChecks },
   ];
 
   return (
@@ -22,20 +22,24 @@ export default function GroupTabs({ groupId, groupName }: { groupId: string; gro
         <ArrowLeft size={14} />
         {groupName ?? "Volver al grupo"}
       </Link>
-      <div className="flex gap-1 border-b border-parchment-dim/15">
+      <div className="grid grid-cols-3 gap-3">
         {tabs.map((tab) => {
           const active = pathname === tab.href;
+          const Icon = tab.icon;
           return (
             <Link
               key={tab.href}
               href={tab.href}
-              className={`px-4 py-2.5 text-sm font-body border-b-2 -mb-px transition-colors ${
+              className={`flex flex-col items-center gap-1.5 py-4 rounded-sm border transition-colors ${
                 active
-                  ? "border-crema text-cream"
-                  : "border-transparent text-parchment-dim hover:text-parchment"
+                  ? "border-crema bg-crema/10"
+                  : "border-parchment-dim/15 bg-parchment/[0.04] hover:border-parchment-dim/40"
               }`}
             >
-              {tab.label}
+              <Icon size={18} className={active ? "text-crema" : "text-crema/70"} />
+              <span className={`font-mono text-xs ${active ? "text-crema" : "text-parchment"}`}>
+                {tab.label}
+              </span>
             </Link>
           );
         })}
