@@ -35,6 +35,8 @@ export default function ReviewReactions({
   );
   const [showPicker, setShowPicker] = useState(false);
   const [showSheet, setShowSheet] = useState(false);
+  const [pressed, setPressed] = useState(false);
+  const [justSelected, setJustSelected] = useState(false);
   const pressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const movedRef = useRef(false);
@@ -49,12 +51,19 @@ export default function ReviewReactions({
 
   function startPress() {
     movedRef.current = false;
+    setPressed(true);
     pressTimerRef.current = setTimeout(() => {
-      if (!movedRef.current) setShowSheet(true);
+      setPressed(false);
+      if (!movedRef.current) {
+        setShowSheet(true);
+        setJustSelected(true);
+        setTimeout(() => setJustSelected(false), 300);
+      }
     }, 450);
   }
   function cancelPress() {
     movedRef.current = true;
+    setPressed(false);
     if (pressTimerRef.current) clearTimeout(pressTimerRef.current);
   }
 
@@ -62,7 +71,9 @@ export default function ReviewReactions({
 
   return (
     <div
-      className="relative bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-5"
+      className={`relative bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-5 transition-transform duration-150 no-callout ${
+        pressed ? "scale-[0.97]" : ""
+      } ${justSelected ? "press-bounce" : ""}`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onTouchStart={startPress}

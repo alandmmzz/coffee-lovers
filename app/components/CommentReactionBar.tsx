@@ -28,24 +28,40 @@ export default function CommentReactionBar({
     initialMyReaction
   );
   const [showSheet, setShowSheet] = useState(false);
+  const [pressed, setPressed] = useState(false);
+  const [justSelected, setJustSelected] = useState(false);
   const pressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const movedRef = useRef(false);
 
   function startPress() {
     movedRef.current = false;
+    setPressed(true);
     pressTimerRef.current = setTimeout(() => {
-      if (!movedRef.current) setShowSheet(true);
+      setPressed(false);
+      if (!movedRef.current) {
+        setShowSheet(true);
+        setJustSelected(true);
+        setTimeout(() => setJustSelected(false), 300);
+      }
     }, 450);
   }
   function cancelPress() {
     movedRef.current = true;
+    setPressed(false);
     if (pressTimerRef.current) clearTimeout(pressTimerRef.current);
   }
 
   const isOwn = !!session?.user?.email && session.user.email === commentUserEmail;
 
   return (
-    <div onTouchStart={startPress} onTouchEnd={cancelPress} onTouchMove={cancelPress}>
+    <div
+      className={`no-callout transition-transform duration-150 ${pressed ? "scale-[0.97]" : ""} ${
+        justSelected ? "press-bounce" : ""
+      }`}
+      onTouchStart={startPress}
+      onTouchEnd={cancelPress}
+      onTouchMove={cancelPress}
+    >
       {children}
 
       {reactions.length > 0 && (
