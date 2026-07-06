@@ -28,7 +28,12 @@ export default function ReactionSheet({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center sm:justify-center">
+    <div
+      className="fixed inset-0 z-50 flex items-end sm:items-center sm:justify-center"
+      onTouchStart={(e) => e.stopPropagation()}
+      onTouchMove={(e) => e.stopPropagation()}
+      onTouchEnd={(e) => e.stopPropagation()}
+    >
       <div className="absolute inset-0 bg-black/60" onClick={onClose} />
 
       <div className="pop-in-sheet relative w-full sm:max-w-sm bg-ink-soft border-t sm:border border-parchment-dim/20 rounded-t-2xl sm:rounded-lg p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">

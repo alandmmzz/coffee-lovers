@@ -43,7 +43,7 @@ export default function CommentReactionBar({
         setJustSelected(true);
         setTimeout(() => setJustSelected(false), 300);
       }
-    }, 450);
+    }, 600);
   }
   function cancelPress() {
     movedRef.current = true;
@@ -64,35 +64,33 @@ export default function CommentReactionBar({
     >
       {children}
 
-      {reactions.length > 0 && (
-        <div className="flex items-center gap-1 flex-wrap mt-1.5">
-          {reactions.map((r) => (
-            <button
-              key={r.emoji}
-              type="button"
-              onClick={() => react(r.emoji)}
-              className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-full border text-[10px] transition-colors ${
-                myReaction === r.emoji
-                  ? "border-crema bg-crema/10"
-                  : "border-parchment-dim/20 hover:border-parchment-dim/40"
-              }`}
-            >
-              <span>{r.emoji}</span>
-              {r.count > 1 && <span className="font-mono text-parchment-dim">{r.count}</span>}
-            </button>
-          ))}
-        </div>
-      )}
+      <div className="flex items-center gap-1 flex-wrap mt-1.5">
+        {reactions.map((r) => (
+          <button
+            key={r.emoji}
+            type="button"
+            onClick={() => react(r.emoji)}
+            className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-full border text-[10px] transition-colors ${
+              myReaction === r.emoji
+                ? "border-crema bg-crema/10"
+                : "border-parchment-dim/20 hover:border-parchment-dim/40"
+            }`}
+          >
+            <span>{r.emoji}</span>
+            {r.count > 1 && <span className="font-mono text-parchment-dim">{r.count}</span>}
+          </button>
+        ))}
 
-      <button
-        type="button"
-        onClick={() => setShowSheet(true)}
-        aria-label="Reaccionar"
-        className="mt-1 flex items-center gap-1 font-mono text-[10px] text-parchment-dim/60 hover:text-crema transition-colors"
-      >
-        <SmilePlus size={12} />
-        Reaccionar
-      </button>
+        <button
+          type="button"
+          onClick={() => setShowSheet(true)}
+          aria-label="Reaccionar"
+          className="flex items-center gap-1 font-mono text-[10px] text-parchment-dim/60 hover:text-crema transition-colors"
+        >
+          <SmilePlus size={12} />
+          Reaccionar
+        </button>
+      </div>
 
       <ReactionSheet
         open={showSheet}

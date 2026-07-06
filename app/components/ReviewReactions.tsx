@@ -59,7 +59,7 @@ export default function ReviewReactions({
         setJustSelected(true);
         setTimeout(() => setJustSelected(false), 300);
       }
-    }, 450);
+    }, 600);
   }
   function cancelPress() {
     movedRef.current = true;
