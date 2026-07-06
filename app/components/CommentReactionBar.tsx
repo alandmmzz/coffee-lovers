@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { SmilePlus } from "lucide-react";
 
 const REACTION_EMOJIS = ["👍🏻", "👎🏻", "😂", "👀", "👄"];
@@ -20,6 +20,18 @@ export default function CommentReactionBar({
   const [myReaction, setMyReaction] = useState<string | null>(initialMyReaction);
   const [showPicker, setShowPicker] = useState(false);
   const [sending, setSending] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!showPicker) return;
+    function handleClickOutside(e: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setShowPicker(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showPicker]);
 
   async function react(emoji: string) {
     if (sending) return;
@@ -42,7 +54,7 @@ export default function CommentReactionBar({
   }
 
   return (
-    <div className="relative flex items-center gap-1 shrink-0">
+    <div ref={containerRef} className="relative flex items-center gap-1 shrink-0">
       {reactions.map((r) => (
         <button
           key={r.emoji}
