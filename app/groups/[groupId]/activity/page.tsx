@@ -43,7 +43,7 @@ export default async function GroupActivityPage({ params }: { params: { groupId:
       limit 100
     `) as unknown as CoffeeReview[];
     reviews = await attachReactions(reviews, session.user.email);
-    reviews = await attachComments(reviews);
+    reviews = await attachComments(reviews, session.user.email);
   } catch (err) {
     console.error("Error al cargar la actividad:", err);
     error = "Hubo un problema al conectar con la base de datos. Probá de nuevo en un momento.";

@@ -90,6 +90,8 @@ export type ReviewComment = {
   user_image: string | null;
   body: string;
   created_at: string;
+  reactions?: { emoji: string; count: number }[];
+  myReaction?: string | null;
 };
 
 export type Notification = {

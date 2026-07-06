@@ -67,6 +67,22 @@ body {
   animation: steam-rise 3s ease-in-out infinite;
 }
 
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.pop-in {
+  animation: pop-in 0.15s ease-out;
+  transform-origin: top right;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .steam-line {
     animation: none;

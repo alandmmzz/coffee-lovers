@@ -35,7 +35,7 @@ export default async function ProfilePage() {
       order by r.created_at desc
     `) as unknown as CoffeeReview[];
     reviews = await attachReactions(reviews, session.user.email);
-    reviews = await attachComments(reviews);
+    reviews = await attachComments(reviews, session.user.email);
 
     const rows = (await sql`
       select to_char(created_at, 'YYYY-MM-DD') as date, count(*)::int as count

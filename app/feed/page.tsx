@@ -87,7 +87,7 @@ export default async function FeedPage() {
         limit 100
       `) as unknown as CoffeeReview[];
       reviews = await attachReactions(reviews, myEmail);
-      reviews = await attachComments(reviews);
+      reviews = await attachComments(reviews, myEmail);
 
       const comments = (await sql`
         select rc.id, rc.body, rc.user_name, rc.user_email, rc.user_image, rc.created_at,

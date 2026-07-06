@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { Trash2, Send } from "lucide-react";
 import type { ReviewComment } from "@/lib/db";
+import CommentReactionBar from "./CommentReactionBar";
 
 export default function ReviewComments({
   reviewId,
@@ -62,10 +63,30 @@ export default function ReviewComments({
     }
   }
 
-  if (!open) return null;
-
   return (
     <div className="mt-3 space-y-3">
+      {open && (
+        <form onSubmit={handleSubmit} className="pop-in flex items-center gap-2">
+          <input
+            autoFocus
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            maxLength={500}
+            placeholder="Escribí un comentario..."
+            className="input-field h-9 !py-0 flex-1 text-sm"
+          />
+          <button
+            type="submit"
+            disabled={sending || !text.trim()}
+            aria-label="Enviar comentario"
+            className="h-9 w-9 flex items-center justify-center shrink-0 bg-cascara hover:bg-cascara-light disabled:opacity-50 text-cream rounded-sm transition-colors"
+          >
+            <Send size={14} />
+          </button>
+        </form>
+      )}
+      {error && <p className="font-mono text-[11px] text-cascara-light">{error}</p>}
+
       {comments.map((c) => (
         <div key={c.id} className="flex items-start gap-2">
           <div className="w-6 h-6 rounded-full overflow-hidden bg-cascara/20 flex items-center justify-center shrink-0 mt-0.5">
@@ -78,45 +99,33 @@ export default function ReviewComments({
               </span>
             )}
           </div>
-          <div className="flex-1 min-w-0 bg-parchment/[0.05] rounded-sm px-3 py-2">
+          <div className="relative flex-1 min-w-0 bg-parchment/[0.05] rounded-sm px-3 py-2">
             <div className="flex items-baseline justify-between gap-2">
               <span className="font-mono text-[11px] text-parchment">
                 {c.user_name ?? c.user_email}
               </span>
-              {session?.user?.email === c.user_email && (
-                <button
-                  type="button"
-                  onClick={() => handleDelete(c.id)}
-                  aria-label="Borrar comentario"
-                  className="text-parchment-dim/50 hover:text-cascara-light transition-colors"
-                >
-                  <Trash2 size={11} />
-                </button>
-              )}
+              <div className="flex items-center gap-2">
+                <CommentReactionBar
+                  commentId={c.id}
+                  initialReactions={c.reactions ?? []}
+                  initialMyReaction={c.myReaction ?? null}
+                />
+                {session?.user?.email === c.user_email && (
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(c.id)}
+                    aria-label="Borrar comentario"
+                    className="text-parchment-dim/50 hover:text-cascara-light transition-colors"
+                  >
+                    <Trash2 size={11} />
+                  </button>
+                )}
+              </div>
             </div>
             <p className="font-body text-sm text-parchment mt-0.5 break-words">{c.body}</p>
           </div>
         </div>
       ))}
-
-      <form onSubmit={handleSubmit} className="flex items-center gap-2">
-        <input
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          maxLength={500}
-          placeholder="Escribí un comentario..."
-          className="input-field h-9 !py-0 flex-1 text-sm"
-        />
-        <button
-          type="submit"
-          disabled={sending || !text.trim()}
-          aria-label="Enviar comentario"
-          className="h-9 w-9 flex items-center justify-center shrink-0 bg-cascara hover:bg-cascara-light disabled:opacity-50 text-cream rounded-sm transition-colors"
-        >
-          <Send size={14} />
-        </button>
-      </form>
-      {error && <p className="font-mono text-[11px] text-cascara-light">{error}</p>}
     </div>
   );
 }
