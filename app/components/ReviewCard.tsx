@@ -81,62 +81,10 @@ export default function ReviewCard({
         <div className="flex flex-col-reverse sm:flex-row gap-5">
           {/* Info — izquierda */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-4 mb-3">
-              <div>
-                <h2 className="font-display text-xl text-cream">
-                  {r.brand} — {r.line}
-                </h2>
-                <p className="font-mono text-xs text-parchment-dim mt-1">
-                  {[
-                    r.origin,
-                    r.process ? PROCESS_LABELS[r.process] ?? r.process : null,
-                    r.roast_level ? ROAST_LABELS[r.roast_level] ?? r.roast_level : null,
-                    r.brew_method,
-                  ]
-                    .filter(Boolean)
-                    .join(" · ")}
-                </p>
-                {r.has_milk && (
-                  <p className="flex items-center gap-1 font-mono text-[11px] text-parchment-dim mt-1">
-                    <Milk size={11} />
-                    Con leche{r.milk_type ? ` (${r.milk_type})` : ""}
-                  </p>
-                )}
-                {r.temperature_preference && (
-                  <p className="flex items-center gap-1 font-mono text-[11px] mt-1">
-                    {(() => {
-                      const t = TEMPERATURE_STYLES[r.temperature_preference];
-                      if (!t) return null;
-                      const Icon = t.icon;
-                      return (
-                        <>
-                          <Icon size={11} style={{ color: t.color }} />
-                          <span style={{ color: t.color }}>
-                            {TEMPERATURE_LABELS[r.temperature_preference] ?? r.temperature_preference}
-                          </span>
-                        </>
-                      );
-                    })()}
-                  </p>
-                )}
-                {r.consumption_type === "casa" && (
-                  <p className="flex items-center gap-1 font-mono text-[11px] text-parchment-dim mt-1">
-                    <Home size={11} />
-                    En casa
-                  </p>
-                )}
-                {r.consumption_type === "lugar" && r.place_name && (
-                  <a
-                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.place_name)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1 font-mono text-[11px] text-parchment-dim hover:text-crema transition-colors mt-1"
-                  >
-                    <MapPin size={11} />
-                    {r.place_name}
-                  </a>
-                )}
-              </div>
+            <div className="flex items-start justify-between gap-4">
+              <h2 className="font-display text-xl text-cream">
+                {r.brand} — {r.line}
+              </h2>
               <div className="text-right shrink-0">
                 <StarRating rating={r.overall_rating} size={16} />
                 {editable && r.id && (
@@ -151,7 +99,64 @@ export default function ReviewCard({
               </div>
             </div>
 
-            <dl className="grid grid-cols-4 sm:grid-cols-7 gap-2 mb-3">
+            <p className="font-mono text-xs text-parchment-dim mt-1">
+              {[
+                r.origin,
+                r.process ? PROCESS_LABELS[r.process] ?? r.process : null,
+                r.roast_level ? ROAST_LABELS[r.roast_level] ?? r.roast_level : null,
+                r.brew_method,
+              ]
+                .filter(Boolean)
+                .join(" · ")}
+            </p>
+
+            {r.has_milk && (
+              <p className="flex items-center gap-1 font-mono text-[11px] text-parchment-dim mt-1.5">
+                <Milk size={11} />
+                Con leche{r.milk_type ? ` (${r.milk_type})` : ""}
+              </p>
+            )}
+
+            {(r.temperature_preference || r.consumption_type) && (
+              <div className="flex items-center gap-1.5 flex-wrap mt-1.5">
+                {r.temperature_preference &&
+                  (() => {
+                    const t = TEMPERATURE_STYLES[r.temperature_preference];
+                    if (!t) return null;
+                    const Icon = t.icon;
+                    return (
+                      <span
+                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border font-mono text-[11px]"
+                        style={{ borderColor: `${t.color}55`, color: t.color }}
+                      >
+                        <Icon size={11} />
+                        {TEMPERATURE_LABELS[r.temperature_preference] ?? r.temperature_preference}
+                      </span>
+                    );
+                  })()}
+
+                {r.consumption_type === "casa" && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-parchment-dim/25 font-mono text-[11px] text-parchment-dim">
+                    <Home size={11} />
+                    En casa
+                  </span>
+                )}
+
+                {r.consumption_type === "lugar" && r.place_name && (
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.place_name)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-parchment-dim/25 font-mono text-[11px] text-parchment-dim hover:border-crema hover:text-crema transition-colors"
+                  >
+                    <MapPin size={11} />
+                    {r.place_name}
+                  </a>
+                )}
+              </div>
+            )}
+
+            <dl className="grid grid-cols-4 sm:grid-cols-7 gap-2 mb-3 mt-3">
               {ATTRIBUTES.map(({ label, key, icon: Icon, color }) => (
                 <div key={key} className="flex flex-col items-center gap-1 text-center">
                   <Icon size={14} style={{ color }} />
@@ -174,8 +179,8 @@ export default function ReviewCard({
             ) : null}
           </div>
 
-          {/* Ilustración — derecha */}
-          <div className="w-full max-w-[150px] mx-auto sm:mx-0 sm:w-32 shrink-0 opacity-75">
+          {/* Ilustración — derecha, oculta en mobile por ahora */}
+          <div className="hidden sm:block w-full max-w-[150px] mx-auto sm:mx-0 sm:w-32 shrink-0 opacity-75">
             <ReviewIllustration
               coffee={coffeeForIllustration}
               hasMilk={r.has_milk}
