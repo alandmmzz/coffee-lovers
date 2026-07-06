@@ -39,6 +39,11 @@ export default function Home() {
   const [scores, setScores] = useState<ReviewScores>(initialScores);
   const [overall, setOverall] = useState(1);
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [lastSubmitted, setLastSubmitted] = useState<{
+    coffee: Coffee;
+    hasMilk: boolean;
+    brewMethod: string;
+  } | null>(null);
   const [errorMsg, setErrorMsg] = useState("");
 
   const canSubmit =
@@ -90,6 +95,7 @@ export default function Home() {
       return;
     }
 
+    setLastSubmitted({ coffee: coffee!, hasMilk: form.has_milk, brewMethod: form.brew_method });
     setStatus("sent");
     setCoffee(null);
     setForm(initialForm);
@@ -141,8 +147,17 @@ export default function Home() {
 
   if (status === "sent") {
     return (
-      <main className="min-h-screen flex items-center justify-center px-6">
-        <div className="max-w-md text-center">
+      <main className="min-h-screen flex items-center justify-center px-6 py-16">
+        <div className="max-w-md w-full text-center">
+          {lastSubmitted && (
+            <div className="mb-8">
+              <ReviewIllustration
+                coffee={lastSubmitted.coffee}
+                hasMilk={lastSubmitted.hasMilk}
+                brewMethod={lastSubmitted.brewMethod}
+              />
+            </div>
+          )}
           <CheckCircle2 size={32} className="text-crema mx-auto mb-4" />
           <p className="font-mono text-xs tracking-[0.2em] text-crema uppercase mb-4">
             Ficha guardada
@@ -151,7 +166,10 @@ export default function Home() {
             Gracias, {session?.user?.name?.split(" ")[0]}. Tu catación quedó registrada.
           </h1>
           <button
-            onClick={() => setStatus("idle")}
+            onClick={() => {
+              setStatus("idle");
+              setLastSubmitted(null);
+            }}
             className="mt-4 px-6 py-3 bg-cascara hover:bg-cascara-light text-cream font-body text-sm rounded-sm transition-colors"
           >
             Cargar otro café
