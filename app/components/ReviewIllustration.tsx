@@ -22,15 +22,29 @@ type Placement = {
 const METHOD_PLACEMENT: Record<string, Placement> = {
   "V60 / Filtrado": { width: "66%", top: "0%", left: "54%" },
   "Prensa francesa": { width: "90%", top: "-22%", left: "44%" },
-  Moka: { width: "95%", top: "-22%", left: "44%" },
+  Moka: { width: "122%", top: "-40%", left: "19%" },
   "Cold brew": { width: "69%", top: "-8%", left: "53%" },
   Aeropress: { width: "75%", top: "-8%", left: "54%" },
   Cápsula: { width: "85%", top: "-4%", left: "55%", transform: "rotateX(25deg)" },
   Espresso: { width: "130%", top: "-45%", left: "35%" },
 };
 
-const BAG_PLACEMENT: Placement = { width: "100%", top: "-35%", left: "-30%" };
+const BAG_PLACEMENT: Placement = { width: "119%", top: "-50%", left: "-34%" };
 const CUP_WIDTH = "85%";
+const CUP_TOP = "40%";
+
+const OBJECT_SHADOW = "drop-shadow(0 8px 6px rgba(0,0,0,0.4))";
+
+function FloorGlow() {
+  return (
+    <div
+      className="absolute bottom-[2%] left-1/2 -translate-x-1/2 w-[62%] h-[16%] rounded-[50%] pointer-events-none"
+      style={{
+        background: "radial-gradient(ellipse at center, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0) 72%)",
+      }}
+    />
+  );
+}
 
 export default function ReviewIllustration({
   coffee,
@@ -56,8 +70,14 @@ export default function ReviewIllustration({
         style={{ width: BAG_PLACEMENT.width, top: BAG_PLACEMENT.top, left: BAG_PLACEMENT.left }}
       >
         <div className="relative w-full h-full" style={{ perspective: "55px" }}>
+          <FloorGlow />
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/pouch.png" alt="" className="w-full h-full object-contain drop-shadow-xl" />
+          <img
+            src="/images/pouch.png"
+            alt=""
+            className="relative w-full h-full object-contain"
+            style={{ filter: OBJECT_SHADOW }}
+          />
           {coffee?.brand_logo_url && (
             <div
               className="absolute aspect-square rounded-full overflow-hidden bg-white shadow-md flex items-center justify-center"
@@ -91,40 +111,45 @@ export default function ReviewIllustration({
             transform: methodPlacement.transform,
           }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={METHOD_IMAGES[brewMethod]}
-            alt=""
-            className="w-full h-full object-contain drop-shadow-xl"
-          />
+          <div className="relative w-full h-full">
+            <FloorGlow />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={METHOD_IMAGES[brewMethod]}
+              alt=""
+              className="relative w-full h-full object-contain"
+              style={{ filter: OBJECT_SHADOW }}
+            />
+          </div>
         </div>
       )}
 
-      {/* Taza — al frente, centro-abajo */}
+      {/* Taza — al frente, centro */}
       <div
-        className="absolute left-1/2 -translate-x-1/2 bottom-0 aspect-square z-10"
-        style={{ width: CUP_WIDTH }}
+        className="absolute left-1/2 -translate-x-1/2 aspect-square z-10"
+        style={{ width: CUP_WIDTH, top: CUP_TOP }}
       >
+        <FloorGlow />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/images/empty-cup.png"
           alt=""
-          className="absolute inset-0 w-full h-full object-contain drop-shadow-2xl transition-opacity duration-500"
-          style={{ opacity: cupState === "empty" ? 1 : 0 }}
+          className="absolute inset-0 w-full h-full object-contain transition-opacity duration-500"
+          style={{ opacity: cupState === "empty" ? 1 : 0, filter: OBJECT_SHADOW }}
         />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/images/coffee-cup.png"
           alt=""
-          className="absolute inset-0 w-full h-full object-contain drop-shadow-2xl transition-opacity duration-500"
-          style={{ opacity: cupState === "black" ? 1 : 0 }}
+          className="absolute inset-0 w-full h-full object-contain transition-opacity duration-500"
+          style={{ opacity: cupState === "black" ? 1 : 0, filter: OBJECT_SHADOW }}
         />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/images/milk-cup.png"
           alt=""
-          className="absolute inset-0 w-full h-full object-contain drop-shadow-2xl transition-opacity duration-500"
-          style={{ opacity: cupState === "milk" ? 1 : 0 }}
+          className="absolute inset-0 w-full h-full object-contain transition-opacity duration-500"
+          style={{ opacity: cupState === "milk" ? 1 : 0, filter: OBJECT_SHADOW }}
         />
       </div>
     </div>
