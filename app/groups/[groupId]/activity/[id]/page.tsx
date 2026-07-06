@@ -74,7 +74,7 @@ export default async function GroupActivityDetailPage({
   const r = review;
 
   return (
-    <main className="min-h-screen px-4 py-12 sm:py-16">
+    <main className="min-h-screen px-4 pt-4 pb-12 sm:py-16">
       <div className="max-w-xl mx-auto">
         <Link
           href={`/groups/${params.groupId}/activity`}

@@ -6,7 +6,13 @@ import Link from "next/link";
 import { ListChecks, LogOut } from "lucide-react";
 import NotificationToggle from "./NotificationToggle";
 
-export default function UserMenu() {
+export default function UserMenu({
+  direction = "down",
+  showLabel = false,
+}: {
+  direction?: "down" | "up";
+  showLabel?: boolean;
+}) {
   const { data: session, status } = useSession();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -33,22 +39,29 @@ export default function UserMenu() {
         onClick={() => setOpen((o) => !o)}
         aria-label="Menú de usuario"
         aria-expanded={open}
-        className="w-9 h-9 rounded-full overflow-hidden border-2 border-parchment-dim/30 hover:border-crema transition-colors flex items-center justify-center bg-cascara/25 shrink-0"
+        className="flex flex-col items-center gap-0.5"
       >
-        {session?.user?.image ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={session.user.image}
-            alt={session.user.name ?? "Tu perfil"}
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <span className="font-mono text-xs text-cream">{initial}</span>
-        )}
+        <span className="w-9 h-9 rounded-full overflow-hidden border-2 border-parchment-dim/30 hover:border-crema transition-colors flex items-center justify-center bg-cascara/25 shrink-0">
+          {session?.user?.image ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={session.user.image}
+              alt={session.user.name ?? "Tu perfil"}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <span className="font-mono text-xs text-cream">{initial}</span>
+          )}
+        </span>
+        {showLabel && <span className="font-mono text-[10px] text-parchment-dim">Perfil</span>}
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-60 bg-ink-soft border border-parchment-dim/20 rounded-sm shadow-xl py-2 z-50">
+        <div
+          className={`absolute right-0 w-60 bg-ink-soft border border-parchment-dim/20 rounded-sm shadow-xl py-2 z-50 ${
+            direction === "up" ? "bottom-full mb-2" : "mt-2"
+          }`}
+        >
           {session ? (
             <>
               <div className="px-4 py-2.5 border-b border-parchment-dim/15">

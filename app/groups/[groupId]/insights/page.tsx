@@ -104,7 +104,7 @@ export default async function GroupInsightsPage({ params }: { params: { groupId:
   }
 
   return (
-    <main className="min-h-screen px-4 py-12 sm:py-16">
+    <main className="min-h-screen px-4 pt-4 pb-12 sm:py-16">
       <div className="max-w-2xl mx-auto">
         <GroupTabs groupId={params.groupId} groupName={group?.name} />
 

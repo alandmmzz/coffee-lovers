@@ -3,6 +3,8 @@ import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import AuthProvider from "./components/AuthProvider";
 import Header from "./components/Header";
+import MobileTopBrand from "./components/MobileTopBrand";
+import MobileBottomNav from "./components/MobileBottomNav";
 import NotificationPrompt from "./components/NotificationPrompt";
 import InstallPrompt from "./components/InstallPrompt";
 
@@ -49,12 +51,14 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body
-        className={`${fraunces.variable} ${inter.variable} ${jetbrainsMono.variable} font-body bg-ink text-cream antialiased`}
+        className={`${fraunces.variable} ${inter.variable} ${jetbrainsMono.variable} font-body bg-ink text-cream antialiased pb-16 sm:pb-0`}
       >
         <AuthProvider>
           <Header />
+          <MobileTopBrand />
           {children}
           <NotificationPrompt />
+          <MobileBottomNav />
         </AuthProvider>
         <InstallPrompt />
       </body>

@@ -38,7 +38,7 @@ export default async function AdminCoffeesPage() {
   const brands = [...new Set(coffees.map((c) => c.brand))].sort();
 
   return (
-    <main className="min-h-screen px-4 py-12 sm:py-16">
+    <main className="min-h-screen px-4 pt-4 pb-12 sm:py-16">
       <div className="max-w-2xl mx-auto">
         <header className="mb-10">
           <p className="font-mono text-xs tracking-[0.2em] text-crema uppercase mb-3">

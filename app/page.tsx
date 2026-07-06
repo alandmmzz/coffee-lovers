@@ -187,7 +187,7 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen px-4 py-12 sm:py-16">
+    <main className="min-h-screen px-4 pt-4 pb-12 sm:py-16">
       <div className="max-w-xl lg:max-w-4xl mx-auto lg:flex lg:items-start lg:gap-12">
         <div className="max-w-xl">
           <header className="mb-10">

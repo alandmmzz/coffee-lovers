@@ -92,7 +92,7 @@ export default async function ProfilePage() {
   const places = [...placesMap.values()].sort((a, b) => b.count - a.count);
 
   return (
-    <main className="min-h-screen px-4 py-12 sm:py-16">
+    <main className="min-h-screen px-4 pt-4 pb-12 sm:py-16">
       <div className="max-w-3xl mx-auto">
         <header className="mb-10">
           <div className="flex items-center gap-4 mb-6">

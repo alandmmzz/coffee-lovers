@@ -38,7 +38,7 @@ export default async function EditReviewPage({ params }: { params: { id: string 
   }
 
   return (
-    <main className="min-h-screen px-4 py-12 sm:py-16">
+    <main className="min-h-screen px-4 pt-4 pb-12 sm:py-16">
       <div className="max-w-xl lg:max-w-4xl mx-auto">
         <div className="max-w-xl mb-10">
           <header>

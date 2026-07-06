@@ -158,7 +158,7 @@ export default async function FeedPage() {
   }
 
   return (
-    <main className="min-h-screen px-4 py-12 sm:py-16">
+    <main className="min-h-screen px-4 pt-4 pb-12 sm:py-16">
       <div className="max-w-3xl mx-auto">
         <header className="mb-8 flex items-end justify-between gap-4">
           <div>

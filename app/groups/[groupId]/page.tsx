@@ -49,7 +49,7 @@ export default async function GroupPage({ params }: { params: { groupId: string 
   }
 
   return (
-    <main className="min-h-screen px-4 py-12 sm:py-16">
+    <main className="min-h-screen px-4 pt-4 pb-12 sm:py-16">
       <div className="max-w-xl mx-auto">
         <GroupHeader group={group} />
 
