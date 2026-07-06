@@ -21,7 +21,7 @@ body {
 /* Focus visible consistente y accesible en toda la app */
 :focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(212, 168, 87, 0.35);
+  box-shadow: 0 0 0 3px #241812, 0 0 0 5px rgba(212, 168, 87, 0.45);
   border-radius: 2px;
 }
 
@@ -71,6 +71,52 @@ body {
   .steam-line {
     animation: none;
   }
+}
+
+/* Sliders (type=range): el navegador pinta el riel blanco/gris por
+   default y accent-color no alcanza a controlarlo, así que lo
+   reescribimos entero para que combine con el resto de la app. */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(237, 227, 208, 0.12);
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(237, 227, 208, 0.12);
+}
+
+input[type="range"]::-moz-range-track {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(237, 227, 208, 0.12);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #A23B2E;
+  border: 2px solid #F2E9DC;
+  margin-top: -5px;
+  cursor: pointer;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #A23B2E;
+  border: 2px solid #F2E9DC;
+  cursor: pointer;
 }
 
 .field-label {
