@@ -150,7 +150,7 @@ export default function Home() {
       <main className="min-h-screen flex items-center justify-center px-6 py-16">
         <div className="max-w-md w-full text-center">
           {lastSubmitted && (
-            <div className="mb-8">
+            <div className="mb-10 max-w-[190px] mx-auto">
               <ReviewIllustration
                 coffee={lastSubmitted.coffee}
                 hasMilk={lastSubmitted.hasMilk}
