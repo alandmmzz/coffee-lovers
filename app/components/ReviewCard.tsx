@@ -1,6 +1,9 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import { Milk, Pencil, Snowflake, Thermometer, Flame, Wind, Citrus, Candy, Layers, Leaf, Clock, Scale, MapPin, Home } from "lucide-react";
-import type { CoffeeReview, Coffee } from "@/lib/db";
+import type { CoffeeReview, Coffee, ReviewComment } from "@/lib/db";
 import { ROAST_LABELS, PROCESS_LABELS, TEMPERATURE_LABELS } from "@/lib/constants";
 import StarRating from "./StarRating";
 import ReviewIllustration from "./ReviewIllustration";
@@ -46,6 +49,9 @@ export default function ReviewCard({
       }
     : null;
 
+  const [commentsOpen, setCommentsOpen] = useState(false);
+  const [comments, setComments] = useState<ReviewComment[]>(r.comments ?? []);
+
   return (
     <div>
       <div className="mb-2 flex items-center gap-2">
@@ -69,6 +75,8 @@ export default function ReviewCard({
         reviewId={r.id ?? ""}
         initialReactions={r.reactions ?? []}
         initialMyReaction={r.myReaction ?? null}
+        commentCount={comments.length}
+        onToggleComments={() => setCommentsOpen((o) => !o)}
       >
         <div className="flex flex-col-reverse sm:flex-row gap-5">
           {/* Info — izquierda */}
@@ -176,7 +184,12 @@ export default function ReviewCard({
           </div>
         </div>
 
-        <ReviewComments reviewId={r.id ?? ""} initialComments={r.comments ?? []} />
+        <ReviewComments
+          reviewId={r.id ?? ""}
+          initialComments={r.comments ?? []}
+          open={commentsOpen}
+          onCommentsChange={setComments}
+        />
       </ReviewReactions>
     </div>
   );

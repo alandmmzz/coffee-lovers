@@ -19,7 +19,7 @@ body {
 }
 
 /* Focus visible consistente y accesible en toda la app */
-:focus-visible {
+:focus-visible:not(.input-field) {
   outline: none;
   box-shadow: 0 0 0 3px #241812, 0 0 0 5px rgba(212, 168, 87, 0.45);
   border-radius: 2px;

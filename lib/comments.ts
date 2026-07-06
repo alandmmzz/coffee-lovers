@@ -9,7 +9,7 @@ export async function attachComments(reviews: CoffeeReview[]): Promise<CoffeeRev
   try {
     rows = (await sql`
       select * from review_comments
-      where review_id = any(${ids})
+      where review_id = any(${ids}::uuid[])
       order by created_at asc
     `) as unknown as ReviewComment[];
   } catch (err) {

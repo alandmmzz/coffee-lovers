@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, type ReactNode } from "react";
+import { MessageCircle } from "lucide-react";
 
 const REACTION_EMOJIS = ["👍🏻", "👎🏻", "😂", "👀", "👄"];
 
@@ -10,11 +11,15 @@ export default function ReviewReactions({
   reviewId,
   initialReactions,
   initialMyReaction,
+  commentCount,
+  onToggleComments,
   children,
 }: {
   reviewId: string;
   initialReactions: ReactionCount[];
   initialMyReaction: string | null;
+  commentCount: number;
+  onToggleComments: () => void;
   children: ReactNode;
 }) {
   const [reactions, setReactions] = useState<ReactionCount[]>(initialReactions);
@@ -72,8 +77,8 @@ export default function ReviewReactions({
     >
       {children}
 
-      {reactions.length > 0 && (
-        <div className="flex items-center gap-1.5 flex-wrap mt-3 pt-3 border-t border-parchment-dim/15">
+      <div className="flex items-center justify-between gap-2 flex-wrap mt-3 pt-3 border-t border-parchment-dim/15">
+        <div className="flex items-center gap-1.5 flex-wrap">
           {reactions.map((r) => (
             <button
               key={r.emoji}
@@ -92,11 +97,20 @@ export default function ReviewReactions({
             </button>
           ))}
         </div>
-      )}
+
+        <button
+          type="button"
+          onClick={onToggleComments}
+          className="flex items-center gap-1.5 font-mono text-xs text-parchment-dim hover:text-crema transition-colors"
+        >
+          <MessageCircle size={13} />
+          {commentCount > 0 ? `${commentCount} comentario${commentCount === 1 ? "" : "s"}` : "Comentar"}
+        </button>
+      </div>
 
       {showPicker && (
         <div
-          className="absolute bottom-full left-5 flex gap-1 bg-ink-soft border border-parchment-dim/25 rounded-full px-2.5 py-1.5 shadow-xl z-20"
+          className="absolute bottom-full right-5 flex gap-1 bg-ink-soft border border-parchment-dim/25 rounded-full px-2.5 py-1.5 shadow-xl z-20"
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >

@@ -15,13 +15,13 @@ export async function attachReactions(
     counts = (await sql`
       select review_id, emoji, count(*)::int as count
       from review_reactions
-      where review_id = any(${ids})
+      where review_id = any(${ids}::uuid[])
       group by review_id, emoji
     `) as unknown as typeof counts;
 
     mine = (await sql`
       select review_id, emoji from review_reactions
-      where review_id = any(${ids}) and user_email = ${myEmail}
+      where review_id = any(${ids}::uuid[]) and user_email = ${myEmail}
     `) as unknown as typeof mine;
   } catch (err) {
     console.error('Error al traer reacciones:', err);
