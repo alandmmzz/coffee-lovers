@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import { Plus, Users, MessageCircle } from "lucide-react";
+import { Plus, Users, MessageCircle, Coffee, Star, Award } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import sql from "@/lib/db";
 import type { CoffeeReview, Group } from "@/lib/db";
@@ -47,6 +47,12 @@ export default async function FeedPage() {
   let groups: GroupWithMembers[] = [];
   let items: FeedItem[] = [];
   let error: string | null = null;
+  let myStats: {
+    total_reviews: number;
+    avg_rating: number | null;
+    favorite_method: string | null;
+    favorite_brand: string | null;
+  } | null = null;
 
   try {
     const myGroups = (await sql`
@@ -73,6 +79,35 @@ export default async function FeedPage() {
         };
       })
     );
+
+    const myStatsRows = (await sql`
+      select
+        count(*)::int as total_reviews,
+        round(avg(overall_rating)::numeric, 1) as avg_rating,
+        (
+          select brew_method from coffee_reviews
+          where user_email = ${myEmail}
+          group by brew_method
+          order by count(*) desc
+          limit 1
+        ) as favorite_method,
+        (
+          select c.brand from coffee_reviews r2
+          join coffees c on c.id = r2.coffee_id
+          where r2.user_email = ${myEmail}
+          group by c.brand
+          order by count(*) desc
+          limit 1
+        ) as favorite_brand
+      from coffee_reviews
+      where user_email = ${myEmail}
+    `) as unknown as {
+      total_reviews: number;
+      avg_rating: number | null;
+      favorite_method: string | null;
+      favorite_brand: string | null;
+    }[];
+    myStats = myStatsRows[0] ?? null;
 
     if (myGroups.length > 0) {
       let reviews = (await sql`
@@ -162,7 +197,7 @@ export default async function FeedPage() {
   return (
     <main className="min-h-screen px-4 pt-4 pb-12 sm:py-16">
       <div className="max-w-3xl mx-auto">
-        <header className="mb-8 flex items-end justify-between gap-4">
+        <header className="mb-5 flex items-end justify-between gap-4">
           <div>
             <p className="font-mono text-xs tracking-[0.2em] text-crema uppercase mb-3">
               Coffee Lovers
@@ -180,6 +215,40 @@ export default async function FeedPage() {
 
         {error && <p className="text-cascara-light text-sm">{error}</p>}
 
+        {!error && myStats && myStats.total_reviews > 0 && (
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 mb-3 -mx-4 px-4 sm:mx-0 sm:px-0 snap-x snap-mandatory">
+            <div className="shrink-0 snap-start flex items-center gap-1.5 bg-parchment/[0.04] border border-parchment-dim/15 rounded-full px-3 py-1.5">
+              <Coffee size={12} className="text-crema shrink-0" />
+              <span className="font-mono text-[11px] text-parchment-dim whitespace-nowrap">
+                {myStats.total_reviews} {myStats.total_reviews === 1 ? "review" : "reviews"}
+              </span>
+            </div>
+            {myStats.avg_rating != null && (
+              <div className="shrink-0 snap-start flex items-center gap-1.5 bg-parchment/[0.04] border border-parchment-dim/15 rounded-full px-3 py-1.5">
+                <Star size={12} className="text-crema shrink-0" />
+                <span className="font-mono text-[11px] text-parchment-dim whitespace-nowrap">
+                  promedio {myStats.avg_rating}
+                </span>
+              </div>
+            )}
+            {myStats.favorite_method && (
+              <div className="shrink-0 snap-start flex items-center gap-1.5 bg-parchment/[0.04] border border-parchment-dim/15 rounded-full px-3 py-1.5">
+                <Award size={12} className="text-crema shrink-0" />
+                <span className="font-mono text-[11px] text-parchment-dim whitespace-nowrap">
+                  {myStats.favorite_method}
+                </span>
+              </div>
+            )}
+            {myStats.favorite_brand && (
+              <div className="shrink-0 snap-start flex items-center gap-1.5 bg-parchment/[0.04] border border-parchment-dim/15 rounded-full px-3 py-1.5">
+                <span className="font-mono text-[11px] text-parchment-dim whitespace-nowrap">
+                  ☕ {myStats.favorite_brand}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+
         {!error && groups.length === 0 && (
           <p className="font-body text-parchment-dim mb-10">
             Todavía no sos parte de ningún grupo. Creá uno, o pedile el link de invitación a
@@ -189,46 +258,24 @@ export default async function FeedPage() {
 
         {!error && groups.length > 0 && (
           <>
-            {/* Carrusel de grupos */}
-            <div className="flex gap-3 overflow-x-auto pb-3 mb-10 -mx-4 px-4 snap-x snap-mandatory">
+            {/* Carrusel de grupos, formato chip compacto */}
+            <div className="flex gap-2 overflow-x-auto pb-2 mb-6 -mx-4 px-4 snap-x snap-mandatory">
               {groups.map((g) => (
                 <Link
                   key={g.id}
                   href={`/groups/${g.id}`}
-                  className="shrink-0 w-40 snap-start bg-parchment/[0.04] border border-parchment-dim/15 rounded-sm p-4 hover:border-crema transition-colors"
+                  className="shrink-0 snap-start flex items-center gap-2 bg-parchment/[0.04] border border-parchment-dim/15 rounded-full pl-1.5 pr-3 py-1.5 hover:border-crema transition-colors"
                 >
-                  <div className="w-12 h-12 rounded-full overflow-hidden bg-cascara/20 flex items-center justify-center mb-3">
+                  <div className="w-6 h-6 rounded-full overflow-hidden bg-cascara/20 flex items-center justify-center shrink-0">
                     {g.image_url ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={g.image_url} alt={g.name} className="w-full h-full object-cover" />
                     ) : (
-                      <Users size={18} className="text-cream" />
+                      <Users size={11} className="text-cream" />
                     )}
                   </div>
-                  <p className="font-body text-sm text-cream truncate">{g.name}</p>
-                  <div className="flex items-center mt-2">
-                    <div className="flex -space-x-2">
-                      {g.avatars.slice(0, 4).map((avatar, i) =>
-                        avatar ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            key={i}
-                            src={avatar}
-                            alt=""
-                            className="w-5 h-5 rounded-full object-cover border-2 border-ink"
-                          />
-                        ) : (
-                          <div
-                            key={i}
-                            className="w-5 h-5 rounded-full bg-parchment-dim/20 border-2 border-ink"
-                          />
-                        )
-                      )}
-                    </div>
-                    <span className="font-mono text-[10px] text-parchment-dim ml-2">
-                      {g.member_count}
-                    </span>
-                  </div>
+                  <span className="font-body text-xs text-cream whitespace-nowrap">{g.name}</span>
+                  <span className="font-mono text-[10px] text-parchment-dim">{g.member_count}</span>
                 </Link>
               ))}
             </div>
