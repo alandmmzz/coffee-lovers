@@ -26,7 +26,7 @@ const METHOD_PLACEMENT: Record<string, Placement> = {
   "Prensa francesa": { width: "104%", top: "-16%", left: "36%" },
   Moka: { width: "122%", top: "-25%", left: "19%" },
   "Cold brew": { width: "90%", top: "-3%", left: "39%" },
-  Aeropress: { width: "75%", top: "7%", left: "54%" },
+  Aeropress: { width: "75%", top: "7%", left: "32%" },
   Cápsula: { width: "85%", top: "11%", left: "55%", transform: "rotateX(25deg)" },
   Otro: { width: "128%", top: "-18%", left: "36%", transform: "rotate(4deg) rotateY(180deg)" },
 };
@@ -37,16 +37,31 @@ const CUP_TOP = "55%";
 
 const OBJECT_SHADOW = "drop-shadow(0 8px 6px rgba(0,0,0,0.4))";
 
-function FloorGlow() {
+function FloorGlow({
+  width = "62%",
+  height = "16%",
+  bottom = "2%",
+}: {
+  width?: string;
+  height?: string;
+  bottom?: string;
+}) {
   return (
     <div
-      className="absolute bottom-[2%] left-1/2 -translate-x-1/2 w-[62%] h-[16%] rounded-[50%] pointer-events-none"
+      className="absolute left-1/2 -translate-x-1/2 rounded-[50%] pointer-events-none"
       style={{
+        width,
+        height,
+        bottom,
         background: "radial-gradient(ellipse at center, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0) 72%)",
       }}
     />
   );
 }
+
+const FLOOR_GLOW_OVERRIDES: Record<string, { width?: string; height?: string; bottom?: string }> = {
+  Aeropress: { width: "60%", height: "36%", bottom: "10%" },
+};
 
 export default function ReviewIllustration({
   coffee,
@@ -118,7 +133,7 @@ export default function ReviewIllustration({
           }}
         >
           <div className="relative w-full h-full">
-            <FloorGlow />
+            <FloorGlow {...(FLOOR_GLOW_OVERRIDES[method] ?? {})} />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={METHOD_IMAGES[method]}
