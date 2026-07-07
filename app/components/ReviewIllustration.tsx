@@ -94,7 +94,8 @@ export default function ReviewIllustration({
               <img
                 src={coffee.brand_logo_url}
                 alt={coffee.brand}
-                className="w-full h-full object-contain p-0.5"
+                className="w-full h-full object-contain"
+                style={{ padding: "15%" }}
               />
             </div>
           )}
