@@ -23,10 +23,10 @@ type Placement = {
 const METHOD_PLACEMENT: Record<string, Placement> = {
   Espresso: { width: "190%", top: "-67%", left: "15%" },
   "V60 / Filtrado": { width: "78%", top: "6%", left: "40%" },
-  "Prensa francesa": { width: "104%", top: "-16%", left: "36%" },
+  "Prensa francesa": { width: "125%", top: "-29%", left: "28%" },
   Moka: { width: "122%", top: "-25%", left: "19%" },
   "Cold brew": { width: "90%", top: "-3%", left: "39%" },
-  Aeropress: { width: "75%", top: "7%", left: "32%" },
+  Aeropress: { width: "110%", top: "-11%", left: "33%" },
   Cápsula: { width: "85%", top: "11%", left: "55%", transform: "rotateX(25deg)" },
   Otro: { width: "128%", top: "-18%", left: "36%", transform: "rotate(4deg) rotateY(180deg)" },
 };
@@ -77,7 +77,10 @@ export default function ReviewIllustration({
   const cupState: "empty" | "black" | "milk" = !showMethod ? "empty" : hasMilk ? "milk" : "black";
 
   return (
-    <div className="relative w-full max-w-[480px] mx-auto" style={{ aspectRatio: "4 / 5" }}>
+    <div
+      className="relative w-full max-w-[480px] mx-auto pointer-events-none"
+      style={{ aspectRatio: "4 / 5" }}
+    >
       {/* Bolsa de café */}
       <div
         className={`absolute aspect-square transition-opacity duration-500 ${

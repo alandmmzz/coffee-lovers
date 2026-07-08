@@ -221,10 +221,13 @@ incluso con la app cerrada.
 
 Cada review ahora tiene, además de toda la info:
 
-- **Reacciones** (👍🏻 👎🏻 😂 👀 👄): pasar el mouse por la tarjeta (desktop)
-  o mantenerla pulsada ~450ms (mobile) despliega los 5 emojis. Una persona
-  tiene una sola reacción activa por review — tocar otra la reemplaza,
-  tocar la misma la saca. Se guardan en `review_reactions`.
+- **Reacciones** (👍🏻 👎🏻 😂 👀 👄): un botón "Reaccionar" al lado de
+  "Comentar" despliega el selector de emojis justo arriba (funciona igual
+  con click en desktop que con touch en mobile — ya no depende de hover).
+  Además, mantener pulsada la tarjeta (~600ms) abre un modal más completo
+  con el detalle de quién reaccionó con qué y, si es tuya, editar/eliminar.
+  Una persona tiene una sola reacción activa por review — tocar otra la
+  reemplaza, tocar la misma la saca. Se guardan en `review_reactions`.
 - **Comentarios**: un contador ("Comentar" / "3 comentarios") despliega
   la lista + un input para escribir. Podés borrar los tuyos. Se guardan en
   `review_comments`.
@@ -245,10 +248,14 @@ entrada ("Fulano comentó en la review de Mengano sobre Doré — 06: '...'").
 
 `/feed` reemplazó a la vieja pantalla de "Grupos" en el menú. Tiene dos partes:
 
-- **Carrusel de grupos** arriba: tarjeta con foto, nombre y avatares de los
-  miembros de cada grupo tuyo. Tocar una te lleva a `/groups/[id]` (ahí
-  siguen viviendo el link de invitación, la lista completa de miembros,
-  y las pestañas Actividad/Insights de ESE grupo puntual).
+- **Chips de grupos** arriba: uno por cada grupo tuyo, formato compacto
+  (avatar chico + nombre + cantidad de miembros, todo en una fila). Tocar
+  uno te lleva a `/groups/[id]` (ahí siguen viviendo el link de invitación,
+  la lista completa de miembros, y las pestañas Actividad/Insights de ESE
+  grupo puntual).
+- **Stats personales** justo arriba de los chips (si ya cargaste alguna
+  review): cantidad total de reviews, tu promedio de puntaje, tu método de
+  preparación más usado y tu marca favorita (la que más catás).
 - **Feed combinado** abajo: todas las reviews de gente con la que compartís
   **algún** grupo (no solo uno), en orden cronológico, con la tarjeta
   completa (info + las 3 imágenes).
@@ -386,7 +393,9 @@ tiene dos secciones:
 
 - `app/notifications/page.tsx` — reacciones y comentarios que recibiste
 - `app/components/NotificationBell.tsx` — campanita con contador en el header
-- `app/components/ReviewReactions.tsx` — picker de emojis (hover/long-press) + badges
+- `app/components/ReviewReactions.tsx` — botón Reaccionar + picker por click y modal de detalle (long-press) para reviews
+- `app/components/CommentReactionBar.tsx` — lo mismo que ReviewReactions pero para comentarios
+- `app/components/ReactionSheet.tsx` — modal compartido con detalle de reacciones, editar/eliminar
 - `app/components/ReviewComments.tsx` — contador, lista y form de comentarios
 - `app/api/notifications/unread-count/route.ts` — cantidad de no leídas
 - `app/api/notifications/mark-read/route.ts` — marcar todas como leídas
@@ -434,6 +443,8 @@ tiene dos secciones:
 - `app/components/NotificationPrompt.tsx` — banner que pregunta por activar notificaciones la primera vez
 - `app/components/InstallPrompt.tsx` — banner que sugiere instalar la app, solo en mobile
 - `app/components/ReviewCard.tsx` — tarjeta de review (info + las 3 imágenes), reutilizada en el Feed, Actividad de grupo y perfiles
+- `app/components/ReviewIllustration.tsx` — la ilustración de bolsa + método de preparación + taza (posiciones ajustadas a mano por método)
+- `app/components/BrewMethodArt.tsx` — íconos SVG chicos de cada método (usados en el selector del form, no en la ilustración grande)
 - `lib/auth.ts` — configuración de NextAuth (providers, callbacks, registro de logins)
 - `lib/db.ts` — cliente de conexión a Neon y tipos
 - `lib/push.ts` — envío de notificaciones push a conexiones compartidas (mismo grupo)
